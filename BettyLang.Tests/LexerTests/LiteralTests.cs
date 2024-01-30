@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Tests.LexerTests
 {
-    public class GeneralLexerTests
+    public class LiteralTests
     {
         [Theory]
         [InlineData("123", "123")]
@@ -48,73 +48,6 @@
 
             Assert.Equal(expectedTokenType, token.Type);
             Assert.Equal(input, token.Value);
-        }
-
-        [Fact]
-        public void GetNextToken_ReturnsEOFForEmptyInput()
-        {
-            var lexer = new Lexer("");
-
-            var token = lexer.GetNextToken();
-
-            Assert.Equal(TokenType.EOF, token.Type);
-        }
-
-        [Theory]
-        [InlineData("func", TokenType.Function)]
-        [InlineData("if", TokenType.If)]
-        [InlineData("elif", TokenType.Elif)]
-        [InlineData("else", TokenType.Else)]
-        [InlineData("while", TokenType.While)]
-        [InlineData("break", TokenType.Break)]
-        [InlineData("continue", TokenType.Continue)]
-        [InlineData("return", TokenType.Return)]
-        public void GetNextToken_HandlesKeywordsCorrectly(string input, TokenType expectedTokenType)
-        {
-            var lexer = new Lexer(input);
-
-            var token = lexer.GetNextToken();
-
-            Assert.Equal(expectedTokenType, token.Type);
-        }
-
-        [Fact]
-        public void GetNextToken_ParsesSequenceOfTokensCorrectly()
-        {
-            // Arrange
-            var input = "x = 10;";
-            var lexer = new Lexer(input);
-            var expectedTokens = new List<TokenType> {
-                TokenType.Identifier, TokenType.Assignment,
-                TokenType.NumberLiteral, TokenType.Semicolon,
-                TokenType.EOF };
-
-            // Act
-            var tokens = new List<TokenType>();
-            Token token;
-            do
-            {
-                token = lexer.GetNextToken();
-                tokens.Add(token.Type);
-            } while (token.Type != TokenType.EOF);
-
-            // Assert
-            Assert.Equal(expectedTokens, tokens);
-        }
-
-        [Fact]
-        public void PeekNextToken_ReturnsNextTokenWithoutAdvancingPosition()
-        {
-            // Arrange
-            var input = "x = 10;";
-            var lexer = new Lexer(input);
-
-            // Act
-            var peekedToken = lexer.PeekNextToken();
-            var nextToken = lexer.GetNextToken();
-
-            // Assert
-            Assert.Equal(peekedToken.Type, nextToken.Type);
         }
 
         [Fact]
