@@ -48,6 +48,12 @@ namespace BettyLang.Core
             _parser = parser;
         }
 
+        public object Interpret()
+        {
+            var tree = _parser.Parse();
+            return tree.Accept(this);
+        }
+
         public object Visit(ProgramNode node)
         {
             // Visit each function definition and store it in a dictionary
@@ -70,7 +76,7 @@ namespace BettyLang.Core
 
         public object Visit(TernaryOperatorNode node)
         {
-            var conditionResult = (bool)node.Condition.Accept(this);
+            bool conditionResult = (bool)node.Condition.Accept(this);
             return conditionResult ? node.TrueExpression.Accept(this) : node.FalseExpression.Accept(this);
         }
 
@@ -251,7 +257,7 @@ namespace BettyLang.Core
             throw new Exception($"Unsupported binary operator: {node.Operator.Type}");
         }
 
-        public object Visit(BooleanLiteralNode node) => node.Value;
+        public bool Visit(BooleanLiteralNode node) => node.Value;
 
         public double Visit(NumberLiteralNode node) => node.Value;
 
@@ -420,12 +426,6 @@ namespace BettyLang.Core
             }
 
             throw new InvalidOperationException($"Unsupported unary operator {op}");
-        }
-
-        public object Interpret()
-        {
-            var tree = _parser.Parse();
-            return tree.Accept(this);
         }
 
         private void EnterScope()
