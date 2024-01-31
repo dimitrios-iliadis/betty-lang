@@ -9,6 +9,6 @@
             ReturnValue = returnValue;
         }
 
-        public override InterpreterResult Accept(INodeVisitor visitor) => visitor.Visit(this);
+        public override object Accept(INodeVisitor visitor) => visitor.Visit(this);
     }
 }

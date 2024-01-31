@@ -2,23 +2,23 @@
 {
     public interface INodeVisitor
     {
-        InterpreterResult Visit(BinaryOperatorNode node);
-        InterpreterResult Visit(NumberLiteralNode node);
-        InterpreterResult Visit(StringLiteralNode node);
-        InterpreterResult Visit(UnaryOperatorNode node);
-        InterpreterResult Visit(CompoundStatementNode node);
-        InterpreterResult Visit(AssignmentNode node);
-        InterpreterResult Visit(VariableNode node);
-        InterpreterResult Visit(EmptyStatementNode node);
-        InterpreterResult Visit(FunctionDefinitionNode node);
-        InterpreterResult Visit(FunctionCallNode node);
-        InterpreterResult Visit(BooleanLiteralNode node);
-        InterpreterResult Visit(IfStatementNode node);
-        InterpreterResult Visit(WhileStatementNode node);
-        InterpreterResult Visit(BreakStatementNode node);
-        InterpreterResult Visit(ContinueStatementNode node);
-        InterpreterResult Visit(ReturnStatementNode node);
-        InterpreterResult Visit(TernaryOperatorNode node);
-        InterpreterResult Visit(ProgramNode node);
+        object Visit(BinaryOperatorNode node);
+        double Visit(NumberLiteralNode node);
+        string Visit(StringLiteralNode node);
+        object Visit(UnaryOperatorNode node);
+        object Visit(CompoundStatementNode node);
+        object Visit(AssignmentNode node);
+        object Visit(VariableNode node);
+        object Visit(EmptyStatementNode node);
+        object Visit(FunctionDefinitionNode node);
+        object Visit(FunctionCallNode node);
+        object Visit(BooleanLiteralNode node);
+        object Visit(IfStatementNode node);
+        object Visit(WhileStatementNode node);
+        object Visit(BreakStatementNode node);
+        object Visit(ContinueStatementNode node);
+        object Visit(ReturnStatementNode node);
+        object Visit(TernaryOperatorNode node);
+        object Visit(ProgramNode node);
     }
 }

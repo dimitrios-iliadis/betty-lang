@@ -8,7 +8,7 @@
             var code = "return true && true;";
             var interpreter = SetupInterpreter(code);
             var result = interpreter.Interpret();
-            Assert.True(result.AsBoolean());
+            Assert.True((bool)result);
         }
 
         [Fact]
@@ -17,7 +17,7 @@
             var code = "return true && false;";
             var interpreter = SetupInterpreter(code);
             var result = interpreter.Interpret();
-            Assert.False(result.AsBoolean());
+            Assert.False((bool)result);
         }
 
         [Fact]
@@ -26,7 +26,7 @@
             var code = "return false || false;";
             var interpreter = SetupInterpreter(code);
             var result = interpreter.Interpret();
-            Assert.False(result.AsBoolean());
+            Assert.False((bool)result);
         }
 
         [Fact]
@@ -35,7 +35,7 @@
             var code = "return false || true;";
             var interpreter = SetupInterpreter(code);
             var result = interpreter.Interpret();
-            Assert.True(result.AsBoolean());
+            Assert.True((bool)result);
         }
 
         [Fact]
@@ -44,7 +44,7 @@
             var code = "return !true;";
             var interpreter = SetupInterpreter(code);
             var result = interpreter.Interpret();
-            Assert.False(result.AsBoolean());
+            Assert.False((bool)result);
         }
 
         [Fact]
@@ -53,7 +53,7 @@
             var code = "return !false;";
             var interpreter = SetupInterpreter(code);
             var result = interpreter.Interpret();
-            Assert.True(result.AsBoolean());
+            Assert.True((bool)result);
         }
     }
 }

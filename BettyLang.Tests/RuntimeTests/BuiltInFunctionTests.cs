@@ -65,7 +65,7 @@
 
             var result = interpreter.Interpret();
 
-            Assert.Equal(5.0, result.AsDouble());
+            Assert.Equal(5.0, (double)result);
         }
 
         [Fact]
@@ -78,7 +78,7 @@
 
             var result = interpreter.Interpret();
 
-            Assert.Equal(5.0, result.AsDouble());
+            Assert.Equal(5.0, (double)result);
         }
     }
 }

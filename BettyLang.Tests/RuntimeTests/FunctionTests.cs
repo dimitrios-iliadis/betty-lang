@@ -11,7 +11,7 @@
             ";
             var interpreter = SetupInterpreterCustom(code);
             var result = interpreter.Interpret();
-            Assert.Equal(42, result.AsDouble());
+            Assert.Equal(42, (double)result);
         }
 
         [Fact]
@@ -23,7 +23,7 @@
             ";
             var interpreter = SetupInterpreterCustom(code);
             var result = interpreter.Interpret();
-            Assert.Equal(12, result.AsDouble());
+            Assert.Equal(12, (double)result);
         }
 
         [Fact]
@@ -38,7 +38,7 @@
             ";
             var interpreter = SetupInterpreterCustom(code);
             var result = interpreter.Interpret();
-            Assert.Equal(120, result.AsDouble());
+            Assert.Equal(120, (double)result);
         }
 
         [Fact]
@@ -51,7 +51,7 @@
             ";
             var interpreter = SetupInterpreterCustom(code);
             var result = interpreter.Interpret();
-            Assert.Equal(9 + 16, result.AsDouble()); // 3*3 + 4*4
+            Assert.Equal(9 + 16, (double)result); // 3*3 + 4*4
         }
 
         [Fact]
@@ -71,7 +71,7 @@
             ";
             var interpreter = SetupInterpreterCustom(code);
             var result = interpreter.Interpret();
-            Assert.Equal(15, result.AsDouble()); // Sum of 1 to 5
+            Assert.Equal(15, (double)result); // Sum of 1 to 5
         }
     }
 }

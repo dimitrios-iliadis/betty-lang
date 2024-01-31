@@ -12,7 +12,7 @@
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(42.0, result.AsDouble());
+            Assert.Equal(42.0, (double)result);
         }
 
         [Fact]
@@ -25,7 +25,7 @@
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(42.0, result.AsDouble());
+            Assert.Equal(42.0, (double)result);
         }
 
         [Fact]
@@ -38,7 +38,7 @@
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(0.0, result.AsDouble());
+            Assert.Equal(0.0, (double)result);
         }
 
         [Fact]
@@ -51,7 +51,7 @@
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(0.0, result.AsDouble());
+            Assert.Equal(0.0, (double)result);
         }
 
         [Fact]
@@ -64,7 +64,7 @@
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(0.0, result.AsDouble());
+            Assert.Equal(0.0, (double)result);
         }
 
         [Fact]
@@ -77,7 +77,7 @@
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(0.0, result.AsDouble());
+            Assert.Equal(0.0, (double)result);
         }
 
         [Fact]
@@ -91,7 +91,7 @@
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(1.0, result.AsDouble());
+            Assert.Equal(1.0, (double)result);
         }
 
         [Fact]
@@ -105,7 +105,7 @@
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(1.0, result.AsDouble());
+            Assert.Equal(1.0, (double)result);
         }
 
         [Fact]
@@ -120,7 +120,7 @@
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(1.0, result.AsDouble());
+            Assert.Equal(1.0, (double)result);
         }
 
         [Fact]
@@ -135,7 +135,7 @@
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(1.0, result.AsDouble());
+            Assert.Equal(1.0, (double)result);
         }
 
         [Fact]
@@ -150,7 +150,7 @@
             ";
             var interpreter = SetupInterpreter(code);
             var result = interpreter.Interpret();
-            Assert.Equal(5.0, result.AsDouble());
+            Assert.Equal(5.0, (double)result);
         }
 
         [Fact]
@@ -159,7 +159,7 @@
             var code = "return true ? 1 : 0;";
             var interpreter = SetupInterpreter(code);
             var result = interpreter.Interpret();
-            Assert.Equal(1.0, result.AsDouble());
+            Assert.Equal(1.0, (double)result);
         }
 
         [Fact]
@@ -168,7 +168,7 @@
             var code = "return false ? 1 : 2;";
             var interpreter = SetupInterpreter(code);
             var result = interpreter.Interpret();
-            Assert.Equal(2.0, result.AsDouble());
+            Assert.Equal(2.0, (double)result);
         }
 
         [Fact]
@@ -177,7 +177,7 @@
             var code = "return (true ? false : true) ? 1 : 2;";
             var interpreter = SetupInterpreter(code);
             var result = interpreter.Interpret();
-            Assert.Equal(2.0, result.AsDouble());
+            Assert.Equal(2.0, (double)result);
         }
 
         [Fact]
@@ -186,7 +186,7 @@
             var code = "return (1 + 1 == 2) ? (3 * 2) : (4 / 2);";
             var interpreter = SetupInterpreter(code);
             var result = interpreter.Interpret();
-            Assert.Equal(6.0, result.AsDouble());
+            Assert.Equal(6.0, (double)result);
         }
 
         [Fact]
@@ -195,7 +195,7 @@
             var code = "return 10 + (false ? 100 : 200) * 2;";
             var interpreter = SetupInterpreter(code);
             var result = interpreter.Interpret();
-            Assert.Equal(410.0, result.AsDouble());
+            Assert.Equal(410.0, (double)result);
         }
 
         [Fact]
@@ -204,7 +204,7 @@
             var code = "return (5 > 3 ? 3 < 2 : 4 > 2) ? (7 == 7 ? 9 : 8) : (6 == 6 ? 10 : 11);";
             var interpreter = SetupInterpreter(code);
             var result = interpreter.Interpret();
-            Assert.Equal(10.0, result.AsDouble());
+            Assert.Equal(10.0, (double)result);
         }
 
         [Fact]
@@ -219,7 +219,7 @@
         ";
             var interpreter = SetupInterpreterCustom(customCode);
             var result = interpreter.Interpret();
-            Assert.Equal(9.0, result.AsDouble());
+            Assert.Equal(9.0, (double)result);
         }
     }
 }
