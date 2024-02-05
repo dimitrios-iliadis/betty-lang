@@ -85,7 +85,7 @@ namespace BettyLang.Core
 
         public InterpreterValue Visit(ReturnStatementNode node)
         {
-            var returnValue = InterpreterValue.Nothing();
+            var returnValue = InterpreterValue.None();
             if (node.ReturnValue is not null)
             {
                 returnValue = node.ReturnValue.Accept(this);
@@ -179,7 +179,7 @@ namespace BettyLang.Core
             catch (BreakException) { }
             finally { _isInLoop = false; }
 
-            return InterpreterValue.Nothing();
+            return InterpreterValue.None();
         }
 
         public InterpreterValue Visit(IfStatementNode node)
@@ -206,7 +206,7 @@ namespace BettyLang.Core
                 }
             }
 
-            return InterpreterValue.Nothing();
+            return InterpreterValue.None();
         }
 
         public InterpreterValue Visit(BinaryOperatorNode node)
@@ -296,7 +296,7 @@ namespace BettyLang.Core
             foreach (var statement in node.Statements)
                 statement.Accept(this);
 
-            return InterpreterValue.Nothing();
+            return InterpreterValue.None();
         }
 
         public InterpreterValue Visit(AssignmentNode node)
@@ -306,7 +306,7 @@ namespace BettyLang.Core
                 string variableName = variableNode.Value;
                 var rightResult = node.Right.Accept(this);
                 AssignVariable(variableName, rightResult);
-                return InterpreterValue.Nothing();
+                return InterpreterValue.None();
             }
             
             throw new Exception("The left-hand side of an assignment must be a variable.");
@@ -318,7 +318,7 @@ namespace BettyLang.Core
             return LookupVariable(variableName);
         }
 
-        public InterpreterValue Visit(EmptyStatementNode node) => InterpreterValue.Nothing();
+        public InterpreterValue Visit(EmptyStatementNode node) => InterpreterValue.None();
 
         private InterpreterValue MathFunctionWrapper(FunctionCallNode node)
         {
@@ -361,6 +361,7 @@ namespace BettyLang.Core
                 InterpreterValueType.Number => argResult.AsNumber().ToString(),
                 InterpreterValueType.Boolean => argResult.AsBoolean().ToString(),
                 InterpreterValueType.String => argResult.AsString(),
+                InterpreterValueType.None => "None",
                 _ => throw new InvalidOperationException("Unsupported type for string conversion.")
             });
         }
@@ -471,7 +472,7 @@ namespace BettyLang.Core
             else
                 Console.Write(argResult);
 
-            return InterpreterValue.Nothing();
+            return InterpreterValue.None();
         }
 
         public InterpreterValue Visit(FunctionCallNode node)
@@ -489,7 +490,7 @@ namespace BettyLang.Core
             // Enter a new scope for function execution
             EnterScope();
 
-            var returnValue = InterpreterValue.Nothing();
+            var returnValue = InterpreterValue.None();
 
             // Store the current loop context
             bool wasInLoop = _isInLoop;
@@ -530,7 +531,7 @@ namespace BettyLang.Core
                 throw new Exception($"Function name '{node.FunctionName}' is reserved for built-in functions.");
 
             _functions[node.FunctionName] = node;
-            return InterpreterValue.Nothing();
+            return InterpreterValue.None();
         }
 
         public InterpreterValue Visit(UnaryOperatorNode node)
