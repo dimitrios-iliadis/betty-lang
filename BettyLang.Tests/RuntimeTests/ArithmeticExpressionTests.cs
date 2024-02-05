@@ -9,7 +9,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(5.0, (double)result);
+            Assert.Equal(5.0, result.AsNumber());
         }
 
         [Fact]
@@ -19,7 +19,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(3.0, (double)result);
+            Assert.Equal(3.0, result.AsNumber());
         }
 
         [Fact]
@@ -29,7 +29,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(12.0, (double)result);
+            Assert.Equal(12.0, result.AsNumber());
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(5.0, (double)result);
+            Assert.Equal(5.0, result.AsNumber());
         }
 
         [Fact]
@@ -49,7 +49,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(9.0, (double)result);
+            Assert.Equal(9.0, result.AsNumber());
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(8.0, (double)result);
+            Assert.Equal(8.0, result.AsNumber());
         }
 
         [Fact]
@@ -69,7 +69,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(11.0, (double)result);
+            Assert.Equal(11.0, result.AsNumber());
         }
 
         [Fact]
@@ -79,7 +79,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(15.0, (double)result);
+            Assert.Equal(15.0, result.AsNumber());
         }
 
         [Fact]
@@ -89,7 +89,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(4.0, (double)result);
+            Assert.Equal(4.0, result.AsNumber());
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(double.PositiveInfinity, (double)result);
+            Assert.Equal(double.PositiveInfinity, result.AsNumber());
         }
 
         [Fact]
@@ -109,7 +109,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(Math.Pow(((1 + 2) * 3 - 4) / 5.0, 2), (double)result);
+            Assert.Equal(Math.Pow(((1 + 2) * 3 - 4) / 5.0, 2), result.AsNumber());
         }
 
         [Fact]
@@ -119,7 +119,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(1.0 / 8, (double)result);
+            Assert.Equal(1.0 / 8, result.AsNumber());
         }
 
         [Fact]
@@ -129,7 +129,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(5.0, (double)result);
+            Assert.Equal(5.0, result.AsNumber());
         }
 
         [Fact]
@@ -139,7 +139,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(-5.0, (double)result);
+            Assert.Equal(-5.0, result.AsNumber());
         }
 
         [Fact]
@@ -149,7 +149,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(5.0, (double)result);
+            Assert.Equal(5.0, result.AsNumber());
         }
 
         [Fact]
@@ -159,7 +159,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(-8.0, (double)result);
+            Assert.Equal(-8.0, result.AsNumber());
         }
 
         [Fact]
@@ -169,7 +169,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(-6.0, (double)result);
+            Assert.Equal(-6.0, result.AsNumber());
         }
 
         [Fact]
@@ -179,7 +179,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(-2.0, (double)result);
+            Assert.Equal(-2.0, result.AsNumber());
         }
 
         [Fact]
@@ -189,7 +189,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(1.0, (double)result);
+            Assert.Equal(1.0, result.AsNumber());
         }
 
         [Fact]
@@ -199,7 +199,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(-5.0, (double)result);
+            Assert.Equal(-5.0, result.AsNumber());
         }
 
         [Fact]
@@ -209,7 +209,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(-5.0, (double)result);
+            Assert.Equal(-5.0, result.AsNumber());
         }
 
         [Fact]
@@ -219,7 +219,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(1.0, (double)result);
+            Assert.Equal(1.0, result.AsNumber());
         }
 
         [Fact]
@@ -229,7 +229,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(7.0, (double)result);
+            Assert.Equal(7.0, result.AsNumber());
         }
 
         [Fact]
@@ -239,7 +239,7 @@ namespace BettyLang.Tests.RuntimeTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(3.0, (double)result);
+            Assert.Equal(3.0, result.AsNumber());
         }
     }
 }

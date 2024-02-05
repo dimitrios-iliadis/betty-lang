@@ -2,6 +2,6 @@
 {
     public abstract class ASTNode
     {
-        public abstract object Accept(INodeVisitor visitor);
+        public abstract InterpreterValue Accept(INodeVisitor visitor);
     }
 }

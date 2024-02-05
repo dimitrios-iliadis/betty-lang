@@ -5,7 +5,7 @@
         [Fact]
         public void PrintFunction_PrintsCorrectValue()
         {
-            var code = "print(2 + 3);";
+            var code = "print(str(2 + 3));";
             var interpreter = SetupInterpreter(code);
             var output = new StringWriter();
             Console.SetOut(output);
@@ -18,7 +18,7 @@
         [Fact]
         public void PrintFunction_PrintsCorrectValueWithNewLine()
         {
-            var code = """print(2 + 3 + "\n");""";
+            var code = """print(str(2 + 3) + "\n");""";
             var interpreter = SetupInterpreter(code);
             var output = new StringWriter();
             Console.SetOut(output);
@@ -31,7 +31,7 @@
         [Fact]
         public void PrintFunction_PrintsCorrectValueWithNewLineAndTab()
         {
-            var code = """print(2 + 3 + "\n\t");""";
+            var code = """print(str(2 + 3) + "\n\t");""";
             var interpreter = SetupInterpreter(code);
             var output = new StringWriter();
             Console.SetOut(output);
@@ -44,7 +44,7 @@
         [Fact]
         public void PrintLineFunction_PrintsCorrectValue()
         {
-            var code = "println(2 + 3);";
+            var code = "println(str(2 + 3));";
             var interpreter = SetupInterpreter(code);
             var output = new StringWriter();
             Console.SetOut(output);
@@ -65,7 +65,7 @@
 
             var result = interpreter.Interpret();
 
-            Assert.Equal(5.0, (double)result);
+            Assert.Equal(5.0, result.AsNumber());
         }
 
         [Fact]
@@ -78,7 +78,7 @@
 
             var result = interpreter.Interpret();
 
-            Assert.Equal(5.0, (double)result);
+            Assert.Equal(5.0, result.AsNumber());
         }
     }
 }

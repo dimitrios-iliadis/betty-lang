@@ -11,6 +11,6 @@
             Value = token.Value;
         }
 
-        public override object Accept(INodeVisitor visitor) => visitor.Visit(this);
+        public override InterpreterValue Accept(INodeVisitor visitor) => visitor.Visit(this);
     }
 }
