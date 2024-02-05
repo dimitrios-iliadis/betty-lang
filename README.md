@@ -1,6 +1,6 @@
 # Betty
 
-Betty is an interpreted, dynamic programming language designed for educational purposes, written in C#.
+Betty is an interpreted, dynamically-typed programming language designed for educational purposes, written in C#. At its core, Betty offers some of the adaptability of dynamic typing, allowing variables to be reassigned with different types seamlessly. Unlike traditional dynamically-typed languages, however, Betty introduces a rigorous type-checking system that eschews implicit type conversions, demanding explicit casting and operations to maintain type integrity. This design philosophy ensures that while developers can enjoy the flexibility in variable usage, they are also guided by a strong, type-safe environment that minimizes runtime errors and enhances code readability. Betty bridges the gap between the freedom of dynamic typing and the security of static type systems, making it an ideal choice for developers seeking to combine rapid development with code reliability.
 
 ## Features
 
