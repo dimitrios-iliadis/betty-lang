@@ -38,7 +38,10 @@ namespace BettyLang.Core
                 { "print", PrintFunction },
                 { "println", PrintFunction },
                 { "input", InputFunction },
-                { "str", StringFunction },
+
+                { "tostr", ToStringFunction },
+                { "tonum", ToNumberFunction },
+                { "tobool", ToBooleanFunction }
             };
 
             // Dynamically add math functions to the built-in functions dictionary
@@ -341,7 +344,7 @@ namespace BettyLang.Core
             return InterpreterValue.FromNumber(result);
         }
 
-        private InterpreterValue StringFunction(FunctionCallNode node)
+        private InterpreterValue ToStringFunction(FunctionCallNode node)
         {
             // Ensure exactly one argument is provided
             if (node.Arguments.Count != 1)
@@ -362,6 +365,82 @@ namespace BettyLang.Core
             });
         }
 
+        private InterpreterValue ToBooleanFunction(FunctionCallNode node)
+        {
+            if (node.Arguments.Count != 1)
+            {
+                throw new ArgumentException("Boolean function requires exactly one argument.");
+            }
+
+            var argResult = node.Arguments[0].Accept(this);
+
+            bool booleanValue;
+            switch (argResult.Type)
+            {
+                case InterpreterValueType.Number:
+                    // Any number other than 0 is true, 0 is false
+                    booleanValue = argResult.AsNumber() != 0;
+                    break;
+
+                case InterpreterValueType.String:
+                    // Consider non-empty strings as true, and optionally parse "true" and "false"
+                    var str = argResult.AsString();
+                    if (bool.TryParse(str, out bool parsedValue))
+                    {
+                        // Successfully parsed "true" or "false"
+                        booleanValue = parsedValue;
+                    }
+                    else
+                    {
+                        // Any non-empty string is considered true, empty string false
+                        booleanValue = !string.IsNullOrEmpty(str);
+                    }
+                    break;
+
+                case InterpreterValueType.Boolean:
+                    // Return the boolean value directly
+                    return argResult;
+
+                default:
+                    throw new InvalidOperationException($"Conversion to boolean not supported for type {argResult.Type}.");
+            }
+
+            return InterpreterValue.FromBoolean(booleanValue);
+        }
+
+        private InterpreterValue ToNumberFunction(FunctionCallNode node)
+        {
+            if (node.Arguments.Count != 1)
+            {
+                throw new ArgumentException("Number function requires exactly one argument.");
+            }
+
+            var argResult = node.Arguments[0].Accept(this);
+
+            double numberValue;
+            switch (argResult.Type)
+            {
+                case InterpreterValueType.Number:
+                    return argResult;
+
+                case InterpreterValueType.Boolean:
+                    numberValue = argResult.AsBoolean() ? 1 : 0;
+                    break;
+
+                case InterpreterValueType.String:
+                    if (!double.TryParse(argResult.AsString(), out numberValue))
+                    {
+                        throw new ArgumentException($"Could not convert string '{argResult.AsString()}' to number.");
+                    }
+                    break;
+
+                default:
+                    throw new InvalidOperationException($"Conversion to number not supported for type {argResult.Type}.");
+            }
+
+            return InterpreterValue.FromNumber(numberValue);
+        }
+
         private InterpreterValue InputFunction(FunctionCallNode node)
         {
             // Check for correct number of arguments
@@ -375,11 +454,7 @@ namespace BettyLang.Core
             // Read input from the user
             string userInput = Console.ReadLine() ?? string.Empty;
 
-            // Try to parse the input as a double. If it fails, treat it as a string
-            var result = double.TryParse(userInput, out double numericValue)
-                ? InterpreterValue.FromNumber(numericValue) : InterpreterValue.FromString(userInput);
-
-            return result;
+            return InterpreterValue.FromString(userInput);
         }
 
         private InterpreterValue PrintFunction(FunctionCallNode node)

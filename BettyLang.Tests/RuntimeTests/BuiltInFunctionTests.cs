@@ -5,7 +5,7 @@
         [Fact]
         public void PrintFunction_PrintsCorrectValue()
         {
-            var code = "print(str(2 + 3));";
+            var code = "print(tostr(2 + 3));";
             var interpreter = SetupInterpreter(code);
             var output = new StringWriter();
             Console.SetOut(output);
@@ -18,7 +18,7 @@
         [Fact]
         public void PrintFunction_PrintsCorrectValueWithNewLine()
         {
-            var code = """print(str(2 + 3) + "\n");""";
+            var code = """print(tostr(2 + 3) + "\n");""";
             var interpreter = SetupInterpreter(code);
             var output = new StringWriter();
             Console.SetOut(output);
@@ -31,7 +31,7 @@
         [Fact]
         public void PrintFunction_PrintsCorrectValueWithNewLineAndTab()
         {
-            var code = """print(str(2 + 3) + "\n\t");""";
+            var code = """print(tostr(2 + 3) + "\n\t");""";
             var interpreter = SetupInterpreter(code);
             var output = new StringWriter();
             Console.SetOut(output);
@@ -44,7 +44,7 @@
         [Fact]
         public void PrintLineFunction_PrintsCorrectValue()
         {
-            var code = "println(str(2 + 3));";
+            var code = "println(tostr(2 + 3));";
             var interpreter = SetupInterpreter(code);
             var output = new StringWriter();
             Console.SetOut(output);
@@ -58,7 +58,7 @@
         [Fact]
         public void InputFunction_ReturnsCorrectValue()
         {
-            var code = "return input();";
+            var code = "return tonum(input());";
             var interpreter = SetupInterpreter(code);
             var input = new StringReader("5");
             Console.SetIn(input);
@@ -71,7 +71,7 @@
         [Fact]
         public void InputFunction_ReturnsCorrectValueWithPrompt()
         {
-            var code = "return input(\"Enter a number: \");";
+            var code = "return tonum(input(\"Enter a number: \"));";
             var interpreter = SetupInterpreter(code);
             var input = new StringReader("5");
             Console.SetIn(input);
