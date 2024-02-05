@@ -27,5 +27,5 @@ func fact(n)
 func main()
 {
     n = input("Enter a number: ");
-    print("The factorial of " + str(n) + "is " + str(fact(n)));
+    print("The factorial of " + tostr(n) + "is " + tostr(fact(n)));
 }
