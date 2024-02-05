@@ -5,7 +5,7 @@
         Number,
         String,
         Boolean,
-        Nothing
+        None
     }
 
     public readonly struct InterpreterValue
@@ -45,7 +45,7 @@
         public static InterpreterValue FromNumber(double number) => new InterpreterValue(number);
         public static InterpreterValue FromString(string str) => new InterpreterValue(str);
         public static InterpreterValue FromBoolean(bool boolean) => new InterpreterValue(boolean);
-        public static InterpreterValue Nothing() => new InterpreterValue(InterpreterValueType.Nothing);
+        public static InterpreterValue Nothing() => new InterpreterValue(InterpreterValueType.None);
 
         // Methods to get the value
         public readonly double AsNumber()
