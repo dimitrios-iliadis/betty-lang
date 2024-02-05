@@ -26,6 +26,6 @@ func fact(n)
 // The entry point for the program
 func main()
 {
-    n = input("Enter a number: ");
+    n = tonum(input("Enter a number: "));
     print("The factorial of " + tostr(n) + "is " + tostr(fact(n)));
 }
