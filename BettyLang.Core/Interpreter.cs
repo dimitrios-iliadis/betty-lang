@@ -38,7 +38,7 @@ namespace BettyLang.Core
                 { "print", PrintFunction },
                 { "println", PrintFunction },
                 { "input", InputFunction },
-                { "str", ToStringFunction },
+                { "str", StringFunction },
             };
 
             // Dynamically add math functions to the built-in functions dictionary
@@ -341,7 +341,7 @@ namespace BettyLang.Core
             return InterpreterValue.FromNumber(result);
         }
 
-        private InterpreterValue ToStringFunction(FunctionCallNode node)
+        private InterpreterValue StringFunction(FunctionCallNode node)
         {
             // Ensure exactly one argument is provided
             if (node.Arguments.Count != 1)
