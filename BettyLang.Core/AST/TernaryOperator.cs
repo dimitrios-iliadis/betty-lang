@@ -1,18 +1,20 @@
-﻿namespace BettyLang.Core.AST
-{
-    public class TernaryOperator : ASTNode
-    {
-        public ASTNode Condition { get; }
-        public ASTNode TrueExpression { get; }
-        public ASTNode FalseExpression { get; }
+﻿using BettyLang.Core.Interpreter;
 
-        public TernaryOperator(ASTNode condition, ASTNode trueExpression, ASTNode falseExpression) 
+namespace BettyLang.Core.AST
+{
+    public class TernaryOperator : AstNode
+    {
+        public AstNode Condition { get; }
+        public AstNode TrueExpression { get; }
+        public AstNode FalseExpression { get; }
+
+        public TernaryOperator(AstNode condition, AstNode trueExpression, AstNode falseExpression) 
         {
             Condition = condition;
             TrueExpression = trueExpression;
             FalseExpression = falseExpression;
         }
 
-        public override InterpreterValue Accept(INodeVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
     }
 }

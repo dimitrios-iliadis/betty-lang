@@ -1,9 +1,11 @@
-﻿namespace BettyLang.Core.AST
+﻿using BettyLang.Core.Interpreter;
+
+namespace BettyLang.Core.AST
 {
-    public class BreakStatement : ASTNode
+    public class BreakStatement : AstNode
     {
         public BreakStatement() { }
 
-        public override InterpreterValue Accept(INodeVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
     }
 }

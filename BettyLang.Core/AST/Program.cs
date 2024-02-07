@@ -1,6 +1,8 @@
-﻿namespace BettyLang.Core.AST
+﻿using BettyLang.Core.Interpreter;
+
+namespace BettyLang.Core.AST
 {
-    public class Program : ASTNode
+    public class Program : AstNode
     {
         public List<FunctionDefinition> Functions { get; }
 
@@ -9,6 +11,6 @@
             Functions = functions;
         }
 
-        public override InterpreterValue Accept(INodeVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
     }
 }

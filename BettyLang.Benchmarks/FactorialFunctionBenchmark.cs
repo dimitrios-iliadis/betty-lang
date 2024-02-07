@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BettyLang.Core;
+using BettyLang.Core.Interpreter;
 
 namespace BettyLang.Benchmarks
 {

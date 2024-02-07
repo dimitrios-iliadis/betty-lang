@@ -1,4 +1,4 @@
-﻿namespace BettyLang.Core
+﻿namespace BettyLang.Core.Interpreter
 {
     public static class StringTable
     {

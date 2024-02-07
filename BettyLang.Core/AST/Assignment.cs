@@ -1,18 +1,20 @@
-﻿namespace BettyLang.Core.AST
-{
-    public class Assignment : ASTNode
-    {
-        public ASTNode Left { get; }
-        public Token Operator { get; }
-        public ASTNode Right { get; }
+﻿using BettyLang.Core.Interpreter;
 
-        public Assignment(ASTNode left, Token op, ASTNode right)
+namespace BettyLang.Core.AST
+{
+    public class Assignment : AstNode
+    {
+        public AstNode Left { get; }
+        public Token Operator { get; }
+        public AstNode Right { get; }
+
+        public Assignment(AstNode left, Token @operator, AstNode right)
         {
             Left = left;
-            Operator = op;
+            Operator = @operator;
             Right = right;
         }
 
-        public override InterpreterValue Accept(INodeVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
     }
 }

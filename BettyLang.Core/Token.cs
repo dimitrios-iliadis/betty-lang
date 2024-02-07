@@ -1,15 +1,27 @@
 ﻿namespace BettyLang.Core
 {
-    public class Token
+    public enum TokenType
     {
-        public Token(TokenType type, string value)
-        {
-            Type = type;
-            Value = value;
-        }
+        NumberLiteral, StringLiteral, BooleanLiteral, Identifier,
 
-        public TokenType Type { get; }
-        public string Value { get; }
-        public override string ToString() => $"Token({Type}, {Value})";
+        Not, And, Or,
+
+        Plus, Minus, Star, Slash, Caret, Modulo,
+
+        LParen, RParen, LBrace, RBrace, Semicolon, Comma, QuestionMark, Colon,
+
+        Func,
+
+        Equal, If, Elif, Else, While, Break, Continue, Return,
+
+        EqualEqual, LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual, NotEqual,
+
+        EOF
+    }
+
+    public readonly struct Token(TokenType type, string value)
+    {
+        public TokenType Type { get; } = type;
+        public string Value { get; } = value;
     }
 }

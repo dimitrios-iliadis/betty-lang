@@ -1,21 +1,19 @@
 ﻿using BettyLang.Core.AST;
 
-namespace BettyLang.Core
+namespace BettyLang.Core.Interpreter
 {
     public class BreakException : Exception { }
     public class ContinueException : Exception { }
-    public class ReturnException(InterpreterValue returnValue) : Exception
+    public class ReturnException(Value returnValue) : Exception
     {
-        public InterpreterValue ReturnValue { get; } = returnValue;
+        public Value ReturnValue { get; } = returnValue;
     }
 
-    public class Interpreter : INodeVisitor
+    public class Interpreter : IAstVisitor
     {
         private readonly Parser _parser;
-
         private readonly Dictionary<string, FunctionDefinition> _functions = new();
-        private readonly Stack<Dictionary<string, InterpreterValue>> _scopes = new();
-
+        private readonly ScopeManager _scopeManager = new();
         private static readonly Dictionary<string, Func<double, double>> _mathFunctions = new()
         {
             {"sin", Math.Sin},
@@ -23,10 +21,8 @@ namespace BettyLang.Core
             {"tan", Math.Tan},
             {"sqrt", Math.Sqrt}
         };
-
-        private delegate InterpreterValue BuiltInFunctionHandler(FunctionCall node);
+        private delegate Value BuiltInFunctionHandler(FunctionCall node);
         private readonly Dictionary<string, BuiltInFunctionHandler> _builtInFunctions;
-
         private bool _isInLoop = false;
 
         public Interpreter(Parser parser)
@@ -53,13 +49,13 @@ namespace BettyLang.Core
             }
         }
 
-        public InterpreterValue Interpret()
+        public Value Interpret()
         {
             var tree = _parser.Parse();
             return tree.Accept(this);
         }
 
-        public InterpreterValue Visit(Program node)
+        public Value Visit(Program node)
         {
             // Visit each function definition and store it in a dictionary
             foreach (var function in node.Functions)
@@ -79,15 +75,15 @@ namespace BettyLang.Core
             }
         }
 
-        public InterpreterValue Visit(TernaryOperator node)
+        public Value Visit(TernaryOperator node)
         {
             bool conditionResult = node.Condition.Accept(this).AsBoolean();
             return conditionResult ? node.TrueExpression.Accept(this) : node.FalseExpression.Accept(this);
         }
 
-        public InterpreterValue Visit(ReturnStatement node)
+        public Value Visit(ReturnStatement node)
         {
-            var returnValue = InterpreterValue.None();
+            var returnValue = Value.None();
             if (node.ReturnValue is not null)
             {
                 returnValue = node.ReturnValue.Accept(this);
@@ -97,14 +93,14 @@ namespace BettyLang.Core
             throw new ReturnException(returnValue);
         }
 
-        private static InterpreterValue PerformComparison(InterpreterValue leftResult, InterpreterValue rightResult, TokenType operatorType)
+        private static Value PerformComparison(Value leftResult, Value rightResult, TokenType operatorType)
         {
             switch (leftResult.Type, rightResult.Type)
             {
-                case (InterpreterValueType.Number, InterpreterValueType.Number):
+                case (ValueType.Number, ValueType.Number):
                     double leftNumber = leftResult.AsNumber();
                     double rightNumber = rightResult.AsNumber();
-                    return InterpreterValue.FromBoolean(operatorType switch
+                    return Value.FromBoolean(operatorType switch
                     {
                         TokenType.EqualEqual => leftNumber == rightNumber,
                         TokenType.NotEqual => leftNumber != rightNumber,
@@ -115,20 +111,20 @@ namespace BettyLang.Core
                         _ => throw new Exception($"Unsupported operator for number comparison: {operatorType}")
                     });
 
-                case (InterpreterValueType.String, InterpreterValueType.String):
+                case (ValueType.String, ValueType.String):
                     string leftString = leftResult.AsString();
                     string rightString = rightResult.AsString();
-                    return InterpreterValue.FromBoolean(operatorType switch
+                    return Value.FromBoolean(operatorType switch
                     {
                         TokenType.EqualEqual => leftString == rightString,
                         TokenType.NotEqual => leftString != rightString,
                         _ => throw new Exception($"Unsupported operator for string comparison: {operatorType}")
                     });
 
-                case (InterpreterValueType.Boolean, InterpreterValueType.Boolean):
+                case (ValueType.Boolean, ValueType.Boolean):
                     bool leftBoolean = leftResult.AsBoolean();
                     bool rightBoolean = rightResult.AsBoolean();
-                    return InterpreterValue.FromBoolean(operatorType switch
+                    return Value.FromBoolean(operatorType switch
                     {
                         TokenType.EqualEqual => leftBoolean == rightBoolean,
                         TokenType.NotEqual => leftBoolean != rightBoolean,
@@ -140,7 +136,7 @@ namespace BettyLang.Core
             }
         }
 
-        public InterpreterValue Visit(BreakStatement node)
+        public Value Visit(BreakStatement node)
         {
             if (!_isInLoop)
             {
@@ -150,7 +146,7 @@ namespace BettyLang.Core
             throw new BreakException();
         }
 
-        public InterpreterValue Visit(ContinueStatement node)
+        public Value Visit(ContinueStatement node)
         {
             if (!_isInLoop)
             {
@@ -160,7 +156,7 @@ namespace BettyLang.Core
             throw new ContinueException();
         }
 
-        public InterpreterValue Visit(WhileStatement node)
+        public Value Visit(WhileStatement node)
         {
             _isInLoop = true;
 
@@ -181,10 +177,10 @@ namespace BettyLang.Core
             catch (BreakException) { }
             finally { _isInLoop = false; }
 
-            return InterpreterValue.None();
+            return Value.None();
         }
 
-        public InterpreterValue Visit(IfStatement node)
+        public Value Visit(IfStatement node)
         {
             var conditionResult = node.Condition.Accept(this).AsBoolean();
 
@@ -208,10 +204,10 @@ namespace BettyLang.Core
                 }
             }
 
-            return InterpreterValue.None();
+            return Value.None();
         }
 
-        public InterpreterValue Visit(BinaryOperator node)
+        public Value Visit(BinaryOperator node)
         {
             var leftResult = node.Left.Accept(this);
             var rightResult = node.Right.Accept(this);
@@ -220,29 +216,29 @@ namespace BettyLang.Core
             {
                 case TokenType.And:
                 case TokenType.Or:
-                    if (leftResult.Type == InterpreterValueType.Boolean && rightResult.Type == InterpreterValueType.Boolean)
+                    if (leftResult.Type == ValueType.Boolean && rightResult.Type == ValueType.Boolean)
                     {
                         bool leftBoolean = leftResult.AsBoolean();
                         bool rightBoolean = rightResult.AsBoolean();
-                        return InterpreterValue.FromBoolean(
+                        return Value.FromBoolean(
                             node.Operator.Type == TokenType.And ? leftBoolean && rightBoolean : leftBoolean || rightBoolean);
                     }
                     break;
 
                 case TokenType.Plus:
                     // Concatenate if both operands are strings
-                    if (leftResult.Type == InterpreterValueType.String && rightResult.Type == InterpreterValueType.String)
+                    if (leftResult.Type == ValueType.String && rightResult.Type == ValueType.String)
                     {
                         string leftString = leftResult.AsString();
                         string rightString = rightResult.AsString();
-                        return InterpreterValue.FromString(leftString + rightString);
+                        return Value.FromString(leftString + rightString);
                     }
-                    else if (leftResult.Type == InterpreterValueType.Number && rightResult.Type == InterpreterValueType.Number)
+                    else if (leftResult.Type == ValueType.Number && rightResult.Type == ValueType.Number)
                     {
                         // Handle numeric addition if both operands are numbers
                         double leftNumber = leftResult.AsNumber();
                         double rightNumber = rightResult.AsNumber();
-                        return InterpreterValue.FromNumber(leftNumber + rightNumber);
+                        return Value.FromNumber(leftNumber + rightNumber);
                     }
                     else
                     {
@@ -254,7 +250,7 @@ namespace BettyLang.Core
                 case TokenType.Slash:
                 case TokenType.Caret:
                 case TokenType.Modulo:
-                    if (leftResult.Type == InterpreterValueType.Number && rightResult.Type == InterpreterValueType.Number)
+                    if (leftResult.Type == ValueType.Number && rightResult.Type == ValueType.Number)
                     {
                         double leftOperand = leftResult.AsNumber();
                         double rightOperand = rightResult.AsNumber();
@@ -267,7 +263,7 @@ namespace BettyLang.Core
                             TokenType.Modulo => leftOperand % rightOperand,
                             _ => throw new Exception($"Unsupported binary operator for numbers: {node.Operator.Type}")
                         };
-                        return InterpreterValue.FromNumber(result);
+                        return Value.FromNumber(result);
                     }
                     else
                     {
@@ -287,42 +283,40 @@ namespace BettyLang.Core
             throw new Exception($"Unsupported binary operator: {node.Operator.Type} for operand types {leftResult.Type} and {rightResult.Type}");
         }
 
-        public InterpreterValue Visit(BooleanLiteral node) => InterpreterValue.FromBoolean(node.Value);
+        public Value Visit(BooleanLiteral node) => Value.FromBoolean(node.Value);
 
-        public InterpreterValue Visit(NumberLiteral node) => InterpreterValue.FromNumber(node.Value);
+        public Value Visit(NumberLiteral node) => Value.FromNumber(node.Value);
 
-        public InterpreterValue Visit(StringLiteral node) => InterpreterValue.FromString(node.Value);
+        public Value Visit(StringLiteral node) => Value.FromString(node.Value);
 
-        public InterpreterValue Visit(CompoundStatement node)
+        public Value Visit(CompoundStatement node)
         {
             foreach (var statement in node.Statements)
                 statement.Accept(this);
 
-            return InterpreterValue.None();
+            return Value.None();
         }
 
-        public InterpreterValue Visit(Assignment node)
+        public Value Visit(Assignment node)
         {
             if (node.Left is Variable variableNode)
             {
-                string variableName = variableNode.Value;
                 var rightResult = node.Right.Accept(this);
-                AssignVariable(variableName, rightResult);
-                return InterpreterValue.None();
+                _scopeManager.SetVariable(variableNode.Name, rightResult);
+                return Value.None();
             }
-            
+
             throw new Exception("The left-hand side of an assignment must be a variable.");
         }
 
-        public InterpreterValue Visit(Variable node)
+        public Value Visit(Variable node)
         {
-            string variableName = node.Value;
-            return LookupVariable(variableName);
+            return _scopeManager.LookupVariable(node.Name);
         }
 
-        public InterpreterValue Visit(EmptyStatement node) => InterpreterValue.None();
+        public Value Visit(EmptyStatement node) => Value.None();
 
-        private InterpreterValue MathFunctionHandler(FunctionCall node)
+        private Value MathFunctionHandler(FunctionCall node)
         {
             var mathFunc = _mathFunctions.GetValueOrDefault(node.FunctionName)!;
 
@@ -334,7 +328,7 @@ namespace BettyLang.Core
 
             // Evaluate the argument
             var argResult = node.Arguments[0].Accept(this);
-            if (argResult.Type != InterpreterValueType.Number)
+            if (argResult.Type != ValueType.Number)
             {
                 throw new ArgumentException($"Argument for {node.FunctionName} must be a number.");
             }
@@ -343,10 +337,10 @@ namespace BettyLang.Core
             var result = mathFunc(argResult.AsNumber());
 
             // Return the result
-            return InterpreterValue.FromNumber(result);
+            return Value.FromNumber(result);
         }
 
-        private InterpreterValue StringLengthFunction(FunctionCall node)
+        private Value StringLengthFunction(FunctionCall node)
         {
             // Ensure exactly one argument is provided
             if (node.Arguments.Count != 1)
@@ -358,16 +352,16 @@ namespace BettyLang.Core
             var argResult = node.Arguments[0].Accept(this);
 
             // Ensure the argument is a string
-            if (argResult.Type != InterpreterValueType.String)
+            if (argResult.Type != ValueType.String)
             {
                 throw new ArgumentException("Argument for strlen function must be a string.");
             }
 
             // Return the length of the string
-            return InterpreterValue.FromNumber(argResult.AsString().Length);
+            return Value.FromNumber(argResult.AsString().Length);
         }
 
-        private InterpreterValue ToStringFunction(FunctionCall node)
+        private Value ToStringFunction(FunctionCall node)
         {
             // Ensure exactly one argument is provided
             if (node.Arguments.Count != 1)
@@ -379,17 +373,17 @@ namespace BettyLang.Core
             var argResult = node.Arguments[0].Accept(this);
 
             // Convert the argument result to string based on its type
-            return InterpreterValue.FromString(argResult.Type switch
+            return Value.FromString(argResult.Type switch
             {
-                InterpreterValueType.Number => argResult.AsNumber().ToString(),
-                InterpreterValueType.Boolean => argResult.AsBoolean().ToString(),
-                InterpreterValueType.String => argResult.AsString(),
-                InterpreterValueType.None => "None",
+                ValueType.Number => argResult.AsNumber().ToString(),
+                ValueType.Boolean => argResult.AsBoolean().ToString(),
+                ValueType.String => argResult.AsString(),
+                ValueType.None => "None",
                 _ => throw new InvalidOperationException("Unsupported type for string conversion.")
             });
         }
 
-        private InterpreterValue ToBooleanFunction(FunctionCall node)
+        private Value ToBooleanFunction(FunctionCall node)
         {
             if (node.Arguments.Count != 1)
             {
@@ -401,12 +395,12 @@ namespace BettyLang.Core
             bool booleanValue;
             switch (argResult.Type)
             {
-                case InterpreterValueType.Number:
+                case ValueType.Number:
                     // Any number other than 0 is true, 0 is false
                     booleanValue = argResult.AsNumber() != 0;
                     break;
 
-                case InterpreterValueType.String:
+                case ValueType.String:
                     // Consider non-empty strings as true, and optionally parse "true" and "false"
                     var str = argResult.AsString();
                     if (bool.TryParse(str, out bool parsedValue))
@@ -421,7 +415,7 @@ namespace BettyLang.Core
                     }
                     break;
 
-                case InterpreterValueType.Boolean:
+                case ValueType.Boolean:
                     // Return the boolean value directly
                     return argResult;
 
@@ -429,10 +423,10 @@ namespace BettyLang.Core
                     throw new InvalidOperationException($"Conversion to boolean not supported for type {argResult.Type}.");
             }
 
-            return InterpreterValue.FromBoolean(booleanValue);
+            return Value.FromBoolean(booleanValue);
         }
 
-        private InterpreterValue ToNumberFunction(FunctionCall node)
+        private Value ToNumberFunction(FunctionCall node)
         {
             if (node.Arguments.Count != 1)
             {
@@ -444,14 +438,14 @@ namespace BettyLang.Core
             double numberValue;
             switch (argResult.Type)
             {
-                case InterpreterValueType.Number:
+                case ValueType.Number:
                     return argResult;
 
-                case InterpreterValueType.Boolean:
+                case ValueType.Boolean:
                     numberValue = argResult.AsBoolean() ? 1 : 0;
                     break;
 
-                case InterpreterValueType.String:
+                case ValueType.String:
                     if (!double.TryParse(argResult.AsString(), out numberValue))
                     {
                         throw new ArgumentException($"Could not convert string '{argResult.AsString()}' to number.");
@@ -462,10 +456,10 @@ namespace BettyLang.Core
                     throw new InvalidOperationException($"Conversion to number not supported for type {argResult.Type}.");
             }
 
-            return InterpreterValue.FromNumber(numberValue);
+            return Value.FromNumber(numberValue);
         }
 
-        private InterpreterValue InputFunction(FunctionCall node)
+        private Value InputFunction(FunctionCall node)
         {
             // Check for correct number of arguments
             if (node.Arguments.Count > 1)
@@ -478,10 +472,10 @@ namespace BettyLang.Core
             // Read input from the user
             string userInput = Console.ReadLine() ?? string.Empty;
 
-            return InterpreterValue.FromString(userInput);
+            return Value.FromString(userInput);
         }
 
-        private InterpreterValue PrintFunction(FunctionCall node)
+        private Value PrintFunction(FunctionCall node)
         {
             // Ensure that only one argument is provided
             if (node.Arguments.Count != 1)
@@ -495,10 +489,10 @@ namespace BettyLang.Core
             else
                 Console.Write(argResult);
 
-            return InterpreterValue.None();
+            return Value.None();
         }
 
-        public InterpreterValue Visit(FunctionCall node)
+        public Value Visit(FunctionCall node)
         {
             // Attempt to find and call a built-in function handler
             if (_builtInFunctions.TryGetValue(node.FunctionName, out var handler))
@@ -511,9 +505,9 @@ namespace BettyLang.Core
                 throw new Exception($"Function {node.FunctionName} is not defined.");
 
             // Enter a new scope for function execution
-            EnterScope();
+            _scopeManager.EnterScope();
 
-            var returnValue = InterpreterValue.None();
+            var returnValue = Value.None();
 
             // Store the current loop context
             bool wasInLoop = _isInLoop;
@@ -525,7 +519,7 @@ namespace BettyLang.Core
                 for (int i = 0; i < node.Arguments.Count; i++)
                 {
                     var argValue = node.Arguments[i].Accept(this);
-                    _scopes.Peek()[function.Parameters[i]] = argValue;
+                    _scopeManager.SetVariable(function.Parameters[i], argValue);
                 }
 
                 // Execute function body
@@ -542,22 +536,22 @@ namespace BettyLang.Core
                 _isInLoop = wasInLoop;
 
                 // Exit the function scope regardless of how we leave the function
-                ExitScope();
+                _scopeManager.ExitScope();
             }
 
             return returnValue;
         }
 
-        public InterpreterValue Visit(FunctionDefinition node)
+        public Value Visit(FunctionDefinition node)
         {
             if (_builtInFunctions.ContainsKey(node.FunctionName))
                 throw new Exception($"Function name '{node.FunctionName}' is reserved for built-in functions.");
 
             _functions[node.FunctionName] = node;
-            return InterpreterValue.None();
+            return Value.None();
         }
 
-        public InterpreterValue Visit(UnaryOperator node)
+        public Value Visit(UnaryOperator node)
         {
             TokenType op = node.Operator.Type;
             var operandResult = node.Expression.Accept(this);
@@ -565,38 +559,10 @@ namespace BettyLang.Core
             return op switch
             {
                 TokenType.Plus => operandResult,
-                TokenType.Minus => InterpreterValue.FromNumber(-operandResult.AsNumber()),
-                TokenType.Not => InterpreterValue.FromBoolean(!operandResult.AsBoolean()),
+                TokenType.Minus => Value.FromNumber(-operandResult.AsNumber()),
+                TokenType.Not => Value.FromBoolean(!operandResult.AsBoolean()),
                 _ => throw new InvalidOperationException($"Unsupported unary operator {op}")
             };
-        }
-
-        private void EnterScope()
-        {
-            _scopes.Push(new Dictionary<string, InterpreterValue>());
-        }
-
-        private void ExitScope()
-        {
-            _scopes.Pop();
-        }
-
-        private void AssignVariable(string name, InterpreterValue value)
-        {
-            var currentScope = _scopes.Peek();
-            currentScope[name] = value;
-        }
-
-        private InterpreterValue LookupVariable(string name)
-        {
-            foreach (var scope in _scopes)
-            {
-                if (scope.TryGetValue(name, out var value))
-                {
-                    return value;
-                }
-            }
-            throw new Exception($"Variable '{name}' not found in any scope");
         }
     }
 }

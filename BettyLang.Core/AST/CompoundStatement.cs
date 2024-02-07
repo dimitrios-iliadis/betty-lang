@@ -1,11 +1,13 @@
-﻿namespace BettyLang.Core.AST
+﻿using BettyLang.Core.Interpreter;
+
+namespace BettyLang.Core.AST
 {
-    public class CompoundStatement : ASTNode
+    public class CompoundStatement : AstNode
     {
-        public List<ASTNode> Statements { get; set; }
+        public List<AstNode> Statements { get; set; }
 
         public CompoundStatement() { Statements = []; }
 
-        public override InterpreterValue Accept(INodeVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
     }
 }

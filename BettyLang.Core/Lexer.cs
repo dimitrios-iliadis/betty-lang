@@ -6,8 +6,7 @@
         private int _position;
         private char _currentChar;
         private readonly System.Text.StringBuilder _stringBuilder = new();
-
-        private static readonly Dictionary<string, Token> _keywords = new()
+        private static readonly Dictionary<string, Token> _reservedKeywords = new()
         {
             ["func"] = new Token(TokenType.Func, "func"),
             ["true"] = new Token(TokenType.BooleanLiteral, "true"),
@@ -20,7 +19,6 @@
             ["continue"] = new Token(TokenType.Continue, "continue"),
             ["return"] = new Token(TokenType.Return, "return")
         };
-
         private static readonly Dictionary<string, TokenType> _doubleCharOperators = new()
         {
             ["=="] = TokenType.EqualEqual,
@@ -160,7 +158,7 @@
 
             var result = _stringBuilder.ToString().ToLower();
 
-            if (_keywords.TryGetValue(result, out Token? token))
+            if (_reservedKeywords.TryGetValue(result, out Token token))
                 return token;
 
             return new Token(TokenType.Identifier, result);

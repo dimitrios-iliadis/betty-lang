@@ -1,11 +1,11 @@
-﻿namespace BettyLang.Core.AST
+﻿using BettyLang.Core.Interpreter;
+
+namespace BettyLang.Core.AST
 {
-    public class BooleanLiteral : ASTNode
+    public class BooleanLiteral(bool value) : AstNode
     {
-        public bool Value { get; }
+        public bool Value { get; } = value;
 
-        public BooleanLiteral(bool value) { Value = value; }
-
-        public override InterpreterValue Accept(INodeVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
     }
 }

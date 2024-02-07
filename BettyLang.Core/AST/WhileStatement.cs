@@ -1,16 +1,18 @@
-﻿namespace BettyLang.Core.AST
-{
-    public class WhileStatement : ASTNode
-    {
-        public ASTNode Condition { get; private set; }
-        public ASTNode Body { get; private set; }
+﻿using BettyLang.Core.Interpreter;
 
-        public WhileStatement(ASTNode condition, ASTNode body)
+namespace BettyLang.Core.AST
+{
+    public class WhileStatement : AstNode
+    {
+        public AstNode Condition { get; private set; }
+        public AstNode Body { get; private set; }
+
+        public WhileStatement(AstNode condition, AstNode body)
         {
             Condition = condition;
             Body = body;
         }
 
-        public override InterpreterValue Accept(INodeVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
     }
 }

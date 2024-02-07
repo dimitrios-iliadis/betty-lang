@@ -1,6 +1,8 @@
-﻿namespace BettyLang.Core.AST
+﻿using BettyLang.Core.Interpreter;
+
+namespace BettyLang.Core.AST
 {
-    public class NumberLiteral : ASTNode
+    public class NumberLiteral : AstNode
     {
         public Token Token { get; }
         public double Value { get; }
@@ -11,6 +13,6 @@
             Value = double.Parse(token.Value);
         }
 
-        public override InterpreterValue Accept(INodeVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
     }
 }
