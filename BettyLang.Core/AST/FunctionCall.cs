@@ -1,11 +1,11 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class FunctionCallNode : ASTNode
+    public class FunctionCall : AST
     {
         public string FunctionName { get; }
-        public List<ASTNode> Arguments { get; }
+        public List<AST> Arguments { get; }
 
-        public FunctionCallNode(string functionName, List<ASTNode> arguments)
+        public FunctionCall(string functionName, List<AST> arguments)
         {
             FunctionName = functionName;
             Arguments = arguments;

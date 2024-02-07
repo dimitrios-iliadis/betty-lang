@@ -1,8 +1,8 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class EmptyStatementNode : ASTNode
+    public class BreakStatement : AST
     {
-        public EmptyStatementNode() { }
+        public BreakStatement() { }
 
         public override InterpreterValue Accept(INodeVisitor visitor) => visitor.Visit(this);
     }

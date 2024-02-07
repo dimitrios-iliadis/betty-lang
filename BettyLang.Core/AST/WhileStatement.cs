@@ -1,11 +1,11 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class WhileStatementNode : ASTNode
+    public class WhileStatement : AST
     {
-        public ASTNode Condition { get; private set; }
-        public ASTNode Body { get; private set; }
+        public AST Condition { get; private set; }
+        public AST Body { get; private set; }
 
-        public WhileStatementNode(ASTNode condition, ASTNode body)
+        public WhileStatement(AST condition, AST body)
         {
             Condition = condition;
             Body = body;

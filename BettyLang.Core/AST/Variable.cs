@@ -1,14 +1,14 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class NumberLiteralNode : ASTNode
+    public class Variable : AST
     {
         public Token Token { get; }
-        public double Value { get; }
+        public string Value { get; }
 
-        public NumberLiteralNode(Token token)
+        public Variable(Token token)
         {
             Token = token;
-            Value = double.Parse(token.Value);
+            Value = token.Value;
         }
 
         public override InterpreterValue Accept(INodeVisitor visitor) => visitor.Visit(this);

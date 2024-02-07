@@ -7,7 +7,7 @@
         {
             var code = "func add(a, b) { return a + b; } func main() { return add(1, 2); }";
             var parser = SetupParser(code);
-            var result = parser.Parse() as ProgramNode;
+            var result = parser.Parse() as Program;
 
             Assert.NotNull(result);
             Assert.Equal(2, result.Functions.Count);
@@ -17,7 +17,7 @@
             Assert.Equal(2, addFunctionNode.Parameters.Count);
             Assert.Equal("a", addFunctionNode.Parameters[0]);
             Assert.Equal("b", addFunctionNode.Parameters[1]);
-            Assert.IsType<ReturnStatementNode>(addFunctionNode.Body.Statements[0]);
+            Assert.IsType<ReturnStatement>(addFunctionNode.Body.Statements[0]);
 
             var mainFunctionNode = result.Functions[1];
             Assert.Equal("main", mainFunctionNode.FunctionName);
@@ -29,7 +29,7 @@
         {
             var code = "func main() {}";
             var parser = SetupParser(code);
-            var result = parser.Parse() as ProgramNode;
+            var result = parser.Parse() as Program;
 
             Assert.NotNull(result);
             Assert.Single(result.Functions);
@@ -44,7 +44,7 @@
         {
             var code = "func add(a, b) { return a + b; }";
             var parser = SetupParser(code);
-            var result = parser.Parse() as ProgramNode;
+            var result = parser.Parse() as Program;
 
             Assert.NotNull(result);
             var function = result.Functions[0];
@@ -70,7 +70,7 @@
         {
             var code = "func complex() { x = 5; if (x > 3) { x = x - 1; } return x; }";
             var parser = SetupParser(code);
-            var result = parser.Parse() as ProgramNode;
+            var result = parser.Parse() as Program;
 
             Assert.NotNull(result);
             var function = result.Functions[0];

@@ -1,10 +1,10 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class ProgramNode : ASTNode
+    public class Program : AST
     {
-        public List<FunctionDefinitionNode> Functions { get; }
+        public List<FunctionDefinition> Functions { get; }
 
-        public ProgramNode(List<FunctionDefinitionNode> functions)
+        public Program(List<FunctionDefinition> functions)
         {
             Functions = functions;
         }

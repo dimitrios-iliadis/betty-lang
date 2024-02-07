@@ -2,23 +2,23 @@
 {
     public interface INodeVisitor
     {
-        InterpreterValue Visit(NumberLiteralNode node);
-        InterpreterValue Visit(BooleanLiteralNode node);
-        InterpreterValue Visit(StringLiteralNode node);
-        InterpreterValue Visit(BinaryOperatorNode node);
-        InterpreterValue Visit(TernaryOperatorNode node);
-        InterpreterValue Visit(UnaryOperatorNode node);
-        InterpreterValue Visit(CompoundStatementNode node);
-        InterpreterValue Visit(AssignmentNode node);
-        InterpreterValue Visit(VariableNode node);
-        InterpreterValue Visit(EmptyStatementNode node);
-        InterpreterValue Visit(FunctionDefinitionNode node);
-        InterpreterValue Visit(FunctionCallNode node);
-        InterpreterValue Visit(IfStatementNode node);
-        InterpreterValue Visit(WhileStatementNode node);
-        InterpreterValue Visit(BreakStatementNode node);
-        InterpreterValue Visit(ContinueStatementNode node);
-        InterpreterValue Visit(ReturnStatementNode node);
-        InterpreterValue Visit(ProgramNode node);
+        InterpreterValue Visit(NumberLiteral node);
+        InterpreterValue Visit(BooleanLiteral node);
+        InterpreterValue Visit(StringLiteral node);
+        InterpreterValue Visit(BinaryOperator node);
+        InterpreterValue Visit(TernaryOperator node);
+        InterpreterValue Visit(UnaryOperator node);
+        InterpreterValue Visit(CompoundStatement node);
+        InterpreterValue Visit(Assignment node);
+        InterpreterValue Visit(Variable node);
+        InterpreterValue Visit(EmptyStatement node);
+        InterpreterValue Visit(FunctionDefinition node);
+        InterpreterValue Visit(FunctionCall node);
+        InterpreterValue Visit(IfStatement node);
+        InterpreterValue Visit(WhileStatement node);
+        InterpreterValue Visit(BreakStatement node);
+        InterpreterValue Visit(ContinueStatement node);
+        InterpreterValue Visit(ReturnStatement node);
+        InterpreterValue Visit(Program node);
     }
 }

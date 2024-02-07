@@ -7,13 +7,13 @@
         {
             var code = "func main() { if (x > 5) x = x - 1; }";
             var parser = SetupParser(code);
-            var result = parser.Parse() as ProgramNode;
+            var result = parser.Parse() as Program;
 
             var mainFunction = result.Functions[0];
-            var ifStatement = mainFunction.Body.Statements[0] as IfStatementNode;
+            var ifStatement = mainFunction.Body.Statements[0] as IfStatement;
 
             Assert.NotNull(ifStatement);
-            Assert.IsType<AssignmentNode>(ifStatement.ThenStatement);
+            Assert.IsType<Assignment>(ifStatement.ThenStatement);
             Assert.Null(ifStatement.ElseStatement);
         }
 
@@ -22,15 +22,15 @@
         {
             var code = "func main() { if (x > 5) x = x - 1; elif (x < 5) x = x + 1; }";
             var parser = SetupParser(code);
-            var result = parser.Parse() as ProgramNode;
+            var result = parser.Parse() as Program;
 
             var mainFunction = result.Functions[0];
-            var ifStatement = mainFunction.Body.Statements[0] as IfStatementNode;
+            var ifStatement = mainFunction.Body.Statements[0] as IfStatement;
 
             Assert.NotNull(ifStatement);
             Assert.Single(ifStatement.ElseIfStatements);
             var elifStatement = ifStatement.ElseIfStatements[0].Statement;
-            Assert.IsType<AssignmentNode>(elifStatement);
+            Assert.IsType<Assignment>(elifStatement);
         }
 
         [Fact]
@@ -38,13 +38,13 @@
         {
             var code = "func main() { if (x > 5) x = x - 1; else x = x + 1; }";
             var parser = SetupParser(code);
-            var result = parser.Parse() as ProgramNode;
+            var result = parser.Parse() as Program;
 
             var mainFunction = result.Functions[0];
-            var ifStatement = mainFunction.Body.Statements[0] as IfStatementNode;
+            var ifStatement = mainFunction.Body.Statements[0] as IfStatement;
 
             Assert.NotNull(ifStatement);
-            Assert.IsType<AssignmentNode>(ifStatement.ElseStatement);
+            Assert.IsType<Assignment>(ifStatement.ElseStatement);
         }
 
         [Fact]
@@ -52,13 +52,13 @@
         {
             var code = "func main() { while (x < 10) x = x + 1; }";
             var parser = SetupParser(code);
-            var result = parser.Parse() as ProgramNode;
+            var result = parser.Parse() as Program;
 
             var mainFunction = result.Functions[0];
-            var whileStatement = mainFunction.Body.Statements[0] as WhileStatementNode;
+            var whileStatement = mainFunction.Body.Statements[0] as WhileStatement;
 
             Assert.NotNull(whileStatement);
-            Assert.IsType<AssignmentNode>(whileStatement.Body);
+            Assert.IsType<Assignment>(whileStatement.Body);
         }
     }
 }

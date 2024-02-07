@@ -1,12 +1,12 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class FunctionDefinitionNode : ASTNode
+    public class FunctionDefinition : AST
     {
         public string FunctionName { get; }
         public List<string> Parameters { get; }
-        public CompoundStatementNode Body { get; }
+        public CompoundStatement Body { get; }
 
-        public FunctionDefinitionNode(string functionName, List<string> parameters, CompoundStatementNode body)
+        public FunctionDefinition(string functionName, List<string> parameters, CompoundStatement body)
         {
             FunctionName = functionName;
             Parameters = parameters;

@@ -13,7 +13,7 @@ namespace BettyLang.Core
     {
         private readonly Parser _parser;
 
-        private readonly Dictionary<string, FunctionDefinitionNode> _functions = new();
+        private readonly Dictionary<string, FunctionDefinition> _functions = new();
         private readonly Stack<Dictionary<string, InterpreterValue>> _scopes = new();
 
         private static readonly Dictionary<string, Func<double, double>> _mathFunctions = new()
@@ -24,7 +24,7 @@ namespace BettyLang.Core
             {"sqrt", Math.Sqrt}
         };
 
-        private delegate InterpreterValue BuiltInFunctionHandler(FunctionCallNode node);
+        private delegate InterpreterValue BuiltInFunctionHandler(FunctionCall node);
         private readonly Dictionary<string, BuiltInFunctionHandler> _builtInFunctions;
 
         private bool _isInLoop = false;
@@ -49,7 +49,7 @@ namespace BettyLang.Core
             // Dynamically add math functions to the built-in functions dictionary
             foreach (var mathFunc in _mathFunctions.Keys)
             {
-                _builtInFunctions.Add(mathFunc, MathFunctionWrapper);
+                _builtInFunctions.Add(mathFunc, MathFunctionHandler);
             }
         }
 
@@ -59,7 +59,7 @@ namespace BettyLang.Core
             return tree.Accept(this);
         }
 
-        public InterpreterValue Visit(ProgramNode node)
+        public InterpreterValue Visit(Program node)
         {
             // Visit each function definition and store it in a dictionary
             foreach (var function in node.Functions)
@@ -71,7 +71,7 @@ namespace BettyLang.Core
                     throw new Exception("main() function cannot have parameters.");
 
                 // Execute the main function
-                return Visit(new FunctionCallNode("main", []));
+                return Visit(new FunctionCall("main", []));
             }
             else
             {
@@ -79,13 +79,13 @@ namespace BettyLang.Core
             }
         }
 
-        public InterpreterValue Visit(TernaryOperatorNode node)
+        public InterpreterValue Visit(TernaryOperator node)
         {
             bool conditionResult = node.Condition.Accept(this).AsBoolean();
             return conditionResult ? node.TrueExpression.Accept(this) : node.FalseExpression.Accept(this);
         }
 
-        public InterpreterValue Visit(ReturnStatementNode node)
+        public InterpreterValue Visit(ReturnStatement node)
         {
             var returnValue = InterpreterValue.None();
             if (node.ReturnValue is not null)
@@ -140,7 +140,7 @@ namespace BettyLang.Core
             }
         }
 
-        public InterpreterValue Visit(BreakStatementNode node)
+        public InterpreterValue Visit(BreakStatement node)
         {
             if (!_isInLoop)
             {
@@ -150,7 +150,7 @@ namespace BettyLang.Core
             throw new BreakException();
         }
 
-        public InterpreterValue Visit(ContinueStatementNode node)
+        public InterpreterValue Visit(ContinueStatement node)
         {
             if (!_isInLoop)
             {
@@ -160,7 +160,7 @@ namespace BettyLang.Core
             throw new ContinueException();
         }
 
-        public InterpreterValue Visit(WhileStatementNode node)
+        public InterpreterValue Visit(WhileStatement node)
         {
             _isInLoop = true;
 
@@ -184,7 +184,7 @@ namespace BettyLang.Core
             return InterpreterValue.None();
         }
 
-        public InterpreterValue Visit(IfStatementNode node)
+        public InterpreterValue Visit(IfStatement node)
         {
             var conditionResult = node.Condition.Accept(this).AsBoolean();
 
@@ -211,7 +211,7 @@ namespace BettyLang.Core
             return InterpreterValue.None();
         }
 
-        public InterpreterValue Visit(BinaryOperatorNode node)
+        public InterpreterValue Visit(BinaryOperator node)
         {
             var leftResult = node.Left.Accept(this);
             var rightResult = node.Right.Accept(this);
@@ -287,13 +287,13 @@ namespace BettyLang.Core
             throw new Exception($"Unsupported binary operator: {node.Operator.Type} for operand types {leftResult.Type} and {rightResult.Type}");
         }
 
-        public InterpreterValue Visit(BooleanLiteralNode node) => InterpreterValue.FromBoolean(node.Value);
+        public InterpreterValue Visit(BooleanLiteral node) => InterpreterValue.FromBoolean(node.Value);
 
-        public InterpreterValue Visit(NumberLiteralNode node) => InterpreterValue.FromNumber(node.Value);
+        public InterpreterValue Visit(NumberLiteral node) => InterpreterValue.FromNumber(node.Value);
 
-        public InterpreterValue Visit(StringLiteralNode node) => InterpreterValue.FromString(node.Value);
+        public InterpreterValue Visit(StringLiteral node) => InterpreterValue.FromString(node.Value);
 
-        public InterpreterValue Visit(CompoundStatementNode node)
+        public InterpreterValue Visit(CompoundStatement node)
         {
             foreach (var statement in node.Statements)
                 statement.Accept(this);
@@ -301,9 +301,9 @@ namespace BettyLang.Core
             return InterpreterValue.None();
         }
 
-        public InterpreterValue Visit(AssignmentNode node)
+        public InterpreterValue Visit(Assignment node)
         {
-            if (node.Left is VariableNode variableNode)
+            if (node.Left is Variable variableNode)
             {
                 string variableName = variableNode.Value;
                 var rightResult = node.Right.Accept(this);
@@ -314,15 +314,15 @@ namespace BettyLang.Core
             throw new Exception("The left-hand side of an assignment must be a variable.");
         }
 
-        public InterpreterValue Visit(VariableNode node)
+        public InterpreterValue Visit(Variable node)
         {
             string variableName = node.Value;
             return LookupVariable(variableName);
         }
 
-        public InterpreterValue Visit(EmptyStatementNode node) => InterpreterValue.None();
+        public InterpreterValue Visit(EmptyStatement node) => InterpreterValue.None();
 
-        private InterpreterValue MathFunctionWrapper(FunctionCallNode node)
+        private InterpreterValue MathFunctionHandler(FunctionCall node)
         {
             var mathFunc = _mathFunctions.GetValueOrDefault(node.FunctionName)!;
 
@@ -346,7 +346,7 @@ namespace BettyLang.Core
             return InterpreterValue.FromNumber(result);
         }
 
-        private InterpreterValue StringLengthFunction(FunctionCallNode node)
+        private InterpreterValue StringLengthFunction(FunctionCall node)
         {
             // Ensure exactly one argument is provided
             if (node.Arguments.Count != 1)
@@ -367,7 +367,7 @@ namespace BettyLang.Core
             return InterpreterValue.FromNumber(argResult.AsString().Length);
         }
 
-        private InterpreterValue ToStringFunction(FunctionCallNode node)
+        private InterpreterValue ToStringFunction(FunctionCall node)
         {
             // Ensure exactly one argument is provided
             if (node.Arguments.Count != 1)
@@ -389,7 +389,7 @@ namespace BettyLang.Core
             });
         }
 
-        private InterpreterValue ToBooleanFunction(FunctionCallNode node)
+        private InterpreterValue ToBooleanFunction(FunctionCall node)
         {
             if (node.Arguments.Count != 1)
             {
@@ -432,7 +432,7 @@ namespace BettyLang.Core
             return InterpreterValue.FromBoolean(booleanValue);
         }
 
-        private InterpreterValue ToNumberFunction(FunctionCallNode node)
+        private InterpreterValue ToNumberFunction(FunctionCall node)
         {
             if (node.Arguments.Count != 1)
             {
@@ -465,7 +465,7 @@ namespace BettyLang.Core
             return InterpreterValue.FromNumber(numberValue);
         }
 
-        private InterpreterValue InputFunction(FunctionCallNode node)
+        private InterpreterValue InputFunction(FunctionCall node)
         {
             // Check for correct number of arguments
             if (node.Arguments.Count > 1)
@@ -481,7 +481,7 @@ namespace BettyLang.Core
             return InterpreterValue.FromString(userInput);
         }
 
-        private InterpreterValue PrintFunction(FunctionCallNode node)
+        private InterpreterValue PrintFunction(FunctionCall node)
         {
             // Ensure that only one argument is provided
             if (node.Arguments.Count != 1)
@@ -498,7 +498,7 @@ namespace BettyLang.Core
             return InterpreterValue.None();
         }
 
-        public InterpreterValue Visit(FunctionCallNode node)
+        public InterpreterValue Visit(FunctionCall node)
         {
             // Attempt to find and call a built-in function handler
             if (_builtInFunctions.TryGetValue(node.FunctionName, out var handler))
@@ -548,7 +548,7 @@ namespace BettyLang.Core
             return returnValue;
         }
 
-        public InterpreterValue Visit(FunctionDefinitionNode node)
+        public InterpreterValue Visit(FunctionDefinition node)
         {
             if (_builtInFunctions.ContainsKey(node.FunctionName))
                 throw new Exception($"Function name '{node.FunctionName}' is reserved for built-in functions.");
@@ -557,7 +557,7 @@ namespace BettyLang.Core
             return InterpreterValue.None();
         }
 
-        public InterpreterValue Visit(UnaryOperatorNode node)
+        public InterpreterValue Visit(UnaryOperator node)
         {
             TokenType op = node.Operator.Type;
             var operandResult = node.Expression.Accept(this);

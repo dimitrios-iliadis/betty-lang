@@ -14,7 +14,7 @@
             ";
 
             var parser = new Parser(new Lexer(code));
-            var programNode = parser.Parse() as ProgramNode;
+            var programNode = parser.Parse() as Program;
 
             // Assert that the program node is not null
             Assert.NotNull(programNode);
@@ -33,24 +33,24 @@
             Assert.Equal(2, compoundStatement.Statements.Count);
 
             // Assert the structure of the if statement
-            var ifStatement = compoundStatement.Statements[0] as IfStatementNode;
+            var ifStatement = compoundStatement.Statements[0] as IfStatement;
             Assert.NotNull(ifStatement);
             // Additional assertions to check the condition and the branches of the if statement
 
-            var returnStatement = compoundStatement.Statements[1] as ReturnStatementNode;
+            var returnStatement = compoundStatement.Statements[1] as ReturnStatement;
             Assert.NotNull(returnStatement);
 
             // Check for the recursive call in the return statement
-            var binaryOperatorNode = returnStatement.ReturnValue as BinaryOperatorNode;
+            var binaryOperatorNode = returnStatement.ReturnValue as BinaryOperator;
             Assert.NotNull(binaryOperatorNode);
 
-            var functionCallNode = binaryOperatorNode.Right as FunctionCallNode; // Assuming the recursive call is on the right-hand side
+            var functionCallNode = binaryOperatorNode.Right as FunctionCall; // Assuming the recursive call is on the right-hand side
             Assert.NotNull(functionCallNode);
             Assert.Equal("factorial", functionCallNode.FunctionName);
 
             // Check that the argument of the recursive call is "n - 1"
             Assert.Single(functionCallNode.Arguments);
-            var argumentExpression = functionCallNode.Arguments[0] as BinaryOperatorNode;
+            var argumentExpression = functionCallNode.Arguments[0] as BinaryOperator;
             Assert.NotNull(argumentExpression);
             Assert.Equal(TokenType.Minus, argumentExpression.Operator.Type);
         }
