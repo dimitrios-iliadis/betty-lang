@@ -1,21 +1,23 @@
-﻿namespace BettyLang.Core.AST
-{
-    public class IfStatement : ASTNode
-    {
-        public ASTNode Condition { get; private set; }
-        public ASTNode ThenStatement { get; private set; }
-        public List<(ASTNode Condition, ASTNode Statement)> ElseIfStatements { get; private set; }
-        public ASTNode ElseStatement { get; private set; }
+﻿using BettyLang.Core.Interpreter;
 
-        public IfStatement(ASTNode condition, ASTNode thenStatement,
-            List<(ASTNode Condition, ASTNode Statement)> elseIfStatements, ASTNode elseStatement)
+namespace BettyLang.Core.AST
+{
+    public class IfStatement : AstNode
+    {
+        public AstNode Condition { get; private set; }
+        public AstNode ThenStatement { get; private set; }
+        public List<(AstNode Condition, AstNode Statement)> ElseIfStatements { get; private set; }
+        public AstNode ElseStatement { get; private set; }
+
+        public IfStatement(AstNode condition, AstNode thenStatement,
+            List<(AstNode Condition, AstNode Statement)> elseIfStatements, AstNode elseStatement)
         {
             Condition = condition;
             ThenStatement = thenStatement;
-            ElseIfStatements = elseIfStatements ?? new List<(ASTNode Condition, ASTNode Statement)>();
+            ElseIfStatements = elseIfStatements ?? new List<(AstNode Condition, AstNode Statement)>();
             ElseStatement = elseStatement;
         }
 
-        public override InterpreterValue Accept(INodeVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
     }
 }

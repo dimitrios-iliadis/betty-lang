@@ -1,14 +1,16 @@
-﻿namespace BettyLang.Core.AST
-{
-    public class ReturnStatement : ASTNode
-    {
-        public ASTNode ReturnValue { get; }
+﻿using BettyLang.Core.Interpreter;
 
-        public ReturnStatement(ASTNode returnValue)
+namespace BettyLang.Core.AST
+{
+    public class ReturnStatement : AstNode
+    {
+        public AstNode ReturnValue { get; }
+
+        public ReturnStatement(AstNode returnValue)
         {
             ReturnValue = returnValue;
         }
 
-        public override InterpreterValue Accept(INodeVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
     }
 }

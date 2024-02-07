@@ -1,7 +1,9 @@
-﻿namespace BettyLang.Core.AST
+﻿using BettyLang.Core.Interpreter;
+
+namespace BettyLang.Core.AST
 {
-    public abstract class ASTNode
+    public abstract class AstNode
     {
-        public abstract InterpreterValue Accept(INodeVisitor visitor);
+        public abstract Value Accept(IAstVisitor visitor);
     }
 }

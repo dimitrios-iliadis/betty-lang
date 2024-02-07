@@ -1,4 +1,5 @@
 ﻿using BettyLang.Core;
+using BettyLang.Core.Interpreter;
 
 namespace BettyLang.CLI
 {

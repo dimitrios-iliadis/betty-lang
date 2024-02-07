@@ -6,12 +6,12 @@ namespace BettyLang.Core
     {
         private readonly Lexer _lexer;
         private Token _currentToken;
-        private HashSet<string> _definedFunctions = new HashSet<string>(); // Store defined function names
+        private readonly HashSet<string> _definedFunctions = []; // Store defined function names
 
         public Parser(Lexer lexer)
         {
             _lexer = lexer;
-            _currentToken = lexer.GetNextToken();
+            _currentToken = _lexer.GetNextToken();
         }
 
         private void Consume(TokenType tokenType)
@@ -26,17 +26,17 @@ namespace BettyLang.Core
         {
             var token = _currentToken;
             Consume(TokenType.StringLiteral);
-            return new StringLiteral(token.Value.ToString()!);
+            return new StringLiteral(token.Value);
         }
 
         private Variable ParseVariable()
         {
-            var node = new Variable(_currentToken);
+            var node = new Variable(_currentToken.Value);
             Consume(TokenType.Identifier);
             return node;
         }
 
-        private ASTNode ParseFactor()
+        private AstNode ParseFactor()
         {
             var token = _currentToken;
 
@@ -75,7 +75,7 @@ namespace BettyLang.Core
                     {
                         // Variable
                         Consume(TokenType.Identifier);
-                        return new Variable(token);
+                        return new Variable(token.Value);
                     }
 
                 default:
@@ -83,7 +83,7 @@ namespace BettyLang.Core
             }
         }
 
-        private ASTNode ParseTerm()
+        private AstNode ParseTerm()
         {
             if (_currentToken.Type == TokenType.StringLiteral)
                 return ParseStringLiteral();
@@ -107,7 +107,7 @@ namespace BettyLang.Core
             return node;
         }
 
-        private ASTNode ParseExponent()
+        private AstNode ParseExponent()
         {
             var node = ParseFactor();
 
@@ -121,7 +121,7 @@ namespace BettyLang.Core
             return node;
         }
 
-        private ASTNode ParseExpression()
+        private AstNode ParseExpression()
         {
             var node = ParseLogicalOrExpression();
 
@@ -150,9 +150,9 @@ namespace BettyLang.Core
             return root;
         }
 
-        private List<ASTNode> ParseStatementList()
+        private List<AstNode> ParseStatementList()
         {
-            var results = new List<ASTNode>();
+            var results = new List<AstNode>();
 
             while (_currentToken.Type != TokenType.RBrace && _currentToken.Type != TokenType.EOF)
             {
@@ -173,8 +173,8 @@ namespace BettyLang.Core
             // Parse thenStatement as either a compound statement or a single statement
             var thenStatement = (_currentToken.Type == TokenType.LBrace) ? ParseCompoundStatement() : ParseStatement();
 
-            var elseIfStatements = new List<(ASTNode Condition, ASTNode Statement)>();
-            ASTNode elseStatement = null;
+            var elseIfStatements = new List<(AstNode Condition, AstNode Statement)>();
+            AstNode elseStatement = null;
 
             while (_currentToken.Type == TokenType.Elif)
             {
@@ -224,7 +224,7 @@ namespace BettyLang.Core
         private ReturnStatement ParseReturnStatement()
         {
             Consume(TokenType.Return);
-            ASTNode returnValue = null;
+            AstNode returnValue = null;
             if (_currentToken.Type != TokenType.Semicolon)
             {
                 returnValue = ParseExpression();
@@ -241,7 +241,7 @@ namespace BettyLang.Core
         }
 
 
-        private ASTNode ParseStatement()
+        private AstNode ParseStatement()
         {
             return _currentToken.Type switch
             {
@@ -256,7 +256,7 @@ namespace BettyLang.Core
             };
         }
 
-        private ASTNode ParseIdentifierStatement()
+        private AstNode ParseIdentifierStatement()
         {
             var lookahead = _lexer.PeekNextToken();
             if (lookahead.Type == TokenType.Equal)
@@ -300,7 +300,7 @@ namespace BettyLang.Core
             Consume(TokenType.LParen);
 
             // Parse the arguments
-            var arguments = new List<ASTNode>();
+            var arguments = new List<AstNode>();
             if (_currentToken.Type != TokenType.RParen) // Check if the next token is not a right parenthesis
             {
                 do
@@ -393,7 +393,7 @@ namespace BettyLang.Core
             return new Program(functions);
         }
 
-        private ASTNode ParseComparisonExpression()
+        private AstNode ParseComparisonExpression()
         {
             var node = ParseArithmeticExpression();
 
@@ -417,7 +417,7 @@ namespace BettyLang.Core
                 || type == TokenType.NotEqual;
         }
 
-        private ASTNode ParseLogicalOrExpression()
+        private AstNode ParseLogicalOrExpression()
         {
             var node = ParseLogicalAndExpression();
 
@@ -431,7 +431,7 @@ namespace BettyLang.Core
             return node;
         }
 
-        private ASTNode ParseLogicalAndExpression()
+        private AstNode ParseLogicalAndExpression()
         {
             var node = ParseComparisonExpression();
 
@@ -445,7 +445,7 @@ namespace BettyLang.Core
             return node;
         }
 
-        private ASTNode ParseArithmeticExpression()
+        private AstNode ParseArithmeticExpression()
         {
             var node = ParseTerm();
 
@@ -463,7 +463,7 @@ namespace BettyLang.Core
             return node;
         }
 
-        public ASTNode Parse()
+        public AstNode Parse()
         {
             var node = ParseProgram();
 
