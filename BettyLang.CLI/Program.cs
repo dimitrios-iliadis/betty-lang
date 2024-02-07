@@ -19,7 +19,12 @@ namespace BettyLang.CLI
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"\nError: {ex.Message}");
+                Console.Write($"\nError: {ex.Message}");
+            }
+            finally
+            {
+                Console.Write("\nPress any key to exit...");
+                Console.ReadKey(true);
             }
         }
     }
