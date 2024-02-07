@@ -106,7 +106,7 @@ namespace BettyLang.Core
                     double rightNumber = rightResult.AsNumber();
                     return InterpreterValue.FromBoolean(operatorType switch
                     {
-                        TokenType.Equal => leftNumber == rightNumber,
+                        TokenType.EqualEqual => leftNumber == rightNumber,
                         TokenType.NotEqual => leftNumber != rightNumber,
                         TokenType.LessThan => leftNumber < rightNumber,
                         TokenType.LessThanOrEqual => leftNumber <= rightNumber,
@@ -120,7 +120,7 @@ namespace BettyLang.Core
                     string rightString = rightResult.AsString();
                     return InterpreterValue.FromBoolean(operatorType switch
                     {
-                        TokenType.Equal => leftString == rightString,
+                        TokenType.EqualEqual => leftString == rightString,
                         TokenType.NotEqual => leftString != rightString,
                         _ => throw new Exception($"Unsupported operator for string comparison: {operatorType}")
                     });
@@ -130,7 +130,7 @@ namespace BettyLang.Core
                     bool rightBoolean = rightResult.AsBoolean();
                     return InterpreterValue.FromBoolean(operatorType switch
                     {
-                        TokenType.Equal => leftBoolean == rightBoolean,
+                        TokenType.EqualEqual => leftBoolean == rightBoolean,
                         TokenType.NotEqual => leftBoolean != rightBoolean,
                         _ => throw new Exception($"Unsupported operator for boolean comparison: {operatorType}")
                     });
@@ -253,7 +253,7 @@ namespace BettyLang.Core
                 case TokenType.Star:
                 case TokenType.Slash:
                 case TokenType.Caret:
-                case TokenType.Percent:
+                case TokenType.Modulo:
                     if (leftResult.Type == InterpreterValueType.Number && rightResult.Type == InterpreterValueType.Number)
                     {
                         double leftOperand = leftResult.AsNumber();
@@ -264,7 +264,7 @@ namespace BettyLang.Core
                             TokenType.Star => leftOperand * rightOperand,
                             TokenType.Slash => leftOperand / rightOperand,
                             TokenType.Caret => Math.Pow(leftOperand, rightOperand),
-                            TokenType.Percent => leftOperand % rightOperand,
+                            TokenType.Modulo => leftOperand % rightOperand,
                             _ => throw new Exception($"Unsupported binary operator for numbers: {node.Operator.Type}")
                         };
                         return InterpreterValue.FromNumber(result);
@@ -275,7 +275,7 @@ namespace BettyLang.Core
                         throw new InvalidOperationException("Arithmetic operations require both operands to be numbers.");
                     }
 
-                case TokenType.Equal:
+                case TokenType.EqualEqual:
                 case TokenType.NotEqual:
                 case TokenType.LessThan:
                 case TokenType.LessThanOrEqual:

@@ -9,7 +9,7 @@
 
         private static readonly Dictionary<string, Token> _keywords = new()
         {
-            ["func"] = new Token(TokenType.Function, "func"),
+            ["func"] = new Token(TokenType.Func, "func"),
             ["true"] = new Token(TokenType.BooleanLiteral, "true"),
             ["false"] = new Token(TokenType.BooleanLiteral, "false"),
             ["if"] = new Token(TokenType.If, "if"),
@@ -23,7 +23,7 @@
 
         private static readonly Dictionary<string, TokenType> _doubleCharOperators = new()
         {
-            ["=="] = TokenType.Equal,
+            ["=="] = TokenType.EqualEqual,
             ["<="] = TokenType.LessThanOrEqual,
             [">="] = TokenType.GreaterThanOrEqual,
             ["!="] = TokenType.NotEqual,
@@ -134,13 +134,13 @@
                 '}' => (TokenType.RBrace, "}"),
                 ';' => (TokenType.Semicolon, ";"),
                 '!' => (TokenType.Not, "!"),
-                '=' => (TokenType.Assignment, "="),
+                '=' => (TokenType.Equal, "="),
                 '<' => (TokenType.LessThan, "<"),
                 '>' => (TokenType.GreaterThan, ">"),
                 ',' => (TokenType.Comma, ","),
                 '?' => (TokenType.QuestionMark, "?"),
                 ':' => (TokenType.Colon, ":"),
-                '%' => (TokenType.Percent, "%"),
+                '%' => (TokenType.Modulo, "%"),
                 _ => throw new Exception($"Invalid character '{_currentChar}' at position {_position}")
             };
 

@@ -3,7 +3,7 @@
     public class KeywordTests
     {
         [Theory]
-        [InlineData("func", TokenType.Function)]
+        [InlineData("func", TokenType.Func)]
         [InlineData("if", TokenType.If)]
         [InlineData("elif", TokenType.Elif)]
         [InlineData("else", TokenType.Else)]

@@ -91,15 +91,15 @@ namespace BettyLang.Core
             var node = ParseExponent();
 
             while (_currentToken.Type == TokenType.Star || _currentToken.Type == TokenType.Slash
-                || _currentToken.Type == TokenType.Percent)
+                || _currentToken.Type == TokenType.Modulo)
             {
                 var token = _currentToken;
                 if (token.Type == TokenType.Star)
                     Consume(TokenType.Star);
                 else if (token.Type == TokenType.Slash)
                     Consume(TokenType.Slash);
-                else if (token.Type == TokenType.Percent)
-                    Consume(TokenType.Percent);
+                else if (token.Type == TokenType.Modulo)
+                    Consume(TokenType.Modulo);
 
                 node = new BinaryOperator(node, token, ParseExponent());
             }
@@ -259,7 +259,7 @@ namespace BettyLang.Core
         private AST.AST ParseIdentifierStatement()
         {
             var lookahead = _lexer.PeekNextToken();
-            if (lookahead.Type == TokenType.Assignment)
+            if (lookahead.Type == TokenType.Equal)
             {
                 return ParseAssignmentStatement();
             }
@@ -278,7 +278,7 @@ namespace BettyLang.Core
         {
             var left = ParseVariable();
             var token = _currentToken;
-            Consume(TokenType.Assignment);
+            Consume(TokenType.Equal);
             var right = ParseExpression();
             Consume(TokenType.Semicolon);
             return new Assignment(left, token, right);
@@ -381,9 +381,9 @@ namespace BettyLang.Core
 
             while (_currentToken.Type != TokenType.EOF)
             {
-                if (_currentToken.Type == TokenType.Function)
+                if (_currentToken.Type == TokenType.Func)
                 {
-                    Consume(TokenType.Function);
+                    Consume(TokenType.Func);
                     functions.Add(ParseFunctionDefinition());
                 }
                 else
@@ -413,7 +413,7 @@ namespace BettyLang.Core
                 || type == TokenType.LessThan
                 || type == TokenType.GreaterThanOrEqual
                 || type == TokenType.LessThanOrEqual
-                || type == TokenType.Equal
+                || type == TokenType.EqualEqual
                 || type == TokenType.NotEqual;
         }
 

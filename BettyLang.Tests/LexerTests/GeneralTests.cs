@@ -19,7 +19,7 @@
             var input = "x = 10;";
             var lexer = new Lexer(input);
             var expectedTokens = new List<TokenType> {
-                TokenType.Identifier, TokenType.Assignment,
+                TokenType.Identifier, TokenType.Equal,
                 TokenType.NumberLiteral, TokenType.Semicolon,
                 TokenType.EOF };
 
