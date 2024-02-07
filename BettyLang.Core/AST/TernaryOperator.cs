@@ -1,12 +1,12 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class TernaryOperator : AST
+    public class TernaryOperator : ASTNode
     {
-        public AST Condition { get; }
-        public AST TrueExpression { get; }
-        public AST FalseExpression { get; }
+        public ASTNode Condition { get; }
+        public ASTNode TrueExpression { get; }
+        public ASTNode FalseExpression { get; }
 
-        public TernaryOperator(AST condition, AST trueExpression, AST falseExpression) 
+        public TernaryOperator(ASTNode condition, ASTNode trueExpression, ASTNode falseExpression) 
         {
             Condition = condition;
             TrueExpression = trueExpression;

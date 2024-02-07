@@ -1,10 +1,10 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class ReturnStatement : AST
+    public class ReturnStatement : ASTNode
     {
-        public AST ReturnValue { get; }
+        public ASTNode ReturnValue { get; }
 
-        public ReturnStatement(AST returnValue)
+        public ReturnStatement(ASTNode returnValue)
         {
             ReturnValue = returnValue;
         }

@@ -1,8 +1,8 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class CompoundStatement : AST
+    public class CompoundStatement : ASTNode
     {
-        public List<AST> Statements { get; set; }
+        public List<ASTNode> Statements { get; set; }
 
         public CompoundStatement() { Statements = []; }
 

@@ -36,7 +36,7 @@ namespace BettyLang.Core
             return node;
         }
 
-        private AST.AST ParseFactor()
+        private ASTNode ParseFactor()
         {
             var token = _currentToken;
 
@@ -83,7 +83,7 @@ namespace BettyLang.Core
             }
         }
 
-        private AST.AST ParseTerm()
+        private ASTNode ParseTerm()
         {
             if (_currentToken.Type == TokenType.StringLiteral)
                 return ParseStringLiteral();
@@ -107,7 +107,7 @@ namespace BettyLang.Core
             return node;
         }
 
-        private AST.AST ParseExponent()
+        private ASTNode ParseExponent()
         {
             var node = ParseFactor();
 
@@ -121,7 +121,7 @@ namespace BettyLang.Core
             return node;
         }
 
-        private AST.AST ParseExpression()
+        private ASTNode ParseExpression()
         {
             var node = ParseLogicalOrExpression();
 
@@ -150,9 +150,9 @@ namespace BettyLang.Core
             return root;
         }
 
-        private List<AST.AST> ParseStatementList()
+        private List<ASTNode> ParseStatementList()
         {
-            var results = new List<AST.AST>();
+            var results = new List<ASTNode>();
 
             while (_currentToken.Type != TokenType.RBrace && _currentToken.Type != TokenType.EOF)
             {
@@ -173,8 +173,8 @@ namespace BettyLang.Core
             // Parse thenStatement as either a compound statement or a single statement
             var thenStatement = (_currentToken.Type == TokenType.LBrace) ? ParseCompoundStatement() : ParseStatement();
 
-            var elseIfStatements = new List<(AST.AST Condition, AST.AST Statement)>();
-            AST.AST elseStatement = null;
+            var elseIfStatements = new List<(ASTNode Condition, ASTNode Statement)>();
+            ASTNode elseStatement = null;
 
             while (_currentToken.Type == TokenType.Elif)
             {
@@ -224,7 +224,7 @@ namespace BettyLang.Core
         private ReturnStatement ParseReturnStatement()
         {
             Consume(TokenType.Return);
-            AST.AST returnValue = null;
+            ASTNode returnValue = null;
             if (_currentToken.Type != TokenType.Semicolon)
             {
                 returnValue = ParseExpression();
@@ -241,7 +241,7 @@ namespace BettyLang.Core
         }
 
 
-        private AST.AST ParseStatement()
+        private ASTNode ParseStatement()
         {
             return _currentToken.Type switch
             {
@@ -256,7 +256,7 @@ namespace BettyLang.Core
             };
         }
 
-        private AST.AST ParseIdentifierStatement()
+        private ASTNode ParseIdentifierStatement()
         {
             var lookahead = _lexer.PeekNextToken();
             if (lookahead.Type == TokenType.Equal)
@@ -300,7 +300,7 @@ namespace BettyLang.Core
             Consume(TokenType.LParen);
 
             // Parse the arguments
-            var arguments = new List<AST.AST>();
+            var arguments = new List<ASTNode>();
             if (_currentToken.Type != TokenType.RParen) // Check if the next token is not a right parenthesis
             {
                 do
@@ -393,7 +393,7 @@ namespace BettyLang.Core
             return new Program(functions);
         }
 
-        private AST.AST ParseComparisonExpression()
+        private ASTNode ParseComparisonExpression()
         {
             var node = ParseArithmeticExpression();
 
@@ -417,7 +417,7 @@ namespace BettyLang.Core
                 || type == TokenType.NotEqual;
         }
 
-        private AST.AST ParseLogicalOrExpression()
+        private ASTNode ParseLogicalOrExpression()
         {
             var node = ParseLogicalAndExpression();
 
@@ -431,7 +431,7 @@ namespace BettyLang.Core
             return node;
         }
 
-        private AST.AST ParseLogicalAndExpression()
+        private ASTNode ParseLogicalAndExpression()
         {
             var node = ParseComparisonExpression();
 
@@ -445,7 +445,7 @@ namespace BettyLang.Core
             return node;
         }
 
-        private AST.AST ParseArithmeticExpression()
+        private ASTNode ParseArithmeticExpression()
         {
             var node = ParseTerm();
 
@@ -463,7 +463,7 @@ namespace BettyLang.Core
             return node;
         }
 
-        public AST.AST Parse()
+        public ASTNode Parse()
         {
             var node = ParseProgram();
 

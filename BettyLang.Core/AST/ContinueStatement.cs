@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class ContinueStatement : AST
+    public class ContinueStatement : ASTNode
     {
         public ContinueStatement() { }
 

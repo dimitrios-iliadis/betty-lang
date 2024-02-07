@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class EmptyStatement : AST
+    public class EmptyStatement : ASTNode
     {
         public EmptyStatement() { }
 

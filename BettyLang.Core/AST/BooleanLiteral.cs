@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class BooleanLiteral : AST
+    public class BooleanLiteral : ASTNode
     {
         public bool Value { get; }
 

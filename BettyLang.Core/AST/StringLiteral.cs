@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class StringLiteral : AST
+    public class StringLiteral : ASTNode
     {
         public string Value { get; }
 

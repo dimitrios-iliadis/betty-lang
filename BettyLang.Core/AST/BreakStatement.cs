@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class BreakStatement : AST
+    public class BreakStatement : ASTNode
     {
         public BreakStatement() { }
 

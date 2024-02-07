@@ -1,12 +1,12 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class BinaryOperator : AST
+    public class BinaryOperator : ASTNode
     {
-        public AST Left { get; }
+        public ASTNode Left { get; }
         public Token Operator { get; }
-        public AST Right { get; }
+        public ASTNode Right { get; }
 
-        public BinaryOperator(AST left, Token op, AST right)
+        public BinaryOperator(ASTNode left, Token op, ASTNode right)
         {
             Left = left;
             Operator = op;

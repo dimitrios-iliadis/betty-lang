@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class Variable : AST
+    public class Variable : ASTNode
     {
         public Token Token { get; }
         public string Value { get; }

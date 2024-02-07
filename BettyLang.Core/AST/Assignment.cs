@@ -1,12 +1,12 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class Assignment : AST
+    public class Assignment : ASTNode
     {
-        public AST Left { get; }
+        public ASTNode Left { get; }
         public Token Operator { get; }
-        public AST Right { get; }
+        public ASTNode Right { get; }
 
-        public Assignment(AST left, Token op, AST right)
+        public Assignment(ASTNode left, Token op, ASTNode right)
         {
             Left = left;
             Operator = op;
