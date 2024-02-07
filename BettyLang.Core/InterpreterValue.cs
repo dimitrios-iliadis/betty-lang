@@ -1,4 +1,6 @@
-﻿namespace BettyLang.Core
+﻿using System.Runtime.InteropServices;
+
+namespace BettyLang.Core
 {
     public enum InterpreterValueType
     {
@@ -8,32 +10,34 @@
         None
     }
 
+    [StructLayout(LayoutKind.Explicit)]
     public readonly struct InterpreterValue
     {
-        public InterpreterValueType Type { get; }
+        [FieldOffset(0)]
+        public readonly InterpreterValueType Type;
 
+        [FieldOffset(4)]
         private readonly double _number;
-        private readonly string _string;
+
+        [FieldOffset(4)]
+        private readonly int _stringId;
+
+        [FieldOffset(4)]
         private readonly bool _boolean;
 
-        // Private constructor used for setting the Type directly
-        private InterpreterValue(InterpreterValueType type)
+        private InterpreterValue(InterpreterValueType type) : this()
         {
             Type = type;
-            _number = default;
-            _string = string.Empty;
-            _boolean = default;
         }
 
-        // Constructor for each type
         private InterpreterValue(double number) : this(InterpreterValueType.Number)
         {
             _number = number;
         }
 
-        private InterpreterValue(string str) : this(InterpreterValueType.String)
+        private InterpreterValue(int stringId) : this(InterpreterValueType.String)
         {
-            _string = str;
+            _stringId = stringId;
         }
 
         private InterpreterValue(bool boolean) : this(InterpreterValueType.Boolean)
@@ -41,13 +45,16 @@
             _boolean = boolean;
         }
 
-        // Factory methods
+        public static InterpreterValue FromString(string str)
+        {
+            int stringId = StringTable.AddString(str);
+            return new InterpreterValue(stringId);
+        }
+
         public static InterpreterValue FromNumber(double number) => new InterpreterValue(number);
-        public static InterpreterValue FromString(string str) => new InterpreterValue(str);
         public static InterpreterValue FromBoolean(bool boolean) => new InterpreterValue(boolean);
         public static InterpreterValue None() => new InterpreterValue(InterpreterValueType.None);
 
-        // Methods to get the value
         public readonly double AsNumber()
         {
             if (Type != InterpreterValueType.Number)
@@ -59,7 +66,7 @@
         {
             if (Type != InterpreterValueType.String)
                 throw new InvalidOperationException($"Expected a string, but got {Type}.");
-            return _string;
+            return StringTable.GetString(_stringId);
         }
 
         public readonly bool AsBoolean()
@@ -68,6 +75,5 @@
                 throw new InvalidOperationException($"Expected a boolean, but got {Type}.");
             return _boolean;
         }
-
     }
 }
