@@ -41,7 +41,9 @@ namespace BettyLang.Core
 
                 { "tostr", ToStringFunction },
                 { "tonum", ToNumberFunction },
-                { "tobool", ToBooleanFunction }
+                { "tobool", ToBooleanFunction },
+
+                {"strlen", StringLengthFunction }
             };
 
             // Dynamically add math functions to the built-in functions dictionary
@@ -342,6 +344,27 @@ namespace BettyLang.Core
 
             // Return the result
             return InterpreterValue.FromNumber(result);
+        }
+
+        private InterpreterValue StringLengthFunction(FunctionCallNode node)
+        {
+            // Ensure exactly one argument is provided
+            if (node.Arguments.Count != 1)
+            {
+                throw new ArgumentException("strlen function requires exactly one argument.");
+            }
+
+            // Evaluate the argument
+            var argResult = node.Arguments[0].Accept(this);
+
+            // Ensure the argument is a string
+            if (argResult.Type != InterpreterValueType.String)
+            {
+                throw new ArgumentException("Argument for strlen function must be a string.");
+            }
+
+            // Return the length of the string
+            return InterpreterValue.FromNumber(argResult.AsString().Length);
         }
 
         private InterpreterValue ToStringFunction(FunctionCallNode node)

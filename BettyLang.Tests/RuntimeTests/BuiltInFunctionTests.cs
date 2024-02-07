@@ -3,6 +3,73 @@
     public class BuiltInFunctionTests : InterpreterTest
     {
         [Fact]
+        public void ToStringFunction_ReturnsCorrectValue()
+        {
+            var code = "return tostr(5);";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+
+            Assert.Equal("5", result.AsString());
+        }
+
+        [Fact]
+        public void ToNumberFunction_ReturnsCorrectValue()
+        {
+            var code = "return tonum(\"5\");";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void ToNumberFunction_ReturnsCorrectValueWithLeadingWhitespace()
+        {
+            var code = "return tonum(\"  5\");";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void ToNumberFunction_ReturnsCorrectValueWithTrailingWhitespace()
+        {
+            var code = "return tonum(\"5  \");";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void ToNumberFunction_ReturnsCorrectValueWithLeadingAndTrailingWhitespace()
+        {
+            var code = "return tonum(\"  5  \");";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void StringLengthFunction_ReturnsCorrectValue()
+        {
+            var code = "return strlen(\"hello\");";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+
+        [Fact]
         public void PrintFunction_PrintsCorrectValue()
         {
             var code = "print(tostr(2 + 3));";
