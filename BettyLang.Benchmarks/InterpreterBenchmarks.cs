@@ -33,5 +33,33 @@ namespace BettyLang.Benchmarks
 
             interpreter.Interpret();
         }
+
+        [Benchmark]
+        public void IterativeFunctionCall()
+        {
+            var code = $$"""
+                func fact(n)
+                {
+                    result = 1;
+                    while (n > 0)
+                    {
+                        result = result * n;
+                        n = n - 1;
+                    }
+                    return result;
+                }
+
+                func main()
+                {
+                    fact(5);
+                }
+                """;
+
+            var lexer = new Lexer(code);
+            var parser = new Parser(lexer);
+            var interpreter = new Interpreter(parser);
+
+            interpreter.Interpret();
+        }
     }
 }
