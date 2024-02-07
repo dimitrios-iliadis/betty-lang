@@ -10,7 +10,7 @@ namespace BettyLang.Benchmarks
         [GlobalSetup]
         public void Setup()
         {
-            string code = $$"""
+            string code = """
             func fact(n)
             {
                 if (n == 0)
