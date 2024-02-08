@@ -2,15 +2,10 @@
 
 namespace BettyLang.Core.AST
 {
-    public class Program : AstNode
+    public class Program(List<FunctionDefinition> functions) : Expression
     {
-        public List<FunctionDefinition> Functions { get; }
+        public List<FunctionDefinition> Functions { get; } = functions;
 
-        public Program(List<FunctionDefinition> functions)
-        {
-            Functions = functions;
-        }
-
-        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }
 }

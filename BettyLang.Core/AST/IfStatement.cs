@@ -1,23 +1,21 @@
-﻿using BettyLang.Core.Interpreter;
-
-namespace BettyLang.Core.AST
+﻿namespace BettyLang.Core.AST
 {
-    public class IfStatement : AstNode
+    public class IfStatement : Statement
     {
-        public AstNode Condition { get; private set; }
-        public AstNode ThenStatement { get; private set; }
-        public List<(AstNode Condition, AstNode Statement)> ElseIfStatements { get; private set; }
-        public AstNode ElseStatement { get; private set; }
+        public Expression Condition { get; private set; }
+        public Statement ThenStatement { get; private set; }
+        public List<(Expression Condition, Statement Statement)> ElseIfStatements { get; private set; }
+        public Statement ElseStatement { get; private set; }
 
-        public IfStatement(AstNode condition, AstNode thenStatement,
-            List<(AstNode Condition, AstNode Statement)> elseIfStatements, AstNode elseStatement)
+        public IfStatement(Expression condition, Statement thenStatement,
+            List<(Expression Condition, Statement Statement)> elseIfStatements, Statement elseStatement)
         {
             Condition = condition;
             ThenStatement = thenStatement;
-            ElseIfStatements = elseIfStatements ?? new List<(AstNode Condition, AstNode Statement)>();
+            ElseIfStatements = elseIfStatements ?? new List<(Expression Condition, Statement Statement)>();
             ElseStatement = elseStatement;
         }
 
-        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
+        public override void Accept(IStatementVisitor visitor) => visitor.Visit(this);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace BettyLang.Tests.RuntimeTests
+﻿namespace BettyLang.Tests.InterpreterTests
 {
     public class UserDefinedFunctionTests : InterpreterTest
     {

@@ -2,10 +2,10 @@
 
 namespace BettyLang.Core.AST
 {
-    public class BooleanLiteral(bool value) : AstNode
+    public class BooleanLiteral(bool value) : Expression
     {
         public bool Value { get; } = value;
 
-        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }
 }

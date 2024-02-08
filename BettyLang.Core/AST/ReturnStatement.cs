@@ -1,16 +1,9 @@
-﻿using BettyLang.Core.Interpreter;
-
-namespace BettyLang.Core.AST
+﻿namespace BettyLang.Core.AST
 {
-    public class ReturnStatement : AstNode
+    public class ReturnStatement(Expression returnValue) : Statement
     {
-        public AstNode ReturnValue { get; }
+        public Expression ReturnValue { get; } = returnValue;
 
-        public ReturnStatement(AstNode returnValue)
-        {
-            ReturnValue = returnValue;
-        }
-
-        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
+        public override void Accept(IStatementVisitor visitor) => visitor.Visit(this);
     }
 }

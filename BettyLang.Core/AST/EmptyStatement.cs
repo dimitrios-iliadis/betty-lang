@@ -1,11 +1,7 @@
-﻿using BettyLang.Core.Interpreter;
-
-namespace BettyLang.Core.AST
+﻿namespace BettyLang.Core.AST
 {
-    public class EmptyStatement : AstNode
+    public class EmptyStatement : Statement
     {
-        public EmptyStatement() { }
-
-        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
+        public override void Accept(IStatementVisitor visitor) => visitor.Visit(this);
     }
 }

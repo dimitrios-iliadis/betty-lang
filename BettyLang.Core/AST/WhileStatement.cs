@@ -1,18 +1,10 @@
-﻿using BettyLang.Core.Interpreter;
-
-namespace BettyLang.Core.AST
+﻿namespace BettyLang.Core.AST
 {
-    public class WhileStatement : AstNode
+    public class WhileStatement(Expression condition, Statement body) : Statement
     {
-        public AstNode Condition { get; private set; }
-        public AstNode Body { get; private set; }
+        public Expression Condition { get; } = condition;
+        public Statement Body { get; } = body;
 
-        public WhileStatement(AstNode condition, AstNode body)
-        {
-            Condition = condition;
-            Body = body;
-        }
-
-        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
+        public override void Accept(IStatementVisitor visitor) => visitor.Visit(this);
     }
 }

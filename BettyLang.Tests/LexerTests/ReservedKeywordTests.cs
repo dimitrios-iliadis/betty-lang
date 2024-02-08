@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Tests.LexerTests
 {
-    public class KeywordTests
+    public class ReservedKeywordTests
     {
         [Theory]
         [InlineData("func", TokenType.Func)]

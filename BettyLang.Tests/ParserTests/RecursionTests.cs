@@ -41,7 +41,7 @@
             Assert.NotNull(returnStatement);
 
             // Check for the recursive call in the return statement
-            var binaryOperatorNode = returnStatement.ReturnValue as BinaryOperator;
+            var binaryOperatorNode = returnStatement.ReturnValue as BinaryOperatorExpression;
             Assert.NotNull(binaryOperatorNode);
 
             var functionCallNode = binaryOperatorNode.Right as FunctionCall; // Assuming the recursive call is on the right-hand side
@@ -50,7 +50,7 @@
 
             // Check that the argument of the recursive call is "n - 1"
             Assert.Single(functionCallNode.Arguments);
-            var argumentExpression = functionCallNode.Arguments[0] as BinaryOperator;
+            var argumentExpression = functionCallNode.Arguments[0] as BinaryOperatorExpression;
             Assert.NotNull(argumentExpression);
             Assert.Equal(TokenType.Minus, argumentExpression.Operator.Type);
         }

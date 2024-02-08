@@ -2,10 +2,10 @@
 
 namespace BettyLang.Core.AST
 {
-    public class Variable(string name) : AstNode
+    public class Variable(string name) : Expression
     {
         public string Name { get; } = name;
 
-        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }
 }

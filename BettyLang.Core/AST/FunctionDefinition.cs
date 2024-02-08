@@ -1,8 +1,6 @@
-﻿using BettyLang.Core.Interpreter;
-
-namespace BettyLang.Core.AST
+﻿namespace BettyLang.Core.AST
 {
-    public class FunctionDefinition : AstNode
+    public class FunctionDefinition : Statement
     {
         public string FunctionName { get; }
         public List<string> Parameters { get; }
@@ -15,6 +13,6 @@ namespace BettyLang.Core.AST
             Body = body;
         }
 
-        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
+        public override void Accept(IStatementVisitor visitor) => visitor.Visit(this);
     }
 }

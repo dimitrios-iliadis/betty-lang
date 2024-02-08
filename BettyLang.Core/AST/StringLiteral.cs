@@ -2,12 +2,10 @@
 
 namespace BettyLang.Core.AST
 {
-    public class StringLiteral : AstNode
+    public class StringLiteral(string value) : Expression
     {
-        public string Value { get; }
+        public string Value { get; } = value;
 
-        public StringLiteral(string value) { Value = value; }
-
-        public override Value Accept(IAstVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }
 }

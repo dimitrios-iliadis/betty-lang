@@ -9,7 +9,7 @@ namespace BettyLang.Core.Interpreter
         public Value ReturnValue { get; } = returnValue;
     }
 
-    public class Interpreter : IAstVisitor
+    public class Interpreter : IStatementVisitor, IExpressionVisitor
     {
         private readonly Parser _parser;
         private readonly Dictionary<string, FunctionDefinition> _functions = new();
@@ -75,13 +75,13 @@ namespace BettyLang.Core.Interpreter
             }
         }
 
-        public Value Visit(TernaryOperator node)
+        public Value Visit(TernaryOperatorExpression node)
         {
             bool conditionResult = node.Condition.Accept(this).AsBoolean();
             return conditionResult ? node.TrueExpression.Accept(this) : node.FalseExpression.Accept(this);
         }
 
-        public Value Visit(ReturnStatement node)
+        public void Visit(ReturnStatement node)
         {
             var returnValue = Value.None();
             if (node.ReturnValue is not null)
@@ -136,7 +136,7 @@ namespace BettyLang.Core.Interpreter
             }
         }
 
-        public Value Visit(BreakStatement node)
+        public void Visit(BreakStatement node)
         {
             if (!_isInLoop)
             {
@@ -146,7 +146,7 @@ namespace BettyLang.Core.Interpreter
             throw new BreakException();
         }
 
-        public Value Visit(ContinueStatement node)
+        public void Visit(ContinueStatement node)
         {
             if (!_isInLoop)
             {
@@ -156,7 +156,7 @@ namespace BettyLang.Core.Interpreter
             throw new ContinueException();
         }
 
-        public Value Visit(WhileStatement node)
+        public void Visit(WhileStatement node)
         {
             _isInLoop = true;
 
@@ -176,11 +176,9 @@ namespace BettyLang.Core.Interpreter
             }
             catch (BreakException) { }
             finally { _isInLoop = false; }
-
-            return Value.None();
         }
 
-        public Value Visit(IfStatement node)
+        public void Visit(IfStatement node)
         {
             var conditionResult = node.Condition.Accept(this).AsBoolean();
 
@@ -198,16 +196,11 @@ namespace BettyLang.Core.Interpreter
                     }
                 }
 
-                if (node.ElseStatement != null)
-                {
-                    node.ElseStatement.Accept(this);
-                }
+                node.ElseStatement?.Accept(this);
             }
-
-            return Value.None();
         }
 
-        public Value Visit(BinaryOperator node)
+        public Value Visit(BinaryOperatorExpression node)
         {
             var leftResult = node.Left.Accept(this);
             var rightResult = node.Right.Accept(this);
@@ -289,24 +282,21 @@ namespace BettyLang.Core.Interpreter
 
         public Value Visit(StringLiteral node) => Value.FromString(node.Value);
 
-        public Value Visit(CompoundStatement node)
+        public void Visit(CompoundStatement node)
         {
             foreach (var statement in node.Statements)
                 statement.Accept(this);
-
-            return Value.None();
         }
 
-        public Value Visit(Assignment node)
+        public void Visit(AssignmentStatement node)
         {
             if (node.Left is Variable variableNode)
             {
                 var rightResult = node.Right.Accept(this);
                 _scopeManager.SetVariable(variableNode.Name, rightResult);
-                return Value.None();
             }
-
-            throw new Exception("The left-hand side of an assignment must be a variable.");
+            else
+                throw new Exception("The left-hand side of an assignment must be a variable.");
         }
 
         public Value Visit(Variable node)
@@ -314,7 +304,7 @@ namespace BettyLang.Core.Interpreter
             return _scopeManager.LookupVariable(node.Name);
         }
 
-        public Value Visit(EmptyStatement node) => Value.None();
+        public void Visit(EmptyStatement node) { }
 
         private Value MathFunctionHandler(FunctionCall node)
         {
@@ -492,6 +482,8 @@ namespace BettyLang.Core.Interpreter
             return Value.None();
         }
 
+        public void Visit(FunctionCallStatement node) => Visit(node.FunctionCall);
+
         public Value Visit(FunctionCall node)
         {
             // Attempt to find and call a built-in function handler
@@ -542,26 +534,25 @@ namespace BettyLang.Core.Interpreter
             return returnValue;
         }
 
-        public Value Visit(FunctionDefinition node)
+        public void Visit(FunctionDefinition node)
         {
             if (_builtInFunctions.ContainsKey(node.FunctionName))
                 throw new Exception($"Function name '{node.FunctionName}' is reserved for built-in functions.");
 
             _functions[node.FunctionName] = node;
-            return Value.None();
         }
 
-        public Value Visit(UnaryOperator node)
+        public Value Visit(UnaryOperatorExpression node)
         {
-            TokenType op = node.Operator.Type;
+            TokenType @operator = node.Operator.Type;
             var operandResult = node.Expression.Accept(this);
 
-            return op switch
+            return @operator switch
             {
                 TokenType.Plus => operandResult,
                 TokenType.Minus => Value.FromNumber(-operandResult.AsNumber()),
                 TokenType.Not => Value.FromBoolean(!operandResult.AsBoolean()),
-                _ => throw new InvalidOperationException($"Unsupported unary operator {op}")
+                _ => throw new InvalidOperationException($"Unsupported unary operator {@operator}")
             };
         }
     }

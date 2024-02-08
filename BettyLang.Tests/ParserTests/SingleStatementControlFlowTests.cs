@@ -13,7 +13,7 @@
             var ifStatement = mainFunction.Body.Statements[0] as IfStatement;
 
             Assert.NotNull(ifStatement);
-            Assert.IsType<Assignment>(ifStatement.ThenStatement);
+            Assert.IsType<AssignmentStatement>(ifStatement.ThenStatement);
             Assert.Null(ifStatement.ElseStatement);
         }
 
@@ -30,7 +30,7 @@
             Assert.NotNull(ifStatement);
             Assert.Single(ifStatement.ElseIfStatements);
             var elifStatement = ifStatement.ElseIfStatements[0].Statement;
-            Assert.IsType<Assignment>(elifStatement);
+            Assert.IsType<AssignmentStatement>(elifStatement);
         }
 
         [Fact]
@@ -44,7 +44,7 @@
             var ifStatement = mainFunction.Body.Statements[0] as IfStatement;
 
             Assert.NotNull(ifStatement);
-            Assert.IsType<Assignment>(ifStatement.ElseStatement);
+            Assert.IsType<AssignmentStatement>(ifStatement.ElseStatement);
         }
 
         [Fact]
@@ -58,7 +58,7 @@
             var whileStatement = mainFunction.Body.Statements[0] as WhileStatement;
 
             Assert.NotNull(whileStatement);
-            Assert.IsType<Assignment>(whileStatement.Body);
+            Assert.IsType<AssignmentStatement>(whileStatement.Body);
         }
     }
 }
