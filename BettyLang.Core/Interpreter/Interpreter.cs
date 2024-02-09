@@ -63,10 +63,8 @@ namespace BettyLang.Core.Interpreter
                 // Execute the main function
                 return Visit(new FunctionCall("main", []));
             }
-            else
-            {
-                throw new Exception("No main function found.");
-            }
+            
+            throw new Exception("No main function found.");
         }
 
         public Value Visit(TernaryOperatorExpression node)
@@ -163,8 +161,8 @@ namespace BettyLang.Core.Interpreter
                     continue;
                 }
 
-                // Break out of the loop on break or return
-                if (_context.Flow == ControlFlow.Break || _context.Flow == ControlFlow.Return)
+                // Break out of the loop on break
+                if (_context.Flow == ControlFlow.Break)
                 {
                     break;
                 }
@@ -201,13 +199,6 @@ namespace BettyLang.Core.Interpreter
                 {
                     node.ElseStatement.Accept(this);
                 }
-            }
-
-            // Check for control flow changes caused by a return within the if/elseif/else blocks
-            if (_context.Flow == ControlFlow.Return)
-            {
-                // If a return was encountered, the control flow change is handled by the caller
-                return;
             }
         }
 
@@ -299,13 +290,11 @@ namespace BettyLang.Core.Interpreter
             {
                 statement.Accept(this);
 
-                // Check the control flow state after executing each statement
-                if (_context.Flow == ControlFlow.Return ||
-                    _context.Flow == ControlFlow.Break ||
-                    _context.Flow == ControlFlow.Continue)
+                // Handle control flow changes
+                if (_context.Flow == ControlFlow.Return)
                 {
-                    // If a control flow change has occurred, exit the compound statement execution
-                    break;
+                    // Return statement encountered, exit the compound statement
+                    return;
                 }
             }
         }

@@ -17,11 +17,5 @@
         {
             Flow = ControlFlow.Normal;
         }
-
-        public void Reset()
-        {
-            Flow = ControlFlow.Normal;
-            LastReturnValue = Value.None();
-        }
     }
 }
