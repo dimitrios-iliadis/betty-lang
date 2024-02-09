@@ -221,5 +221,23 @@
             var result = interpreter.Interpret();
             Assert.Equal(9.0, result.AsNumber());
         }
+
+        [Fact]
+        public void WhileLoop_WithBreakStatement()
+        {
+            var code = @"
+                counter = 0;
+                while (true) {
+                    counter = counter + 1;
+                    if (counter == 5) {
+                        break;
+                    }
+                }
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(5.0, result.AsNumber());
+        }
     }
 }

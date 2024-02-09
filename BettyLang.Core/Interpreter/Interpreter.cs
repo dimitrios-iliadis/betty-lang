@@ -2,13 +2,6 @@
 
 namespace BettyLang.Core.Interpreter
 {
-    public class BreakException : Exception { }
-    public class ContinueException : Exception { }
-    public class ReturnException(Value returnValue) : Exception
-    {
-        public Value ReturnValue { get; } = returnValue;
-    }
-
     public class Interpreter : IStatementVisitor, IExpressionVisitor
     {
         private readonly Parser _parser;
@@ -23,6 +16,7 @@ namespace BettyLang.Core.Interpreter
         };
         private delegate Value BuiltInFunctionHandler(FunctionCall node);
         private readonly Dictionary<string, BuiltInFunctionHandler> _builtInFunctions;
+        private readonly InterpreterContext _context = new();
         private bool _isInLoop = false;
 
         public Interpreter(Parser parser)
@@ -83,14 +77,15 @@ namespace BettyLang.Core.Interpreter
 
         public void Visit(ReturnStatement node)
         {
-            var returnValue = Value.None();
-            if (node.ReturnValue is not null)
+            if (node.ReturnValue != null)
             {
-                returnValue = node.ReturnValue.Accept(this);
+                _context.LastReturnValue = node.ReturnValue.Accept(this);
             }
-
-            // Use the exception to carry the return value
-            throw new ReturnException(returnValue);
+            else
+            {
+                _context.LastReturnValue = Value.None();
+            }
+            _context.Flow = ControlFlow.Return;
         }
 
         private static Value PerformComparison(Value leftResult, Value rightResult, TokenType operatorType)
@@ -142,8 +137,7 @@ namespace BettyLang.Core.Interpreter
             {
                 throw new Exception("Break statement not inside a loop");
             }
-
-            throw new BreakException();
+            _context.Flow = ControlFlow.Break;
         }
 
         public void Visit(ContinueStatement node)
@@ -152,30 +146,34 @@ namespace BettyLang.Core.Interpreter
             {
                 throw new Exception("Continue statement not inside a loop");
             }
-
-            throw new ContinueException();
+            _context.Flow = ControlFlow.Continue;
         }
 
         public void Visit(WhileStatement node)
         {
             _isInLoop = true;
-
-            try
+            while (node.Condition.Accept(this).AsBoolean() && _context.Flow == ControlFlow.Normal)
             {
-                while (node.Condition.Accept(this).AsBoolean())
+                node.Body.Accept(this);
+
+                // Handle continue
+                if (_context.Flow == ControlFlow.Continue)
                 {
-                    try
-                    {
-                        node.Body.Accept(this);
-                    }
-                    catch (ContinueException)
-                    {
-                        continue;
-                    }
+                    _context.ResetFlow(); // Prepare for the next iteration
+                    continue;
+                }
+
+                // Break out of the loop on break or return
+                if (_context.Flow == ControlFlow.Break || _context.Flow == ControlFlow.Return)
+                {
+                    break;
                 }
             }
-            catch (BreakException) { }
-            finally { _isInLoop = false; }
+            _isInLoop = false;
+            if (_context.Flow == ControlFlow.Break)
+            {
+                _context.ResetFlow(); // Loop exited because of a break, reset flow for the code outside the loop
+            }
         }
 
         public void Visit(IfStatement node)
@@ -188,15 +186,28 @@ namespace BettyLang.Core.Interpreter
             }
             else
             {
+                bool elseifExecuted = false;
                 foreach (var (Condition, Statement) in node.ElseIfStatements)
                 {
                     if (Condition.Accept(this).AsBoolean())
                     {
                         Statement.Accept(this);
+                        elseifExecuted = true;
+                        break; // Exit after the first true elseif to prevent executing multiple blocks
                     }
                 }
 
-                node.ElseStatement?.Accept(this);
+                if (!elseifExecuted && node.ElseStatement != null)
+                {
+                    node.ElseStatement.Accept(this);
+                }
+            }
+
+            // Check for control flow changes caused by a return within the if/elseif/else blocks
+            if (_context.Flow == ControlFlow.Return)
+            {
+                // If a return was encountered, the control flow change is handled by the caller
+                return;
             }
         }
 
@@ -285,7 +296,18 @@ namespace BettyLang.Core.Interpreter
         public void Visit(CompoundStatement node)
         {
             foreach (var statement in node.Statements)
+            {
                 statement.Accept(this);
+
+                // Check the control flow state after executing each statement
+                if (_context.Flow == ControlFlow.Return ||
+                    _context.Flow == ControlFlow.Break ||
+                    _context.Flow == ControlFlow.Continue)
+                {
+                    // If a control flow change has occurred, exit the compound statement execution
+                    break;
+                }
+            }
         }
 
         public void Visit(AssignmentStatement node)
@@ -486,50 +508,45 @@ namespace BettyLang.Core.Interpreter
 
         public Value Visit(FunctionCall node)
         {
-            // Attempt to find and call a built-in function handler
             if (_builtInFunctions.TryGetValue(node.FunctionName, out var handler))
             {
+                // Handle built-in functions directly
                 return handler(node);
             }
 
-            // If the function is not a built-in function, it must be a user-defined function
             if (!_functions.TryGetValue(node.FunctionName, out var function))
+            {
                 throw new Exception($"Function {node.FunctionName} is not defined.");
+            }
 
             // Enter a new scope for function execution
             _scopeManager.EnterScope();
 
-            var returnValue = Value.None();
-
-            // Store the current loop context
+            // Prepare for function execution
             bool wasInLoop = _isInLoop;
-            _isInLoop = false; // Reset isInLoop because we're entering a new function context
+            _isInLoop = false; // Reset loop context
+            var previousFlow = _context.Flow; // Save the current flow state
+            _context.Flow = ControlFlow.Normal; // Reset flow for function execution
 
-            try
+            // Set function parameters in the new scope
+            for (int i = 0; i < node.Arguments.Count; i++)
             {
-                // Set function parameters in the new scope
-                for (int i = 0; i < node.Arguments.Count; i++)
-                {
-                    var argValue = node.Arguments[i].Accept(this);
-                    _scopeManager.SetVariable(function.Parameters[i], argValue);
-                }
+                var argValue = node.Arguments[i].Accept(this);
+                _scopeManager.SetVariable(function.Parameters[i], argValue);
+            }
 
-                // Execute function body
-                function.Body.Accept(this);
-            }
-            catch (ReturnException ex)
-            {
-                // Catch the return value from the function
-                returnValue = ex.ReturnValue;
-            }
-            finally
-            {
-                // Restore the loop context after function execution
-                _isInLoop = wasInLoop;
+            // Execute function body
+            function.Body.Accept(this);
 
-                // Exit the function scope regardless of how we leave the function
-                _scopeManager.ExitScope();
-            }
+            // Capture the return value if the function execution resulted in a return
+            Value returnValue = _context.Flow == ControlFlow.Return ? _context.LastReturnValue : Value.None();
+
+            // Restore the context after function execution
+            _isInLoop = wasInLoop;
+            _context.Flow = previousFlow; // Restore the previous flow state
+
+            // Exit the function scope
+            _scopeManager.ExitScope();
 
             return returnValue;
         }
