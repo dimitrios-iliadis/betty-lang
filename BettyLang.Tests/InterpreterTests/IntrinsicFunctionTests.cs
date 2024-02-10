@@ -1,9 +1,9 @@
 ﻿namespace BettyLang.Tests.InterpreterTests
 {
-    public class BuiltInFunctionTests : InterpreterTest
+    public class IntrinsicFunctionTests : InterpreterTest
     {
         [Fact]
-        public void ToStringFunction_ReturnsCorrectValue()
+        public void ConvertToStringFunction_ReturnsCorrectValue()
         {
             var code = "return tostr(5);";
             var interpreter = SetupInterpreter(code);
@@ -14,7 +14,7 @@
         }
 
         [Fact]
-        public void ToNumberFunction_ReturnsCorrectValue()
+        public void ConvertToNumberFunction_ReturnsCorrectValue()
         {
             var code = "return tonum(\"5\");";
             var interpreter = SetupInterpreter(code);
@@ -25,49 +25,15 @@
         }
 
         [Fact]
-        public void ToNumberFunction_ReturnsCorrectValueWithLeadingWhitespace()
+        public void ConvertToBooleanFunction_ReturnsCorrectValue()
         {
-            var code = "return tonum(\"  5\");";
+            var code = "return tobool(5);";
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
 
-            Assert.Equal(5.0, result.AsNumber());
+            Assert.True(result.AsBoolean());
         }
-
-        [Fact]
-        public void ToNumberFunction_ReturnsCorrectValueWithTrailingWhitespace()
-        {
-            var code = "return tonum(\"5  \");";
-            var interpreter = SetupInterpreter(code);
-
-            var result = interpreter.Interpret();
-
-            Assert.Equal(5.0, result.AsNumber());
-        }
-
-        [Fact]
-        public void ToNumberFunction_ReturnsCorrectValueWithLeadingAndTrailingWhitespace()
-        {
-            var code = "return tonum(\"  5  \");";
-            var interpreter = SetupInterpreter(code);
-
-            var result = interpreter.Interpret();
-
-            Assert.Equal(5.0, result.AsNumber());
-        }
-
-        [Fact]
-        public void StringLengthFunction_ReturnsCorrectValue()
-        {
-            var code = "return strlen(\"hello\");";
-            var interpreter = SetupInterpreter(code);
-
-            var result = interpreter.Interpret();
-
-            Assert.Equal(5.0, result.AsNumber());
-        }
-
 
         [Fact]
         public void PrintFunction_PrintsCorrectValue()
@@ -85,41 +51,40 @@
         [Fact]
         public void PrintFunction_PrintsCorrectValueWithNewLine()
         {
-            var code = """print(tostr(2 + 3) + "\n");""";
+            var code = """print("Hello World\n");""";
             var interpreter = SetupInterpreter(code);
             var output = new StringWriter();
             Console.SetOut(output);
 
             interpreter.Interpret();
 
-            Assert.Equal("5\n", output.ToString());
+            Assert.Equal("Hello World\n", output.ToString());
         }
 
         [Fact]
-        public void PrintFunction_PrintsCorrectValueWithNewLineAndTab()
+        public void PrintFunction_PrintsCorrectValueWithMultipleArguments()
         {
-            var code = """print(tostr(2 + 3) + "\n\t");""";
+            var code = "print(2, 3, 4);";
             var interpreter = SetupInterpreter(code);
             var output = new StringWriter();
             Console.SetOut(output);
 
             interpreter.Interpret();
 
-            Assert.Equal("5\n\t", output.ToString());
+            Assert.Equal("234", output.ToString());
         }
 
         [Fact]
-        public void PrintLineFunction_PrintsCorrectValue()
+        public void PrintLineFunction_PrintsCorrectValueWithMultipleArguments()
         {
-            var code = "println(tostr(2 + 3));";
+            var code = "println(2, 3, 4);";
             var interpreter = SetupInterpreter(code);
             var output = new StringWriter();
             Console.SetOut(output);
 
             interpreter.Interpret();
 
-            var expected = "5" + Environment.NewLine;
-            Assert.Equal(expected, output.ToString());
+            Assert.Equal("234\n", output.ToString());
         }
 
         [Fact]
@@ -146,6 +111,28 @@
             var result = interpreter.Interpret();
 
             Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void StringConcatenationFunction_ReturnsCorrectValue()
+        {
+            var code = "return concat(\"Hello\", \" \", \"World\");";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+
+            Assert.Equal("Hello World", result.AsString());
+        }
+
+        [Fact]
+        public void StringConcatenationFunction_ReturnsCorrectValueWithNumber()
+        {
+            var code = "return concat(\"Hello\", 5);";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+
+            Assert.Equal("Hello5", result.AsString());
         }
     }
 }

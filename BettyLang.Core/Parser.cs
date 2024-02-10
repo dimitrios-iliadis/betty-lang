@@ -9,6 +9,16 @@ namespace BettyLang.Core
 
         private readonly HashSet<string> _definedFunctions; // Store defined function names
 
+        private static readonly HashSet<TokenType> _comparisonOperators = new()
+        {
+            TokenType.GreaterThan,
+            TokenType.LessThan,
+            TokenType.GreaterThanOrEqual,
+            TokenType.LessThanOrEqual,
+            TokenType.EqualEqual,
+            TokenType.NotEqual
+        };
+
         public Parser(Lexer lexer)
         {
             _lexer = lexer;
@@ -398,15 +408,7 @@ namespace BettyLang.Core
             return node;
         }
 
-        private static bool IsComparisonOperator(TokenType type)
-        {
-            return type == TokenType.GreaterThan
-                || type == TokenType.LessThan
-                || type == TokenType.GreaterThanOrEqual
-                || type == TokenType.LessThanOrEqual
-                || type == TokenType.EqualEqual
-                || type == TokenType.NotEqual;
-        }
+        private static bool IsComparisonOperator(TokenType type) => _comparisonOperators.Contains(type);
 
         private Expression ParseLogicalOrExpression()
         {
