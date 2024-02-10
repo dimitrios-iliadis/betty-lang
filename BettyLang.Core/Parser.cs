@@ -6,25 +6,22 @@ namespace BettyLang.Core
     {
         private readonly Lexer _lexer;
         private Token _currentToken;
+        private readonly HashSet<string> _definedFunctions = [];
 
-        private readonly HashSet<string> _definedFunctions; // Store defined function names
-
-        private static readonly HashSet<TokenType> _comparisonOperators = new()
-        {
+        private static readonly HashSet<TokenType> _comparisonOperators =
+        [
             TokenType.GreaterThan,
             TokenType.LessThan,
             TokenType.GreaterThanOrEqual,
             TokenType.LessThanOrEqual,
             TokenType.EqualEqual,
             TokenType.NotEqual
-        };
+        ];
 
         public Parser(Lexer lexer)
         {
             _lexer = lexer;
             _currentToken = _lexer.GetNextToken();
-
-            _definedFunctions = new HashSet<string>();
         }
 
         private void Consume(TokenType tokenType)

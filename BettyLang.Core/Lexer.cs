@@ -5,8 +5,7 @@
         private readonly string _input;
         private int _position;
         private char _currentChar;
-
-        private readonly System.Text.StringBuilder _stringBuilder;
+        private readonly System.Text.StringBuilder _stringBuilder = new();
 
         private static readonly Dictionary<string, Token> _reservedKeywords = new()
         {
@@ -37,8 +36,6 @@
             _input = input;
             _position = 0;
             _currentChar = _input.Length > 0 ? _input[_position] : '\0'; // Handle empty input
-
-            _stringBuilder = new System.Text.StringBuilder();
         }
 
         private void Advance()

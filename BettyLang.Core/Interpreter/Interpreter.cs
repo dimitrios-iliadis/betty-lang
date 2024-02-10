@@ -3,9 +3,9 @@ using BettyLang.Core.Interpreter.IntrinsicFunctions;
 
 namespace BettyLang.Core.Interpreter
 {
-    public class Interpreter : IStatementVisitor, IExpressionVisitor
+    public class Interpreter(Parser parser) : IStatementVisitor, IExpressionVisitor
     {
-        private readonly Parser _parser;
+        private readonly Parser _parser = parser;
 
         private static readonly Dictionary<string, IIntrinsicFunction> _intrinsicFunctions = new()
         {
@@ -28,21 +28,9 @@ namespace BettyLang.Core.Interpreter
             { "sqrt", new SquareRootFunction() }
         };
 
-        private readonly Dictionary<string, FunctionDefinition> _functions;
-
-        private readonly ScopeManager _scopeManager;
-
-        private readonly InterpreterContext _context;
-
-        public Interpreter(Parser parser)
-        {
-            _parser = parser;
-
-            _functions = new Dictionary<string, FunctionDefinition>();
-
-            _scopeManager = new ScopeManager();
-            _context = new InterpreterContext();
-        }
+        private readonly Dictionary<string, FunctionDefinition> _functions = [];
+        private readonly ScopeManager _scopeManager = new();
+        private readonly InterpreterContext _context = new();
 
         public InterpreterValue Interpret()
         {
