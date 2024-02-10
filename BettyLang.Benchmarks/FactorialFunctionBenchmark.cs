@@ -6,7 +6,7 @@ namespace BettyLang.Benchmarks
 {
     public class FactorialFunctionBenchmark
     {
-        private Interpreter interpreter;
+        private Interpreter interpreter = null!;
 
         [GlobalSetup]
         public void Setup()

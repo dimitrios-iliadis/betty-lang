@@ -2,7 +2,7 @@
 {
     public class ScopeManager
     {
-        private readonly Stack<Dictionary<string, Value>> _scopes = new();
+        private readonly Stack<Dictionary<string, InterpreterValue>> _scopes = new();
 
         public ScopeManager()
         {
@@ -18,13 +18,13 @@
             _scopes.Pop();
         }
 
-        public void SetVariable(string name, Value value)
+        public void SetVariable(string name, InterpreterValue value)
         {
             var currentScope = _scopes.Peek();
             currentScope[name] = value;
         }
 
-        public Value LookupVariable(string name)
+        public InterpreterValue LookupVariable(string name)
         {
             foreach (var scope in _scopes)
             {

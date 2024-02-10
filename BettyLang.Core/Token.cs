@@ -2,7 +2,7 @@
 {
     public enum TokenType
     {
-        NumberLiteral, StringLiteral, BooleanLiteral, Identifier,
+        NumberLiteral, StringLiteral, TrueLiteral, FalseLiteral, Identifier,
 
         Not, And, Or,
 
@@ -19,9 +19,9 @@
         EOF
     }
 
-    public readonly struct Token(TokenType type, string value)
+    public readonly struct Token(TokenType type, string? value = default)
     {
         public TokenType Type { get; } = type;
-        public string Value { get; } = value;
+        public string? Value { get; } = value;
     }
 }

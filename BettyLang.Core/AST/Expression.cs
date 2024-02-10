@@ -4,6 +4,6 @@ namespace BettyLang.Core.AST
 {
     public abstract class Expression
     {
-        public abstract Value Accept(IExpressionVisitor visitor);
+        public abstract InterpreterValue Accept(IExpressionVisitor visitor);
     }
 }

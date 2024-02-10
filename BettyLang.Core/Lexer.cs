@@ -5,20 +5,23 @@
         private readonly string _input;
         private int _position;
         private char _currentChar;
-        private readonly System.Text.StringBuilder _stringBuilder = new();
+
+        private readonly System.Text.StringBuilder _stringBuilder;
+
         private static readonly Dictionary<string, Token> _reservedKeywords = new()
         {
-            ["func"] = new Token(TokenType.Func, "func"),
-            ["true"] = new Token(TokenType.BooleanLiteral, "true"),
-            ["false"] = new Token(TokenType.BooleanLiteral, "false"),
-            ["if"] = new Token(TokenType.If, "if"),
-            ["elif"] = new Token(TokenType.Elif, "elif"),
-            ["else"] = new Token(TokenType.Else, "else"),
-            ["while"] = new Token(TokenType.While, "while"),
-            ["break"] = new Token(TokenType.Break, "break"),
-            ["continue"] = new Token(TokenType.Continue, "continue"),
-            ["return"] = new Token(TokenType.Return, "return")
+            ["func"] = new Token(TokenType.Func),
+            ["true"] = new Token(TokenType.TrueLiteral),
+            ["false"] = new Token(TokenType.FalseLiteral),
+            ["if"] = new Token(TokenType.If),
+            ["elif"] = new Token(TokenType.Elif),
+            ["else"] = new Token(TokenType.Else),
+            ["while"] = new Token(TokenType.While),
+            ["break"] = new Token(TokenType.Break),
+            ["continue"] = new Token(TokenType.Continue),
+            ["return"] = new Token(TokenType.Return)
         };
+
         private static readonly Dictionary<string, TokenType> _doubleCharOperators = new()
         {
             ["=="] = TokenType.EqualEqual,
@@ -34,6 +37,8 @@
             _input = input;
             _position = 0;
             _currentChar = _input.Length > 0 ? _input[_position] : '\0'; // Handle empty input
+
+            _stringBuilder = new System.Text.StringBuilder();
         }
 
         private void Advance()
@@ -119,31 +124,31 @@
 
         private Token ScanSingleCharToken()
         {
-            (TokenType type, string value) = _currentChar switch
+            var type = _currentChar switch
             {
-                '+' => (TokenType.Plus, "+"),
-                '-' => (TokenType.Minus, "-"),
-                '*' => (TokenType.Star, "*"),
-                '/' => (TokenType.Slash, "/"),
-                '^' => (TokenType.Caret, "^"),
-                '(' => (TokenType.LParen, "("),
-                ')' => (TokenType.RParen, ")"),
-                '{' => (TokenType.LBrace, "{"),
-                '}' => (TokenType.RBrace, "}"),
-                ';' => (TokenType.Semicolon, ";"),
-                '!' => (TokenType.Not, "!"),
-                '=' => (TokenType.Equal, "="),
-                '<' => (TokenType.LessThan, "<"),
-                '>' => (TokenType.GreaterThan, ">"),
-                ',' => (TokenType.Comma, ","),
-                '?' => (TokenType.QuestionMark, "?"),
-                ':' => (TokenType.Colon, ":"),
-                '%' => (TokenType.Modulo, "%"),
+                '+' => TokenType.Plus,
+                '-' => TokenType.Minus,
+                '*' => TokenType.Star,
+                '/' => TokenType.Slash,
+                '^' => TokenType.Caret,
+                '(' => TokenType.LParen,
+                ')' => TokenType.RParen,
+                '{' => TokenType.LBrace,
+                '}' => TokenType.RBrace,
+                ';' => TokenType.Semicolon,
+                '!' => TokenType.Not,
+                '=' => TokenType.Equal,
+                '<' => TokenType.LessThan,
+                '>' => TokenType.GreaterThan,
+                ',' => TokenType.Comma,
+                '?' => TokenType.QuestionMark,
+                ':' => TokenType.Colon,
+                '%' => TokenType.Modulo,
                 _ => throw new Exception($"Invalid character '{_currentChar}' at position {_position}")
             };
 
             Advance();
-            return new Token(type, value);
+            return new Token(type);
         }
 
         private Token ScanIdentifierOrKeyword()
@@ -212,12 +217,12 @@
                 if (_currentChar == '.' && Char.IsDigit(PeekNextChar()))
                     return new Token(TokenType.NumberLiteral, ScanNumberLiteral(hasLeadingDot: true));
 
-                string op = _currentChar.ToString() + PeekNextChar();
-                if (_doubleCharOperators.TryGetValue(op, out TokenType type))
+                string @operator = _currentChar.ToString() + PeekNextChar();
+                if (_doubleCharOperators.TryGetValue(@operator, out TokenType type))
                 {
                     Advance();
                     Advance();
-                    return new Token(type, op);
+                    return new Token(type);
                 }
 
                 if (_currentChar == '"')
@@ -226,7 +231,7 @@
                 return ScanSingleCharToken();
             }
 
-            return new Token(TokenType.EOF, "");
+            return new Token(TokenType.EOF);
         }
     }
 }

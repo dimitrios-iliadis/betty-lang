@@ -13,6 +13,6 @@ namespace BettyLang.Core.AST
             Expression = expression;
         }
 
-        public override Value Accept(IExpressionVisitor visitor) => visitor.Visit(this);
+        public override InterpreterValue Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }
 }

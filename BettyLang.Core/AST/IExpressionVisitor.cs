@@ -4,14 +4,14 @@ namespace BettyLang.Core.AST
 {
     public interface IExpressionVisitor
     {
-        Value Visit(NumberLiteral node);
-        Value Visit(BooleanLiteral node);
-        Value Visit(StringLiteral node);
-        Value Visit(BinaryOperatorExpression node);
-        Value Visit(TernaryOperatorExpression node);
-        Value Visit(UnaryOperatorExpression node);
-        Value Visit(Variable node);
-        Value Visit(FunctionCall node);
-        Value Visit(Program node);
+        InterpreterValue Visit(NumberLiteral node);
+        InterpreterValue Visit(BooleanLiteral node);
+        InterpreterValue Visit(StringLiteral node);
+        InterpreterValue Visit(BinaryOperatorExpression node);
+        InterpreterValue Visit(TernaryOperatorExpression node);
+        InterpreterValue Visit(UnaryOperatorExpression node);
+        InterpreterValue Visit(Variable node);
+        InterpreterValue Visit(FunctionCall node);
+        InterpreterValue Visit(Program node);
     }
 }

@@ -2,17 +2,17 @@
 {
     public class IfStatement : Statement
     {
-        public Expression Condition { get; private set; }
-        public Statement ThenStatement { get; private set; }
-        public List<(Expression Condition, Statement Statement)> ElseIfStatements { get; private set; }
-        public Statement ElseStatement { get; private set; }
+        public Expression Condition { get; }
+        public Statement ThenStatement { get; }
+        public List<(Expression Condition, Statement Statement)> ElseIfStatements { get; }
+        public Statement? ElseStatement { get; }
 
         public IfStatement(Expression condition, Statement thenStatement,
-            List<(Expression Condition, Statement Statement)> elseIfStatements, Statement elseStatement)
+            List<(Expression Condition, Statement Statement)> elseIfStatements, Statement? elseStatement)
         {
             Condition = condition;
             ThenStatement = thenStatement;
-            ElseIfStatements = elseIfStatements ?? new List<(Expression Condition, Statement Statement)>();
+            ElseIfStatements = elseIfStatements ?? [];
             ElseStatement = elseStatement;
         }
 

@@ -38,8 +38,8 @@
         }
 
         [Theory]
-        [InlineData("true", TokenType.BooleanLiteral)]
-        [InlineData("false", TokenType.BooleanLiteral)]
+        [InlineData("true", TokenType.TrueLiteral)]
+        [InlineData("false", TokenType.FalseLiteral)]
         public void GetNextToken_HandlesBooleanLiteralsCorrectly(string input, TokenType expectedTokenType)
         {
             var lexer = new Lexer(input);
@@ -47,7 +47,6 @@
             var token = lexer.GetNextToken();
 
             Assert.Equal(expectedTokenType, token.Type);
-            Assert.Equal(input, token.Value);
         }
 
         [Fact]

@@ -6,12 +6,15 @@ namespace BettyLang.Core
     {
         private readonly Lexer _lexer;
         private Token _currentToken;
-        private readonly HashSet<string> _definedFunctions = []; // Store defined function names
+
+        private readonly HashSet<string> _definedFunctions; // Store defined function names
 
         public Parser(Lexer lexer)
         {
             _lexer = lexer;
             _currentToken = _lexer.GetNextToken();
+
+            _definedFunctions = new HashSet<string>();
         }
 
         private void Consume(TokenType tokenType)
@@ -26,12 +29,12 @@ namespace BettyLang.Core
         {
             var token = _currentToken;
             Consume(TokenType.StringLiteral);
-            return new StringLiteral(token.Value);
+            return new StringLiteral(token.Value!);
         }
 
         private Variable ParseVariable()
         {
-            var node = new Variable(_currentToken.Value);
+            var node = new Variable(_currentToken.Value!);
             Consume(TokenType.Identifier);
             return node;
         }
@@ -42,9 +45,11 @@ namespace BettyLang.Core
 
             switch (token.Type)
             {
-                case TokenType.BooleanLiteral:
-                    Consume(TokenType.BooleanLiteral);
-                    if (token.Value == "true") return new BooleanLiteral(true);
+                case TokenType.TrueLiteral:
+                    Consume(TokenType.TrueLiteral);
+                    return new BooleanLiteral(true);
+                case TokenType.FalseLiteral:
+                    Consume(TokenType.FalseLiteral);
                     return new BooleanLiteral(false);
 
                 case TokenType.Plus:
@@ -75,7 +80,7 @@ namespace BettyLang.Core
                     {
                         // Variable
                         Consume(TokenType.Identifier);
-                        return new Variable(token.Value);
+                        return new Variable(token.Value!);
                     }
 
                 default:
@@ -174,7 +179,7 @@ namespace BettyLang.Core
             var thenStatement = (_currentToken.Type == TokenType.LBrace) ? ParseCompoundStatement() : ParseStatement();
 
             var elseIfStatements = new List<(Expression Condition, Statement Statement)>();
-            Statement elseStatement = null;
+            Statement? elseStatement = null;
 
             while (_currentToken.Type == TokenType.Elif)
             {
@@ -217,14 +222,14 @@ namespace BettyLang.Core
         private ContinueStatement ParseContinueStatement()
         {
             Consume(TokenType.Continue);
-            Consume(TokenType.Semicolon); // Consume semicolon here
+            Consume(TokenType.Semicolon);
             return new ContinueStatement();
         }
 
         private ReturnStatement ParseReturnStatement()
         {
             Consume(TokenType.Return);
-            Expression returnValue = null;
+            Expression? returnValue = null;
             if (_currentToken.Type != TokenType.Semicolon)
             {
                 returnValue = ParseExpression();
@@ -258,18 +263,12 @@ namespace BettyLang.Core
         private Statement ParseIdentifierStatement()
         {
             var lookahead = _lexer.PeekNextToken();
-            if (lookahead.Type == TokenType.Equal)
+            return lookahead.Type switch
             {
-                return ParseAssignmentStatement();
-            }
-            else if (lookahead.Type == TokenType.LParen)
-            {
-                return ParseFunctionCallStatement();
-            }
-            else
-            {
-                throw new Exception($"Unexpected token after identifier: {lookahead.Type}");
-            }
+                TokenType.LParen => ParseFunctionCallStatement(),
+                TokenType.Equal => ParseAssignmentStatement(),
+                _ => throw new Exception($"Unexpected token after identifier: {lookahead.Type}")
+            };
         }
 
         private AssignmentStatement ParseAssignmentStatement()
@@ -291,7 +290,7 @@ namespace BettyLang.Core
         private FunctionCall ParseFunctionCall()
         {
             // The current token is expected to be an identifier (the function name)
-            string functionName = _currentToken.Value;
+            string functionName = _currentToken.Value!;
             Consume(TokenType.Identifier);
 
             // Consume the opening parenthesis
@@ -321,18 +320,12 @@ namespace BettyLang.Core
         private FunctionDefinition ParseFunctionDefinition()
         {
             // "function" token is already consumed
-            string functionName = _currentToken.Value;
+            string functionName = _currentToken.Value!;
             Consume(TokenType.Identifier); // Function name
 
             // Check for duplicate function definition
-            if (_definedFunctions.Contains(functionName))
-            {
+            if (!_definedFunctions.Add(functionName)) // Try to add the function name to the set
                 throw new Exception($"Function '{functionName}' is already defined.");
-            }
-            else
-            {
-                _definedFunctions.Add(functionName); // Add function name to the set
-            }
 
             Consume(TokenType.LParen); // Opening parenthesis
             var parameters = ParseParameters();
@@ -353,7 +346,7 @@ namespace BettyLang.Core
                 {
                     if (_currentToken.Type == TokenType.Identifier)
                     {
-                        string paramName = _currentToken.Value.ToString();
+                        string paramName = _currentToken.Value!.ToString();
                         parameters.Add(paramName);
                         Consume(TokenType.Identifier);
                     }

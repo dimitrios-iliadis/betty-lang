@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Core.Interpreter
 {
-    public enum ControlFlow
+    public enum ControlFlowState
     {
         Normal,
         Return,
@@ -10,12 +10,13 @@
 
     public class InterpreterContext
     {
-        public ControlFlow Flow { get; set; } = ControlFlow.Normal;
-        public Value LastReturnValue { get; set; } = Value.None();
+        public ControlFlowState FlowState { get; set; } = ControlFlowState.Normal;
+        public InterpreterValue LastReturnValue { get; set; } = InterpreterValue.None();
+        public bool IsInLoop { get; set; } = false;
 
-        public void ResetFlow()
+        public void ResetFlowState()
         {
-            Flow = ControlFlow.Normal;
+            FlowState = ControlFlowState.Normal;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace BettyLang.Core.Interpreter
     }
 
     [StructLayout(LayoutKind.Explicit)]
-    public readonly struct Value
+    public readonly struct InterpreterValue
     {
         [FieldOffset(0)]
         public readonly ValueType Type;
@@ -25,35 +25,35 @@ namespace BettyLang.Core.Interpreter
         [FieldOffset(4)]
         private readonly bool _boolean;
 
-        private Value(ValueType type) : this()
+        private InterpreterValue(ValueType type) : this()
         {
             Type = type;
         }
 
-        private Value(double number) : this(ValueType.Number)
+        private InterpreterValue(double number) : this(ValueType.Number)
         {
             _number = number;
         }
 
-        private Value(int stringId) : this(ValueType.String)
+        private InterpreterValue(int stringId) : this(ValueType.String)
         {
             _stringId = stringId;
         }
 
-        private Value(bool boolean) : this(ValueType.Boolean)
+        private InterpreterValue(bool boolean) : this(ValueType.Boolean)
         {
             _boolean = boolean;
         }
 
-        public static Value FromString(string str)
+        public static InterpreterValue FromString(string str)
         {
             int stringId = StringTable.AddString(str);
-            return new Value(stringId);
+            return new InterpreterValue(stringId);
         }
 
-        public static Value FromNumber(double number) => new Value(number);
-        public static Value FromBoolean(bool boolean) => new Value(boolean);
-        public static Value None() => new Value(ValueType.None);
+        public static InterpreterValue FromNumber(double number) => new InterpreterValue(number);
+        public static InterpreterValue FromBoolean(bool boolean) => new InterpreterValue(boolean);
+        public static InterpreterValue None() => new InterpreterValue(ValueType.None);
 
         public readonly double AsNumber()
         {

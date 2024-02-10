@@ -26,7 +26,6 @@ namespace BettyLang.Tests.LexerTests
             var token = lexer.GetNextToken();
 
             Assert.Equal(expectedTokenType, token.Type);
-            Assert.Equal(input, token.Value);
         }
     }
 }

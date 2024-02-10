@@ -1,3 +1,5 @@
 ﻿using BenchmarkDotNet.Running;
+using BettyLang.Benchmarks;
 
-BenchmarkRunner.Run(typeof(Program).Assembly);
+// BenchmarkRunner.Run<LexerBenchmark>();
+BenchmarkRunner.Run<FactorialFunctionBenchmark>();
