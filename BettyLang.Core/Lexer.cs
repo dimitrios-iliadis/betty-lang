@@ -214,8 +214,8 @@
                 if (_currentChar == '.' && Char.IsDigit(PeekNextChar()))
                     return new Token(TokenType.NumberLiteral, ScanNumberLiteral(hasLeadingDot: true));
 
-                string @operator = _currentChar.ToString() + PeekNextChar();
-                if (_doubleCharOperators.TryGetValue(@operator, out TokenType type))
+                string op = _currentChar.ToString() + PeekNextChar();
+                if (_doubleCharOperators.TryGetValue(op, out TokenType type))
                 {
                     Advance();
                     Advance();

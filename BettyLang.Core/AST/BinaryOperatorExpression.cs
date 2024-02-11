@@ -8,10 +8,10 @@ namespace BettyLang.Core.AST
         public Token Operator { get; }
         public Expression Right { get; }
 
-        public BinaryOperatorExpression(Expression left, Token @operator, Expression right)
+        public BinaryOperatorExpression(Expression left, Token op, Expression right)
         {
             Left = left;
-            Operator = @operator;
+            Operator = op;
             Right = right;
         }
 

@@ -6,10 +6,10 @@
         public Token Operator { get; }
         public Expression Right { get; }
 
-        public AssignmentStatement(Expression left, Token @operator, Expression right)
+        public AssignmentStatement(Expression left, Token op, Expression right)
         {
             Left = left;
-            Operator = @operator;
+            Operator = op;
             Right = right;
         }
 

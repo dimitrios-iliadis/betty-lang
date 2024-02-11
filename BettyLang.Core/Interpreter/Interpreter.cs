@@ -1,5 +1,4 @@
 ﻿using BettyLang.Core.AST;
-using BettyLang.Core.Interpreter.IntrinsicFunctions;
 
 namespace BettyLang.Core.Interpreter
 {
@@ -7,25 +6,23 @@ namespace BettyLang.Core.Interpreter
     {
         private readonly Parser _parser = parser;
 
-        private static readonly Dictionary<string, IIntrinsicFunction> _intrinsicFunctions = new()
+        private delegate InterpreterValue IntrinsicFunctionHandler(FunctionCall call, IExpressionVisitor visitor);
+
+        private static readonly Dictionary<string, IntrinsicFunctionHandler> _intrinsicFunctions = new()
         {
-            // IO functions
-            { "print", new PrintFunction() },
-            { "println", new PrintFunction() },
-            { "input", new InputFunction() },
+            { "print", IntrinsicFunctions.PrintFunction },
+            { "println", IntrinsicFunctions.PrintFunction },
+            { "input", IntrinsicFunctions.InputFunction },
 
-            // Conversion functions
-            { "tostr", new ConvertToStringFunction() },
-            { "tobool", new ConvertToBooleanFunction() },
-            { "tonum", new ConvertToNumberFunction() },
+            { "tostr", IntrinsicFunctions.ConvertToStringFunction },
+            { "tobool", IntrinsicFunctions.ConvertToBooleanFunction },
+            { "tonum", IntrinsicFunctions.ConvertToNumberFunction },
 
-            // String functions
-            { "concat", new StringConcatenationFunction() },
+            { "concat", IntrinsicFunctions.StringConcatFunction },
 
-            // Math functions
-            { "sin", new SineFunction() },
-            { "cos", new CosineFunction() },
-            { "sqrt", new SquareRootFunction() }
+            { "sin", IntrinsicFunctions.SinFunction },
+            { "cos", IntrinsicFunctions.CosFunction },
+            { "sqrt", IntrinsicFunctions.SqrtFunction }
         };
 
         private readonly Dictionary<string, FunctionDefinition> _functions = [];
@@ -338,15 +335,15 @@ namespace BettyLang.Core.Interpreter
 
         public InterpreterValue Visit(UnaryOperatorExpression node)
         {
-            TokenType @operator = node.Operator.Type;
+            TokenType op = node.Operator.Type;
             var operandResult = node.Expression.Accept(this);
 
-            return @operator switch
+            return op switch
             {
                 TokenType.Plus => operandResult,
                 TokenType.Minus => InterpreterValue.FromNumber(-operandResult.AsNumber()),
                 TokenType.Not => InterpreterValue.FromBoolean(!operandResult.AsBoolean()),
-                _ => throw new InvalidOperationException($"Unsupported unary operator {@operator}")
+                _ => throw new InvalidOperationException($"Unsupported unary operator {op}")
             };
         }
     }

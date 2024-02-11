@@ -1,10 +1,10 @@
 ﻿using BettyLang.Core.AST;
 
-namespace BettyLang.Core.Interpreter.IntrinsicFunctions
+namespace BettyLang.Core.Interpreter
 {
-    public class PrintFunction : IIntrinsicFunction
+    public static partial class IntrinsicFunctions
     {
-        public InterpreterValue Invoke(FunctionCall call, IExpressionVisitor visitor)
+        public static InterpreterValue PrintFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             // Iterate over all arguments, converting each to a string and printing it
             foreach (var arg in call.Arguments)

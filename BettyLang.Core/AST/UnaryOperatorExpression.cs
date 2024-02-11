@@ -7,9 +7,9 @@ namespace BettyLang.Core.AST
         public Token Operator { get; }
         public Expression Expression { get; }
 
-        public UnaryOperatorExpression(Token @operator, Expression expression)
+        public UnaryOperatorExpression(Token op, Expression expression)
         {
-            Operator = @operator;
+            Operator = op;
             Expression = expression;
         }
 

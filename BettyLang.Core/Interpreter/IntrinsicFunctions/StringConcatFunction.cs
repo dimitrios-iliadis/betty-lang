@@ -1,10 +1,10 @@
 ﻿using BettyLang.Core.AST;
 
-namespace BettyLang.Core.Interpreter.IntrinsicFunctions
+namespace BettyLang.Core.Interpreter
 {
-    public class StringConcatenationFunction : IIntrinsicFunction
+    public static partial class IntrinsicFunctions
     {
-        public InterpreterValue Invoke(FunctionCall call, IExpressionVisitor visitor)
+        public static InterpreterValue StringConcatFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             // Concatenate all arguments into a single string
             var stringBuilder = new System.Text.StringBuilder();

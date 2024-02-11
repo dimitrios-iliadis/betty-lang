@@ -1,10 +1,10 @@
 ﻿using BettyLang.Core.AST;
 
-namespace BettyLang.Core.Interpreter.IntrinsicFunctions
+namespace BettyLang.Core.Interpreter
 {
-    public class InputFunction : IIntrinsicFunction
+    public static partial class IntrinsicFunctions
     {
-        public InterpreterValue Invoke(FunctionCall call, IExpressionVisitor visitor)
+        public static InterpreterValue InputFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             if (call.Arguments.Count > 1)
             {
