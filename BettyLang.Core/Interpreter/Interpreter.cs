@@ -101,7 +101,7 @@ namespace BettyLang.Core.Interpreter
                 // Handle continue
                 if (_context.FlowState == ControlFlowState.Continue)
                 {
-                    _context.ResetFlowState(); // Prepare for the next iteration
+                    _context.FlowState = ControlFlowState.Normal; // Prepare for the next iteration
                     continue;
                 }
 
@@ -113,7 +113,7 @@ namespace BettyLang.Core.Interpreter
             _context.IsInLoop = false;
 
             if (_context.FlowState == ControlFlowState.Break)
-                _context.ResetFlowState(); // Loop exited because of a break, reset flow for the code outside the loop
+                _context.FlowState = ControlFlowState.Normal; // Loop exited because of a break, reset flow for the code outside the loop
         }
 
         public void Visit(IfStatement node)
