@@ -3,6 +3,26 @@ namespace BettyLang.Tests.InterpreterTests
     public class ArithmeticExpressionTests : InterpreterTest
     {
         [Fact]
+        public void PostfixIncrementOperator_ReturnsCorrectValue()
+        {
+            var code = "x = 5; return x++;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void PostfixIncrementOperator_ModifiesVariable()
+        {
+            var code = "x = 5; x++; return x;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal(6.0, result.AsNumber());
+        }
+
+        [Fact]
         public void Addition_ReturnsCorrectSum()
         {
             var code = "return 2 + 3;";

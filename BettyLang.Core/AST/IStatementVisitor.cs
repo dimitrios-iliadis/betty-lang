@@ -12,5 +12,6 @@
         void Visit(FunctionCallStatement node);
         void Visit(AssignmentStatement node);
         void Visit(CompoundStatement node);
+        void Visit(PostfixOperationStatement node);
     }
 }

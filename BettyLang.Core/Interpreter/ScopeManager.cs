@@ -33,7 +33,7 @@
                     return value;
                 }
             }
-            throw new Exception($"Variable '{name}' not found.");
+            throw new Exception($"Variable '{name}' is not defined in any scope.");
         }
     }
 }

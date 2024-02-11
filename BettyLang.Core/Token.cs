@@ -8,6 +8,8 @@
 
         Plus, Minus, Star, Slash, Caret, Modulo,
 
+        Increment, Decrement,
+
         LParen, RParen, LBrace, RBrace, Semicolon, Comma, QuestionMark, Colon,
 
         Func,

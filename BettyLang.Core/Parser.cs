@@ -87,6 +87,13 @@ namespace BettyLang.Core
                     {
                         // Variable
                         Consume(TokenType.Identifier);
+                        // Check for postfix increment/decrement
+                        if (_currentToken.Type == TokenType.Increment || _currentToken.Type == TokenType.Decrement)
+                        {
+                            var op = _currentToken;
+                            Consume(op.Type);
+                            return new PostfixOperation(new Variable(token.Value!), op.Type);
+                        }
                         return new Variable(token.Value!);
                     }
 
@@ -267,6 +274,15 @@ namespace BettyLang.Core
             };
         }
 
+        private PostfixOperationStatement ParsePostfixOperationStatement()
+        {
+            var variable = ParseVariable();
+            var token = _currentToken;
+            Consume(token.Type);
+            Consume(TokenType.Semicolon);
+            return new PostfixOperationStatement(new PostfixOperation(variable, token.Type));
+        }
+
         private Statement ParseIdentifierStatement()
         {
             var lookahead = _lexer.PeekNextToken();
@@ -274,6 +290,7 @@ namespace BettyLang.Core
             {
                 TokenType.LParen => ParseFunctionCallStatement(),
                 TokenType.Equal => ParseAssignmentStatement(),
+                TokenType.Increment or TokenType.Decrement => ParsePostfixOperationStatement(),
                 _ => throw new Exception($"Unexpected token after identifier: {lookahead.Type}")
             };
         }

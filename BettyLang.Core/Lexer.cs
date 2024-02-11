@@ -50,7 +50,9 @@
             [">="] = TokenType.GreaterThanOrEqual,
             ["!="] = TokenType.NotEqual,
             ["&&"] = TokenType.And,
-            ["||"] = TokenType.Or
+            ["||"] = TokenType.Or,
+            ["++"] = TokenType.Increment,
+            ["--"] = TokenType.Decrement
         };
 
         public Lexer(string input)

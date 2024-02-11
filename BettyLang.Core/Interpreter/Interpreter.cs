@@ -332,5 +332,27 @@ namespace BettyLang.Core.Interpreter
                 _ => throw new InvalidOperationException($"Unsupported unary operator {op}")
             };
         }
+
+        public void Visit(PostfixOperationStatement node) => Visit(node.PostfixOperation);
+
+        public InterpreterValue Visit(PostfixOperation node)
+        {
+            var operandResult = node.Operand.Accept(this);
+
+            if (operandResult.Type != ValueType.Number)
+                throw new InvalidOperationException("Postfix operations can only be applied to number variables.");
+
+            var variableName = node.Operand.Name;
+            var currentValue = _scopeManager.LookupVariable(variableName).AsNumber();
+            var newValue = node.Operator switch
+            {
+                TokenType.Increment => currentValue + 1,
+                TokenType.Decrement => currentValue - 1,
+                _ => throw new InvalidOperationException($"Unsupported postfix operator {node.Operator}")
+            };
+            _scopeManager.SetVariable(variableName, InterpreterValue.FromNumber(newValue));
+
+            return InterpreterValue.FromNumber(currentValue);
+        }
     }
 }
