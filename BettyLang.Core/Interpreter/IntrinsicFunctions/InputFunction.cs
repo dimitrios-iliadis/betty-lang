@@ -8,7 +8,7 @@ namespace BettyLang.Core.Interpreter
         {
             if (call.Arguments.Count > 1)
             {
-                throw new Exception("Input function requires at most one argument, which can be a prompt string.");
+                throw new Exception($"{call.FunctionName} function requires at most one argument, which can be a prompt string.");
             }
 
             // If an argument is provided, use the visitor to evaluate it and display as a prompt

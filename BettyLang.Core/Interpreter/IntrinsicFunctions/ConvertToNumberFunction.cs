@@ -8,7 +8,7 @@ namespace BettyLang.Core.Interpreter
         {
             if (call.Arguments.Count != 1)
             {
-                throw new ArgumentException("to_num function requires exactly one argument.");
+                throw new ArgumentException($"{call.FunctionName} function requires exactly one argument.");
             }
 
             var argResult = call.Arguments[0].Accept(visitor);

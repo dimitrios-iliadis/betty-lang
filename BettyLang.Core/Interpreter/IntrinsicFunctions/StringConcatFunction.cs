@@ -14,22 +14,14 @@ namespace BettyLang.Core.Interpreter
                 var argValue = arg.Accept(visitor);
 
                 // Convert each argument to a string regardless of its original type
-                string stringValue;
-                switch (argValue.Type)
+                string stringValue = argValue.Type switch
                 {
-                    case ValueType.Number:
-                        stringValue = argValue.AsNumber().ToString();
-                        break;
-                    case ValueType.Boolean:
-                        stringValue = argValue.AsBoolean().ToString();
-                        break;
-                    case ValueType.String:
-                        stringValue = argValue.AsString();
-                        break;
-                    default:
-                        throw new ArgumentException($"Unsupported argument type for string concatenation: {argValue.Type}");
-                }
-
+                    ValueType.Number => argValue.AsNumber().ToString(),
+                    ValueType.Boolean => argValue.AsBoolean().ToString(),
+                    ValueType.String => argValue.AsString(),
+                    ValueType.None => "None",
+                    _ => throw new ArgumentException($"Unsupported argument type for string concatenation: {argValue.Type}"),
+                };
                 stringBuilder.Append(stringValue);
             }
 

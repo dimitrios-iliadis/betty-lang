@@ -6,36 +6,29 @@ namespace BettyLang.Core.Interpreter
     {
         public static InterpreterValue PrintFunction(FunctionCall call, IExpressionVisitor visitor)
         {
-            // Iterate over all arguments, converting each to a string and printing it
+            // Concatenate all arguments into a single string
+            var stringBuilder = new System.Text.StringBuilder();
+
             foreach (var arg in call.Arguments)
             {
-                var argResult = arg.Accept(visitor);
-                string printValue;
+                var argValue = arg.Accept(visitor);
 
-                // Perform implicit conversion based on the argument's type
-                switch (argResult.Type)
+                // Convert each argument to a string regardless of its original type
+                string stringValue = argValue.Type switch
                 {
-                    case ValueType.Number:
-                        printValue = argResult.AsNumber().ToString();
-                        break;
-                    case ValueType.Boolean:
-                        printValue = argResult.AsBoolean().ToString();
-                        break;
-                    case ValueType.String:
-                        printValue = argResult.AsString();
-                        break;
-                    case ValueType.None:
-                        printValue = "None";
-                        break;
-                    default:
-                        throw new ArgumentException($"Unsupported argument type for printing: {argResult.Type}");
-                }
-
-                // Print the converted string value
-                Console.Write(printValue);
+                    ValueType.Number => argValue.AsNumber().ToString(),
+                    ValueType.Boolean => argValue.AsBoolean().ToString(),
+                    ValueType.String => argValue.AsString(),
+                    ValueType.None => "None",
+                    _ => throw new ArgumentException($"Unsupported argument type for printing: {argValue.Type}")
+                };
+                stringBuilder.Append(stringValue);
             }
+
             if (call.FunctionName == "println")
-                Console.Write("\n"); // Ensure that there's a newline after all arguments are printed
+                stringBuilder.Append('\n');
+
+            Console.Write(stringBuilder.ToString());
 
             return InterpreterValue.None();
         }
