@@ -4,7 +4,7 @@ namespace BettyLang.Core.Interpreter
 {
     public static partial class IntrinsicFunctions
     {
-        public static InterpreterValue ConvertToBooleanFunction(FunctionCall call, IExpressionVisitor visitor)
+        public static InterpreterValue ToBooleanFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             if (call.Arguments.Count != 1)
             {

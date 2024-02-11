@@ -75,5 +75,17 @@ namespace BettyLang.Core.Interpreter
                 throw new InvalidOperationException($"Expected a boolean, but got {Type}.");
             return _boolean;
         }
+
+        public override string ToString()
+        {
+            return Type switch
+            {
+                ValueType.Number => _number.ToString(),
+                ValueType.String => StringTable.GetString(_stringId),
+                ValueType.Boolean => _boolean.ToString(),
+                ValueType.None => "None",
+                _ => throw new InvalidOperationException($"Unknown type {Type}.")
+            };
+        }
     }
 }

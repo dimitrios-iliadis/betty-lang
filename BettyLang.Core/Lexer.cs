@@ -21,6 +21,28 @@
             ["return"] = new Token(TokenType.Return)
         };
 
+        private static readonly Dictionary<char, TokenType> _singleCharOperators = new()
+        {
+            ['+'] = TokenType.Plus,
+            ['-'] = TokenType.Minus,
+            ['*'] = TokenType.Star,
+            ['/'] = TokenType.Slash,
+            ['^'] = TokenType.Caret,
+            ['('] = TokenType.LParen,
+            [')'] = TokenType.RParen,
+            ['{'] = TokenType.LBrace,
+            ['}'] = TokenType.RBrace,
+            [';'] = TokenType.Semicolon,
+            ['!'] = TokenType.Not,
+            ['='] = TokenType.Equal,
+            ['<'] = TokenType.LessThan,
+            ['>'] = TokenType.GreaterThan,
+            [','] = TokenType.Comma,
+            ['?'] = TokenType.QuestionMark,
+            [':'] = TokenType.Colon,
+            ['%'] = TokenType.Modulo
+        };
+
         private static readonly Dictionary<string, TokenType> _doubleCharOperators = new()
         {
             ["=="] = TokenType.EqualEqual,
@@ -119,35 +141,6 @@
             return _stringBuilder.ToString();
         }
 
-        private Token ScanSingleCharToken()
-        {
-            var type = _currentChar switch
-            {
-                '+' => TokenType.Plus,
-                '-' => TokenType.Minus,
-                '*' => TokenType.Star,
-                '/' => TokenType.Slash,
-                '^' => TokenType.Caret,
-                '(' => TokenType.LParen,
-                ')' => TokenType.RParen,
-                '{' => TokenType.LBrace,
-                '}' => TokenType.RBrace,
-                ';' => TokenType.Semicolon,
-                '!' => TokenType.Not,
-                '=' => TokenType.Equal,
-                '<' => TokenType.LessThan,
-                '>' => TokenType.GreaterThan,
-                ',' => TokenType.Comma,
-                '?' => TokenType.QuestionMark,
-                ':' => TokenType.Colon,
-                '%' => TokenType.Modulo,
-                _ => throw new Exception($"Invalid character '{_currentChar}' at position {_position}")
-            };
-
-            Advance();
-            return new Token(type);
-        }
-
         private Token ScanIdentifierOrKeyword()
         {
             _stringBuilder.Clear();
@@ -214,18 +207,24 @@
                 if (_currentChar == '.' && Char.IsDigit(PeekNextChar()))
                     return new Token(TokenType.NumberLiteral, ScanNumberLiteral(hasLeadingDot: true));
 
-                string op = _currentChar.ToString() + PeekNextChar();
-                if (_doubleCharOperators.TryGetValue(op, out TokenType type))
-                {
-                    Advance();
-                    Advance();
-                    return new Token(type);
-                }
-
                 if (_currentChar == '"')
                     return new Token(TokenType.StringLiteral, ScanStringLiteral());
 
-                return ScanSingleCharToken();
+                string doubleCharOperator = _currentChar.ToString() + PeekNextChar();
+                if (_doubleCharOperators.TryGetValue(doubleCharOperator, out TokenType tokenType))
+                {
+                    Advance();
+                    Advance();
+                    return new Token(tokenType);
+                }
+
+                if (_singleCharOperators.TryGetValue(_currentChar, out tokenType))
+                {
+                    Advance();
+                    return new Token(tokenType);
+                }
+
+                throw new Exception($"Unrecognized character: {_currentChar}");
             }
 
             return new Token(TokenType.EOF);

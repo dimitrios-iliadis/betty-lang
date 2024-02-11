@@ -3,6 +3,28 @@
     public class IntrinsicFunctionTests : InterpreterTest
     {
         [Fact]
+        public void LengthFunction_ReturnsCorrectValue()
+        {
+            var code = "return len(\"Hello\");";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void PowFunction_ReturnsCorrectValue()
+        {
+            var code = "return pow(2, 3);";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+
+            Assert.Equal(8.0, result.AsNumber());
+        }
+
+        [Fact]
         public void ConvertToStringFunction_ReturnsCorrectValue()
         {
             var code = "return tostr(5);";
@@ -62,6 +84,19 @@
         }
 
         [Fact]
+        public void PrintFunction_PrintsCorrectValue_WithStringConcatenation()
+        {
+            var code = "print(\"Hello\" + \" \" + \"World\");";
+            var interpreter = SetupInterpreter(code);
+            var output = new StringWriter();
+            Console.SetOut(output);
+
+            interpreter.Interpret();
+
+            Assert.Equal("Hello World", output.ToString());
+        }
+
+        [Fact]
         public void PrintFunction_PrintsCorrectValueWithMultipleArguments()
         {
             var code = "print(2, 3, 4);";
@@ -114,7 +149,7 @@
         }
 
         [Fact]
-        public void StringConcatenationFunction_ReturnsCorrectValue()
+        public void StringConcatFunction_ReturnsCorrectValue()
         {
             var code = "return concat(\"Hello\", \" \", \"World\");";
             var interpreter = SetupInterpreter(code);
@@ -125,7 +160,7 @@
         }
 
         [Fact]
-        public void StringConcatenationFunction_ReturnsCorrectValueWithNumber()
+        public void StringConcatFunction_ReturnsCorrectValueWithNumber()
         {
             var code = "return concat(\"Hello\", 5);";
             var interpreter = SetupInterpreter(code);

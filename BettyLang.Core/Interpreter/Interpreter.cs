@@ -1,30 +1,11 @@
 ﻿using BettyLang.Core.AST;
 
+
 namespace BettyLang.Core.Interpreter
 {
-    public class Interpreter(Parser parser) : IStatementVisitor, IExpressionVisitor
+    public partial class Interpreter(Parser parser) : IStatementVisitor, IExpressionVisitor
     {
         private readonly Parser _parser = parser;
-
-        private delegate InterpreterValue IntrinsicFunctionHandler(FunctionCall call, IExpressionVisitor visitor);
-
-        private static readonly Dictionary<string, IntrinsicFunctionHandler> _intrinsicFunctions = new()
-        {
-            { "print", IntrinsicFunctions.PrintFunction },
-            { "println", IntrinsicFunctions.PrintFunction },
-            { "input", IntrinsicFunctions.InputFunction },
-
-            { "tostr", IntrinsicFunctions.ConvertToStringFunction },
-            { "tobool", IntrinsicFunctions.ConvertToBooleanFunction },
-            { "tonum", IntrinsicFunctions.ConvertToNumberFunction },
-
-            { "concat", IntrinsicFunctions.StringConcatFunction },
-
-            { "sin", IntrinsicFunctions.SinFunction },
-            { "cos", IntrinsicFunctions.CosFunction },
-            { "sqrt", IntrinsicFunctions.SqrtFunction }
-        };
-
         private readonly Dictionary<string, FunctionDefinition> _functions = [];
         private readonly ScopeManager _scopeManager = new();
         private readonly InterpreterContext _context = new();
@@ -163,6 +144,11 @@ namespace BettyLang.Core.Interpreter
                         node.Operator.Type == TokenType.And ? leftBoolean && rightBoolean : leftBoolean || rightBoolean);
 
                 case TokenType.Plus:
+                    if (leftResult.Type == ValueType.String || rightResult.Type == ValueType.String)
+                    {
+                        return InterpreterValue.FromString(leftResult.ToString() + rightResult.ToString());
+                    }
+                    goto case TokenType.Minus;
                 case TokenType.Minus:
                 case TokenType.Star:
                 case TokenType.Slash:
