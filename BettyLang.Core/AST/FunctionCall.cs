@@ -2,16 +2,10 @@
 
 namespace BettyLang.Core.AST
 {
-    public class FunctionCall : Expression
+    public class FunctionCall(string functionName, List<Expression> arguments) : Expression
     {
-        public string FunctionName { get; }
-        public List<Expression> Arguments { get; }
-
-        public FunctionCall(string functionName, List<Expression> arguments)
-        {
-            FunctionName = functionName;
-            Arguments = arguments;
-        }
+        public string FunctionName { get; } = functionName;
+        public List<Expression> Arguments { get; } = arguments;
 
         public override InterpreterValue Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }

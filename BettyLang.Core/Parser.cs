@@ -252,13 +252,6 @@ namespace BettyLang.Core
             return new ReturnStatement(returnValue);
         }
 
-        private FunctionCallStatement ParseFunctionCallStatement()
-        {
-            var functionCallNode = ParseFunctionCall();
-            Consume(TokenType.Semicolon);
-            return new FunctionCallStatement(functionCallNode);
-        }
-
         private Statement ParseStatement()
         {
             return _currentToken.Type switch
@@ -274,13 +267,12 @@ namespace BettyLang.Core
             };
         }
 
-        private PostfixOperationStatement ParsePostfixOperationStatement()
+        private ExpressionStatement ParseExpressionStatement()
         {
-            var variable = ParseVariable();
-            var token = _currentToken;
-            Consume(token.Type);
-            Consume(TokenType.Semicolon);
-            return new PostfixOperationStatement(new PostfixOperation(variable, token.Type));
+            // Parse an expression generally
+            var expression = ParseExpression();
+            Consume(TokenType.Semicolon); // Ensure it ends with a semicolon
+            return new ExpressionStatement(expression);
         }
 
         private Statement ParseIdentifierStatement()
@@ -288,10 +280,8 @@ namespace BettyLang.Core
             var lookahead = _lexer.PeekNextToken();
             return lookahead.Type switch
             {
-                TokenType.LParen => ParseFunctionCallStatement(),
                 TokenType.Equal => ParseAssignmentStatement(),
-                TokenType.Increment or TokenType.Decrement => ParsePostfixOperationStatement(),
-                _ => throw new Exception($"Unexpected token after identifier: {lookahead.Type}")
+                _ => ParseExpressionStatement() // Function call or postfix operation
             };
         }
 

@@ -9,9 +9,8 @@
         void Visit(ReturnStatement node);
         void Visit(EmptyStatement node);
         void Visit(FunctionDefinition node);
-        void Visit(FunctionCallStatement node);
         void Visit(AssignmentStatement node);
         void Visit(CompoundStatement node);
-        void Visit(PostfixOperationStatement node);
+        void Visit(ExpressionStatement node);
     }
 }

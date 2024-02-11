@@ -267,8 +267,6 @@ namespace BettyLang.Core.Interpreter
 
         public void Visit(EmptyStatement node) { }
 
-        public void Visit(FunctionCallStatement node) => Visit(node.FunctionCall);
-
         public InterpreterValue Visit(FunctionCall node)
         {
             // If the function is an intrinsic function, invoke it
@@ -333,7 +331,10 @@ namespace BettyLang.Core.Interpreter
             };
         }
 
-        public void Visit(PostfixOperationStatement node) => Visit(node.PostfixOperation);
+        public void Visit(ExpressionStatement node)
+        {
+            node.Expression.Accept(this);
+        }
 
         public InterpreterValue Visit(PostfixOperation node)
         {

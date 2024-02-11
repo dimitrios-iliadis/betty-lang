@@ -2,16 +2,10 @@
 
 namespace BettyLang.Core.AST
 {
-    public class PostfixOperation : Expression
+    public class PostfixOperation(Variable operand, TokenType op) : Expression
     {
-        public Variable Operand { get; }
-        public TokenType Operator { get; }
-
-        public PostfixOperation(Variable operand, TokenType op)
-        {
-            Operand = operand;
-            Operator = op;
-        }
+        public Variable Operand { get; } = operand;
+        public TokenType Operator { get; } = op;
 
         public override InterpreterValue Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }
