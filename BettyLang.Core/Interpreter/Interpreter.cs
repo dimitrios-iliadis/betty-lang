@@ -332,6 +332,26 @@ namespace BettyLang.Core.Interpreter
 
         public void Visit(ExpressionStatement node) => node.Expression.Accept(this);
 
+        public InterpreterValue Visit(PrefixOperator node)
+        {
+            var operandResult = node.Operand.Accept(this);
+
+            if (operandResult.Type != ValueType.Number)
+                throw new InvalidOperationException("Prefix operators can only be applied to number variables.");
+
+            var variableName = node.Operand.Name;
+            var currentValue = operandResult.AsNumber();
+            var newValue = node.Operator switch
+            {
+                TokenType.Increment => currentValue + 1,
+                TokenType.Decrement => currentValue - 1,
+                _ => throw new InvalidOperationException($"Unsupported prefix operator {node.Operator}")
+            };
+            _scopeManager.SetVariable(variableName, InterpreterValue.FromNumber(newValue));
+
+            return InterpreterValue.FromNumber(newValue);
+        }
+
         public InterpreterValue Visit(PostfixOperator node)
         {
             var operandResult = node.Operand.Accept(this);

@@ -59,6 +59,18 @@ namespace BettyLang.Core
                     Consume(TokenType.FalseLiteral);
                     return new BooleanLiteral(false);
 
+                case TokenType.Increment:
+                case TokenType.Decrement:
+                    var lookahead = _lexer.PeekNextToken();
+                    if (lookahead.Type == TokenType.Identifier)
+                    {
+                        var opType = token.Type;
+                        Consume(opType);
+                        var variable = ParseVariable();
+                        return new PrefixOperator(variable, opType);
+                    }
+                    throw new Exception("Expected an identifier after increment/decrement operator.");
+
                 case TokenType.Plus:
                 case TokenType.Minus:
                 case TokenType.Not:
@@ -77,7 +89,7 @@ namespace BettyLang.Core
 
                 case TokenType.Identifier:
                     // Peek at the next token to distinguish between variable and function call
-                    var lookahead = _lexer.PeekNextToken();
+                    lookahead = _lexer.PeekNextToken();
                     if (lookahead.Type == TokenType.LParen)
                     {
                         // Function call
@@ -263,7 +275,8 @@ namespace BettyLang.Core
                 TokenType.Continue => ParseContinueStatement(),
                 TokenType.Return => ParseReturnStatement(),
                 TokenType.Identifier => ParseIdentifierStatement(),
-                _ => ParseEmptyStatement()
+                TokenType.Semicolon => ParseEmptyStatement(),
+                _ => ParseExpressionStatement()
             };
         }
 
@@ -278,11 +291,12 @@ namespace BettyLang.Core
         private Statement ParseIdentifierStatement()
         {
             var lookahead = _lexer.PeekNextToken();
-            return lookahead.Type switch
-            {
-                TokenType.Equal => ParseAssignmentStatement(),
-                _ => ParseExpressionStatement() // Function call or postfix operation
-            };
+
+            if (lookahead.Type == TokenType.Equal)
+                return ParseAssignmentStatement();
+
+            // Not an assignment, parse as an expression statement
+            return ParseExpressionStatement();
         }
 
         private AssignmentStatement ParseAssignmentStatement()

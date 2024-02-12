@@ -13,6 +13,7 @@ namespace BettyLang.Core.AST
         InterpreterValue Visit(Variable node);
         InterpreterValue Visit(FunctionCall node);
         InterpreterValue Visit(Program node);
+        InterpreterValue Visit(PrefixOperator node);
         InterpreterValue Visit(PostfixOperator node);
     }
 }
