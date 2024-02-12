@@ -3,6 +3,117 @@
     public class ConditionalStatementTests : InterpreterTestBase
     {
         [Fact]
+        public void ForLoop_SingleStatement_ExecutesCorrectNumberOfTimes()
+        {
+            var code = @"
+                counter = 0;
+                for (i = 0; i < 5; i = i + 1) counter = counter + 1;
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void ForLoop_WithContinueStatement()
+        {
+
+            var code = @"
+                counter = 0;
+                for (i = 0; i < 5; i = i + 1) {
+                    if (i == 2) {
+                        continue;
+                    }
+                    counter = counter + 1;
+                }
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(4.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void ForLoop_ExecutesCorrectNumberOfTimes_WithEmptyIncrement()
+        {
+            var code = @"
+                counter = 0;
+                for (i = 0; i < 5; ) {
+                    counter = counter + 1;
+                    i = i + 1;
+                }
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void ForLoop_ExecutesCorrectNumberOfTimes_WithEmptyCondition()
+        {
+            var code = @"
+                counter = 0;
+                for (i = 0; ; i = i + 1) {
+                    counter = counter + 1;
+                    if (counter == 5) {
+                        break;
+                    }
+                }
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(5.0, result.AsNumber());
+        }
+        
+        [Fact]
+        public void ForLoop_ShorthandIcrement_ExecutesCorrectNumberOfTimes()
+        {
+            var code = @"
+                counter = 0;
+                for (i = 0; i < 5; i++) {
+                    counter = counter + 1;
+                }
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void ForLoop_ExecutesCorrectNumberOfTimes()
+        {
+            var code = @"
+                counter = 0;
+                for (i = 0; i < 5; i = i + 1) {
+                    counter = counter + 1;
+                }
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void ForLoop_ExecutesCorrectNumberOfTimes_WithEmptyInitializer()
+        {
+            var code = @"
+                counter = 0;
+                for (; counter < 5; counter = counter + 1) {
+                    counter = counter + 1;
+                }
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(6.0, result.AsNumber());
+        }
+
+        [Fact]
         public void IfStatement_ExecutesCorrectBranch()
         {
             var code = @"
@@ -220,6 +331,37 @@
             var interpreter = SetupInterpreterCustom(customCode);
             var result = interpreter.Interpret();
             Assert.Equal(9.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void WhileLoop_SingleStatement_ExecutesMultipleTimes()
+        {
+            var code = @"
+                counter = 0;
+                while (counter < 5) counter = counter + 1;
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void WhileLoop_WithContinueStatement()
+        {
+            var code = @"
+                counter = 0;
+                while (counter < 5) {
+                    counter = counter + 1;
+                    if (counter == 2) {
+                        continue;
+                    }
+                }
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(5.0, result.AsNumber());
         }
 
         [Fact]

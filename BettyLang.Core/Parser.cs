@@ -162,7 +162,7 @@ namespace BettyLang.Core
 
         private Expression ParseExpression()
         {
-            var node = ParseLogicalOrExpression();
+            var node = ParseAssignmentExpression();
 
             while (_currentToken.Type == TokenType.QuestionMark)
             {
@@ -236,6 +236,37 @@ namespace BettyLang.Core
             return new IfStatement(condition, thenStatement, elseIfStatements, elseStatement);
         }
 
+        private ForStatement ParseForStatement()
+        {
+            Consume(TokenType.For);
+            Consume(TokenType.LParen);
+
+            Expression? initializer = null;
+            if (_currentToken.Type != TokenType.Semicolon)
+            {
+                initializer = ParseExpression();
+            }
+            Consume(TokenType.Semicolon);
+
+            Expression? condition = null;
+            if (_currentToken.Type != TokenType.Semicolon)
+            {
+                condition = ParseExpression();
+            }
+            Consume(TokenType.Semicolon);
+
+            Expression? increment = null;
+            if (_currentToken.Type != TokenType.RParen)
+            {
+                increment = ParseExpression();
+            }
+            Consume(TokenType.RParen);
+
+            var body = (_currentToken.Type == TokenType.LBrace) ? ParseCompoundStatement() : ParseStatement();
+
+            return new ForStatement(initializer, condition, increment, body);
+        }
+
         private WhileStatement ParseWhileStatement()
         {
             Consume(TokenType.While);
@@ -278,11 +309,11 @@ namespace BettyLang.Core
             {
                 TokenType.LBrace => ParseCompoundStatement(),
                 TokenType.If => ParseIfStatement(),
+                TokenType.For => ParseForStatement(),
                 TokenType.While => ParseWhileStatement(),
                 TokenType.Break => ParseBreakStatement(),
                 TokenType.Continue => ParseContinueStatement(),
                 TokenType.Return => ParseReturnStatement(),
-                TokenType.Identifier => ParseIdentifierStatement(),
                 TokenType.Semicolon => ParseEmptyStatement(),
                 _ => ParseExpressionStatement()
             };
@@ -296,35 +327,32 @@ namespace BettyLang.Core
             return new ExpressionStatement(expression);
         }
 
-        private Statement ParseIdentifierStatement()
+        private Expression ParseAssignmentExpression()
         {
-            var lookahead = _lexer.PeekNextToken();
+            var leftExpr = ParseLogicalOrExpression(); // Parse the highest precedence expressions first
 
-            if (IsAssignmentOperator(lookahead.Type))
-                return ParseAssignmentStatement();
-
-            // Not an assignment, parse as an expression statement
-            return ParseExpressionStatement();
-        }
-
-        private AssignmentStatement ParseAssignmentStatement()
-        {
-            var left = ParseVariable();
-            var operatorToken = _currentToken;
-            Consume(operatorToken.Type);
-            var right = ParseExpression();
-            Consume(TokenType.Semicolon);
-            return operatorToken.Type switch
+            if (IsAssignmentOperator(_currentToken.Type))
             {
-                TokenType.Equal => new AssignmentStatement(left, right),
-                TokenType.PlusEqual => new AssignmentStatement(left, new BinaryOperatorExpression(left, TokenType.Plus, right)),
-                TokenType.MinusEqual => new AssignmentStatement(left, new BinaryOperatorExpression(left, TokenType.Minus, right)),
-                TokenType.StarEqual => new AssignmentStatement(left, new BinaryOperatorExpression(left, TokenType.Star, right)),
-                TokenType.SlashEqual => new AssignmentStatement(left, new BinaryOperatorExpression(left, TokenType.Slash, right)),
-                TokenType.CaretEqual => new AssignmentStatement(left, new BinaryOperatorExpression(left, TokenType.Caret, right)),
-                TokenType.ModuloEqual => new AssignmentStatement(left, new BinaryOperatorExpression(left, TokenType.Modulo, right)),
-                _ => throw new Exception($"Unexpected token: {operatorToken.Type}")
-            };
+                var assignmentOperator = _currentToken;
+                Consume(assignmentOperator.Type); // Move past the assignment operator
+
+                var rightExpr = ParseAssignmentExpression(); // Parse the right expression recursively, allowing for chained assignments
+                rightExpr = assignmentOperator.Type switch
+                {
+                    TokenType.Equal => new AssignmentExpression(leftExpr, rightExpr),
+                    TokenType.PlusEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Plus, rightExpr)),
+                    TokenType.MinusEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Minus, rightExpr)),
+                    TokenType.StarEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Star, rightExpr)),
+                    TokenType.SlashEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Slash, rightExpr)),
+                    TokenType.CaretEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Caret, rightExpr)),
+                    TokenType.ModuloEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Modulo, rightExpr)),
+                    _ => throw new Exception($"Unexpected token: {assignmentOperator.Type}")
+                };
+
+                return new AssignmentExpression(leftExpr, rightExpr); // Construct an assignment expression
+            }
+
+            return leftExpr; // If no assignment operator is found, return the left expression
         }
 
         private static bool IsAssignmentOperator(TokenType type) => _assignmentOperators.Contains(type);

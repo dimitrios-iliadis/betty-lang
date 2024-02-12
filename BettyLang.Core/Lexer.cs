@@ -15,6 +15,7 @@
             ["if"] = new Token(TokenType.If),
             ["elif"] = new Token(TokenType.Elif),
             ["else"] = new Token(TokenType.Else),
+            ["for"] = new Token(TokenType.For),
             ["while"] = new Token(TokenType.While),
             ["break"] = new Token(TokenType.Break),
             ["continue"] = new Token(TokenType.Continue),

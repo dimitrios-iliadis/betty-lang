@@ -70,30 +70,64 @@ namespace BettyLang.Core.Interpreter
             _context.FlowState = ControlFlowState.Continue;
         }
 
+        public void Visit(ForStatement node)
+        {
+            // Execute the initializer once before the loop starts.
+            node.Initializer?.Accept(this);
+
+            _context.IsInLoop = true; // Set the loop state to true to allow continue and break statements.
+
+            while (true) // Loop indefinitely, we'll manage the exit conditions manually.
+            {
+                // Check the loop's condition at the start of each iteration. Exit if false.
+                bool condition = node.Condition == null || node.Condition.Accept(this).AsBoolean();
+                if (!condition) break;
+
+                // Execute the body of the loop.
+                node.Body.Accept(this);
+
+                // If a continue statement was encountered, reset the flow state and skip directly to the increment.
+                if (_context.FlowState == ControlFlowState.Continue)
+                {
+                    _context.FlowState = ControlFlowState.Normal; // Reset the flow state.
+                }
+                else if (_context.FlowState == ControlFlowState.Break)
+                {
+                    // If a break statement was encountered, exit the loop.
+                    _context.FlowState = ControlFlowState.Normal; // Reset the flow state.
+                    break;
+                }
+
+                // Execute the increment expression.
+                node.Increment?.Accept(this);
+            }
+
+            _context.IsInLoop = false; // Ensure to reset the loop state after exiting.
+        }
+
         public void Visit(WhileStatement node)
         {
             _context.IsInLoop = true;
 
             while (node.Condition.Accept(this).AsBoolean() && _context.FlowState == ControlFlowState.Normal)
             {
+                // Execute the body of the loop.
                 node.Body.Accept(this);
 
                 // Handle continue
                 if (_context.FlowState == ControlFlowState.Continue)
                 {
-                    _context.FlowState = ControlFlowState.Normal; // Prepare for the next iteration
-                    continue;
+                    _context.FlowState = ControlFlowState.Normal; // Reset the flow state.
                 }
-
-                // Break out of the loop on break
-                if (_context.FlowState == ControlFlowState.Break)
+                else if (_context.FlowState == ControlFlowState.Break)
+                {
+                    // If a break statement was encountered, exit the loop.
+                    _context.FlowState = ControlFlowState.Normal; // Reset the flow state.
                     break;
+                }
             }
 
             _context.IsInLoop = false;
-
-            if (_context.FlowState == ControlFlowState.Break)
-                _context.FlowState = ControlFlowState.Normal; // Loop exited because of a break, reset flow for the code outside the loop
         }
 
         public void Visit(IfStatement node)
@@ -243,20 +277,20 @@ namespace BettyLang.Core.Interpreter
                 statement.Accept(this);
 
                 // Handle control flow changes
-                if (_context.FlowState == ControlFlowState.Return)
+                if (_context.FlowState != ControlFlowState.Normal)
                 {
-                    // Return statement encountered, exit the compound statement
-                    return;
+                    break; // Exit the compound statement early
                 }
             }
         }
 
-        public void Visit(AssignmentStatement node)
+        public InterpreterValue Visit(AssignmentExpression node)
         {
-            if (node.Left is Variable variableNode)
+            if (node.LHS is Variable variableNode)
             {
-                var rightResult = node.Right.Accept(this);
+                var rightResult = node.RHS.Accept(this);
                 _scopeManager.SetVariable(variableNode.Name, rightResult);
+                return rightResult;
             }
             else
                 throw new Exception("The left-hand side of an assignment must be a variable.");

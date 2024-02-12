@@ -14,7 +14,7 @@
 
         Func,
 
-        Equal, If, Elif, Else, While, Break, Continue, Return,
+        Equal, If, Elif, Else, For, While, Break, Continue, Return,
 
         EqualEqual, LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual, NotEqual,
 
