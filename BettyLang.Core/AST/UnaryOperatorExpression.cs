@@ -2,16 +2,10 @@
 
 namespace BettyLang.Core.AST
 {
-    public class UnaryOperatorExpression : Expression
+    public class UnaryOperatorExpression(Token op, Expression expression) : Expression
     {
-        public Token Operator { get; }
-        public Expression Expression { get; }
-
-        public UnaryOperatorExpression(Token op, Expression expression)
-        {
-            Operator = op;
-            Expression = expression;
-        }
+        public Token Operator { get; } = op;
+        public Expression Expression { get; } = expression;
 
         public override InterpreterValue Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }

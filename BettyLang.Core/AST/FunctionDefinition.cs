@@ -1,17 +1,10 @@
 ﻿namespace BettyLang.Core.AST
 {
-    public class FunctionDefinition : Statement
+    public class FunctionDefinition(string functionName, List<string> parameters, CompoundStatement body) : Statement
     {
-        public string FunctionName { get; }
-        public List<string> Parameters { get; }
-        public CompoundStatement Body { get; }
-
-        public FunctionDefinition(string functionName, List<string> parameters, CompoundStatement body)
-        {
-            FunctionName = functionName;
-            Parameters = parameters;
-            Body = body;
-        }
+        public string FunctionName { get; } = functionName;
+        public List<string> Parameters { get; } = parameters;
+        public CompoundStatement Body { get; } = body;
 
         public override void Accept(IStatementVisitor visitor) => visitor.Visit(this);
     }

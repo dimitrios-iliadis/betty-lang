@@ -92,7 +92,7 @@ namespace BettyLang.Core
                         {
                             var op = _currentToken;
                             Consume(op.Type);
-                            return new PostfixOperation(new Variable(token.Value!), op.Type);
+                            return new PostfixOperator(new Variable(token.Value!), op.Type);
                         }
                         return new Variable(token.Value!);
                     }

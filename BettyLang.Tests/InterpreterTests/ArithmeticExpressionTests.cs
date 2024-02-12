@@ -15,11 +15,11 @@ namespace BettyLang.Tests.InterpreterTests
         [Fact]
         public void PostfixIncrementOperator_ModifiesVariable()
         {
-            var code = "x = 5; x++; return x;";
+            var code = "x = 5; x++; return x + 3;";
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(6.0, result.AsNumber());
+            Assert.Equal(9.0, result.AsNumber());
         }
 
         [Fact]

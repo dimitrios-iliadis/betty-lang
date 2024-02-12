@@ -2,7 +2,7 @@
 
 namespace BettyLang.Core.AST
 {
-    public class PostfixOperation(Variable operand, TokenType op) : Expression
+    public class PostfixOperator(Variable operand, TokenType op) : Expression
     {
         public Variable Operand { get; } = operand;
         public TokenType Operator { get; } = op;

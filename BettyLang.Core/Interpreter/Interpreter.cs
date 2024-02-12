@@ -1,6 +1,5 @@
 ﻿using BettyLang.Core.AST;
 
-
 namespace BettyLang.Core.Interpreter
 {
     public partial class Interpreter(Parser parser) : IStatementVisitor, IExpressionVisitor
@@ -331,20 +330,17 @@ namespace BettyLang.Core.Interpreter
             };
         }
 
-        public void Visit(ExpressionStatement node)
-        {
-            node.Expression.Accept(this);
-        }
+        public void Visit(ExpressionStatement node) => node.Expression.Accept(this);
 
-        public InterpreterValue Visit(PostfixOperation node)
+        public InterpreterValue Visit(PostfixOperator node)
         {
             var operandResult = node.Operand.Accept(this);
 
             if (operandResult.Type != ValueType.Number)
-                throw new InvalidOperationException("Postfix operations can only be applied to number variables.");
+                throw new InvalidOperationException("Postfix operators can only be applied to number variables.");
 
             var variableName = node.Operand.Name;
-            var currentValue = _scopeManager.LookupVariable(variableName).AsNumber();
+            var currentValue = operandResult.AsNumber();
             var newValue = node.Operator switch
             {
                 TokenType.Increment => currentValue + 1,

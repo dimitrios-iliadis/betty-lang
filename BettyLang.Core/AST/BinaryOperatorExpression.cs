@@ -2,18 +2,11 @@
 
 namespace BettyLang.Core.AST
 {
-    public class BinaryOperatorExpression : Expression
+    public class BinaryOperatorExpression(Expression left, Token op, Expression right) : Expression
     {
-        public Expression Left { get; }
-        public Token Operator { get; }
-        public Expression Right { get; }
-
-        public BinaryOperatorExpression(Expression left, Token op, Expression right)
-        {
-            Left = left;
-            Operator = op;
-            Right = right;
-        }
+        public Expression Left { get; } = left;
+        public Token Operator { get; } = op;
+        public Expression Right { get; } = right;
 
         public override InterpreterValue Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }
