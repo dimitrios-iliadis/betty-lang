@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Tests.InterpreterTests
 {
-    public class UnaryOperatorTests : InterpreterTest
+    public class UnaryOperatorTests : InterpreterTestBase
     {
         [Fact]
         public void PrefixDecrementOperator_CanBeUsedInAssignment()

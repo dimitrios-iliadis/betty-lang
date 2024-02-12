@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Tests.InterpreterTests
 {
-    public class IntrinsicFunctionTests : InterpreterTest
+    public class IntrinsicFunctionTests : InterpreterTestBase
     {
         [Fact]
         public void LengthFunction_ReturnsCorrectValue()

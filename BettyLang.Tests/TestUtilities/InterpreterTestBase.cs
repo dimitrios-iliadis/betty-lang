@@ -2,7 +2,7 @@
 
 namespace BettyLang.Tests.TestUtilities
 {
-    public class InterpreterTest
+    public class InterpreterTestBase
     {
         protected static Interpreter SetupInterpreter(string code)
         {

@@ -2,13 +2,13 @@
 {
     public enum TokenType
     {
-        NumberLiteral, StringLiteral, TrueLiteral, FalseLiteral, Identifier,
+        NumberLiteral, StringLiteral, True, False, Identifier,
 
         Not, And, Or,
 
         Plus, Minus, Star, Slash, Caret, Modulo,
 
-        Increment, Decrement,
+        Increment, Decrement, PlusEqual, MinusEqual, StarEqual, SlashEqual, CaretEqual, ModuloEqual,
 
         LParen, RParen, LBrace, RBrace, Semicolon, Comma, QuestionMark, Colon,
 

@@ -19,6 +19,15 @@ namespace BettyLang.Tests.LexerTests
         [InlineData("&&", TokenType.And)]
         [InlineData("||", TokenType.Or)]
         [InlineData("!", TokenType.Not)]
+        [InlineData("++", TokenType.Increment)]
+        [InlineData("--", TokenType.Decrement)]
+        [InlineData("+=", TokenType.PlusEqual)]
+        [InlineData("-=", TokenType.MinusEqual)]
+        [InlineData("*=", TokenType.StarEqual)]
+        [InlineData("/=", TokenType.SlashEqual)]
+        [InlineData("%=", TokenType.ModuloEqual)]
+        [InlineData("^", TokenType.Caret)]
+        [InlineData("^=", TokenType.CaretEqual)]
         public void GetNextToken_HandlesOperatorsCorrectly(string input, TokenType expectedTokenType)
         {
             var lexer = new Lexer(input);

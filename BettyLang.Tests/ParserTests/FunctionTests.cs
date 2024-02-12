@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Tests.ParserTests
 {
-    public class FunctionTests : ParserTest
+    public class FunctionTests : ParserTestBase
     {
         [Fact]
         public void ParsesValidFunctionDefinition_CreatesCorrectAST()

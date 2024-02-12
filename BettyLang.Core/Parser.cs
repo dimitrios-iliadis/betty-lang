@@ -18,6 +18,17 @@ namespace BettyLang.Core
             TokenType.NotEqual
         ];
 
+        private static readonly HashSet<TokenType> _assignmentOperators =
+        [
+            TokenType.Equal,
+            TokenType.PlusEqual,
+            TokenType.MinusEqual,
+            TokenType.StarEqual,
+            TokenType.SlashEqual,
+            TokenType.CaretEqual,
+            TokenType.ModuloEqual
+        ];
+
         public Parser(Lexer lexer)
         {
             _lexer = lexer;
@@ -52,22 +63,19 @@ namespace BettyLang.Core
 
             switch (token.Type)
             {
-                case TokenType.TrueLiteral:
-                    Consume(TokenType.TrueLiteral);
-                    return new BooleanLiteral(true);
-                case TokenType.FalseLiteral:
-                    Consume(TokenType.FalseLiteral);
-                    return new BooleanLiteral(false);
+                case TokenType.True:
+                case TokenType.False:
+                    Consume(token.Type);
+                    return new BooleanLiteral(token.Type == TokenType.True);
 
                 case TokenType.Increment:
                 case TokenType.Decrement:
                     var lookahead = _lexer.PeekNextToken();
                     if (lookahead.Type == TokenType.Identifier)
                     {
-                        var opType = token.Type;
-                        Consume(opType);
+                        Consume(token.Type);
                         var variable = ParseVariable();
-                        return new PrefixOperator(variable, opType);
+                        return new PrefixOperator(variable, token.Type);
                     }
                     throw new Exception("Expected an identifier after increment/decrement operator.");
 
@@ -132,7 +140,7 @@ namespace BettyLang.Core
                 else if (token.Type == TokenType.Modulo)
                     Consume(TokenType.Modulo);
 
-                node = new BinaryOperatorExpression(node, token, ParseExponent());
+                node = new BinaryOperatorExpression(node, token.Type, ParseExponent());
             }
 
             return node;
@@ -146,7 +154,7 @@ namespace BettyLang.Core
             {
                 var token = _currentToken;
                 Consume(TokenType.Caret);
-                node = new BinaryOperatorExpression(node, token, ParseExponent());
+                node = new BinaryOperatorExpression(node, token.Type, ParseExponent());
             }
 
             return node;
@@ -292,7 +300,7 @@ namespace BettyLang.Core
         {
             var lookahead = _lexer.PeekNextToken();
 
-            if (lookahead.Type == TokenType.Equal)
+            if (IsAssignmentOperator(lookahead.Type))
                 return ParseAssignmentStatement();
 
             // Not an assignment, parse as an expression statement
@@ -302,12 +310,24 @@ namespace BettyLang.Core
         private AssignmentStatement ParseAssignmentStatement()
         {
             var left = ParseVariable();
-            var token = _currentToken;
-            Consume(TokenType.Equal);
+            var operatorToken = _currentToken;
+            Consume(operatorToken.Type);
             var right = ParseExpression();
             Consume(TokenType.Semicolon);
-            return new AssignmentStatement(left, token, right);
+            return operatorToken.Type switch
+            {
+                TokenType.Equal => new AssignmentStatement(left, right),
+                TokenType.PlusEqual => new AssignmentStatement(left, new BinaryOperatorExpression(left, TokenType.Plus, right)),
+                TokenType.MinusEqual => new AssignmentStatement(left, new BinaryOperatorExpression(left, TokenType.Minus, right)),
+                TokenType.StarEqual => new AssignmentStatement(left, new BinaryOperatorExpression(left, TokenType.Star, right)),
+                TokenType.SlashEqual => new AssignmentStatement(left, new BinaryOperatorExpression(left, TokenType.Slash, right)),
+                TokenType.CaretEqual => new AssignmentStatement(left, new BinaryOperatorExpression(left, TokenType.Caret, right)),
+                TokenType.ModuloEqual => new AssignmentStatement(left, new BinaryOperatorExpression(left, TokenType.Modulo, right)),
+                _ => throw new Exception($"Unexpected token: {operatorToken.Type}")
+            };
         }
+
+        private static bool IsAssignmentOperator(TokenType type) => _assignmentOperators.Contains(type);
 
         private EmptyStatement ParseEmptyStatement()
         {
@@ -420,7 +440,7 @@ namespace BettyLang.Core
             {
                 var token = _currentToken;
                 Consume(token.Type); // Consume the comparison operator
-                node = new BinaryOperatorExpression(node, token, ParseArithmeticExpression());
+                node = new BinaryOperatorExpression(node, token.Type, ParseArithmeticExpression());
             }
 
             return node;
@@ -436,7 +456,7 @@ namespace BettyLang.Core
             {
                 var token = _currentToken;
                 Consume(token.Type); // Consume the Or operator
-                node = new BinaryOperatorExpression(node, token, ParseLogicalAndExpression());
+                node = new BinaryOperatorExpression(node, token.Type, ParseLogicalAndExpression());
             }
 
             return node;
@@ -450,7 +470,7 @@ namespace BettyLang.Core
             {
                 var token = _currentToken;
                 Consume(token.Type); // Consume the And operator
-                node = new BinaryOperatorExpression(node, token, ParseComparisonExpression());
+                node = new BinaryOperatorExpression(node, token.Type, ParseComparisonExpression());
             }
 
             return node;
@@ -468,7 +488,7 @@ namespace BettyLang.Core
                 else if (token.Type == TokenType.Minus)
                     Consume(TokenType.Minus);
 
-                node = new BinaryOperatorExpression(node, token, ParseTerm());
+                node = new BinaryOperatorExpression(node, token.Type, ParseTerm());
             }
 
             return node;

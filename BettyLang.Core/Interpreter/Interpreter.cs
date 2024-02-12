@@ -129,7 +129,7 @@ namespace BettyLang.Core.Interpreter
             var leftResult = node.Left.Accept(this);
             var rightResult = node.Right.Accept(this);
 
-            switch (node.Operator.Type)
+            switch (node.Operator)
             {
                 case TokenType.And:
                 case TokenType.Or:
@@ -140,7 +140,7 @@ namespace BettyLang.Core.Interpreter
                     bool leftBoolean = leftResult.AsBoolean();
                     bool rightBoolean = rightResult.AsBoolean();
                     return InterpreterValue.FromBoolean(
-                        node.Operator.Type == TokenType.And ? leftBoolean && rightBoolean : leftBoolean || rightBoolean);
+                        node.Operator == TokenType.And ? leftBoolean && rightBoolean : leftBoolean || rightBoolean);
 
                 case TokenType.Plus:
                     if (leftResult.Type == ValueType.String || rightResult.Type == ValueType.String)
@@ -157,7 +157,7 @@ namespace BettyLang.Core.Interpreter
                     {
                         throw new InvalidOperationException("Arithmetic operations require both operands to be numbers.");
                     }
-                    return PerformArithmeticOperation(leftResult, rightResult, node.Operator.Type);
+                    return PerformArithmeticOperation(leftResult, rightResult, node.Operator);
 
                 case TokenType.EqualEqual:
                 case TokenType.NotEqual:
@@ -165,10 +165,10 @@ namespace BettyLang.Core.Interpreter
                 case TokenType.LessThanOrEqual:
                 case TokenType.GreaterThan:
                 case TokenType.GreaterThanOrEqual:
-                    return PerformComparison(leftResult, rightResult, node.Operator.Type);
+                    return PerformComparison(leftResult, rightResult, node.Operator);
 
                 default:
-                    throw new Exception($"Unsupported binary operator: {node.Operator.Type} for operand types {leftResult.Type} and {rightResult.Type}");
+                    throw new Exception($"Unsupported binary operator: {node.Operator} for operand types {leftResult.Type} and {rightResult.Type}");
             }
         }
 

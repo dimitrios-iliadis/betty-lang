@@ -2,7 +2,7 @@
 
 namespace BettyLang.Tests.InterpreterTests
 {
-    public class ExpressionStatementTests : InterpreterTest
+    public class ExpressionStatementTests : InterpreterTestBase
     {
         [Fact]
         public void ExpressionStatement_ReturnsNone()

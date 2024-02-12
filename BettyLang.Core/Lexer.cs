@@ -10,8 +10,8 @@
         private static readonly Dictionary<string, Token> _reservedKeywords = new()
         {
             ["func"] = new Token(TokenType.Func),
-            ["true"] = new Token(TokenType.TrueLiteral),
-            ["false"] = new Token(TokenType.FalseLiteral),
+            ["true"] = new Token(TokenType.True),
+            ["false"] = new Token(TokenType.False),
             ["if"] = new Token(TokenType.If),
             ["elif"] = new Token(TokenType.Elif),
             ["else"] = new Token(TokenType.Else),
@@ -52,7 +52,13 @@
             ["&&"] = TokenType.And,
             ["||"] = TokenType.Or,
             ["++"] = TokenType.Increment,
-            ["--"] = TokenType.Decrement
+            ["--"] = TokenType.Decrement,
+            ["+="] = TokenType.PlusEqual,
+            ["-="] = TokenType.MinusEqual,
+            ["*="] = TokenType.StarEqual,
+            ["/="] = TokenType.SlashEqual,
+            ["^="] = TokenType.CaretEqual,
+            ["%="] = TokenType.ModuloEqual
         };
 
         public Lexer(string input)

@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Tests.InterpreterTests
 {
-    public class LogicalExpressionTests : InterpreterTest
+    public class LogicalExpressionTests : InterpreterTestBase
     {
         [Fact]
         public void AndExpression_BothTrue_ReturnsTrue()

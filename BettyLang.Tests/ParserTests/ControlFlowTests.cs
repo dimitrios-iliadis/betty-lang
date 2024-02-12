@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Tests.ParserTests
 {
-    public class ControlFlowTests : ParserTest
+    public class ControlFlowTests : ParserTestBase
     {
         [Fact]
         public void ParsesIfStatement()

@@ -1,6 +1,6 @@
 namespace BettyLang.Tests.InterpreterTests
 {
-    public class ArithmeticExpressionTests : InterpreterTest
+    public class ArithmeticExpressionTests : InterpreterTestBase
     {
         [Fact]
         public void Addition_ReturnsCorrectSum()

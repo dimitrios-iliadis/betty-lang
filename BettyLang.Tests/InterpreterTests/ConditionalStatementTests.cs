@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Tests.InterpreterTests
 {
-    public class ConditionalStatementTests : InterpreterTest
+    public class ConditionalStatementTests : InterpreterTestBase
     {
         [Fact]
         public void IfStatement_ExecutesCorrectBranch()

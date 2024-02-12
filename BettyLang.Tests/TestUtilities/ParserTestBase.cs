@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Tests.TestUtilities
 {
-    public class ParserTest
+    public class ParserTestBase
     {
         protected static Parser SetupParser(string code)
         {

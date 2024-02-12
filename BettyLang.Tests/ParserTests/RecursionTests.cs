@@ -1,6 +1,6 @@
 ﻿namespace BettyLang.Tests.ParserTests
 {
-    public class RecursionTests : ParserTest
+    public class RecursionTests : ParserTestBase
     {
         [Fact]
         public void Parse_RecursiveFunction_DefinesCorrectly()
@@ -52,7 +52,7 @@
             Assert.Single(functionCallNode.Arguments);
             var argumentExpression = functionCallNode.Arguments[0] as BinaryOperatorExpression;
             Assert.NotNull(argumentExpression);
-            Assert.Equal(TokenType.Minus, argumentExpression.Operator.Type);
+            Assert.Equal(TokenType.Minus, argumentExpression.Operator);
         }
     }
 }
