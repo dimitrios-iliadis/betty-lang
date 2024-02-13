@@ -14,8 +14,8 @@ Betty is an interpreted, dynamically-typed programming language designed for edu
 Here is a simple program in Betty:
 
 ```C
-// This program prompts the user to enter a number
-// and then prints its factorial using recursion.
+# This program prompts the user to enter a number
+# and then prints its factorial using recursion.
 
 func fact(n)
 {
@@ -23,7 +23,7 @@ func fact(n)
     return fact(n - 1) * n;
 }
 
-// The entry point for the program
+# The entry point for the program
 func main()
 {
     n = tonum(input("Enter a number: "));
