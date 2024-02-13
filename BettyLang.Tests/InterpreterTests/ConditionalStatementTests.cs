@@ -3,6 +3,58 @@
     public class ConditionalStatementTests : InterpreterTestBase
     {
         [Fact]
+        public void DoWhileLoop_ExecutesCorrectNumberOfTimes_WithContinueStatement()
+        {
+            var code = @"
+                counter = 0;
+                i = 0;
+                do {
+                    counter++;
+                    if (counter == 3)
+                        continue;
+                    i++;
+                } while (counter < 5);
+                return i;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(4.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void DoWhileLoop_ExecutesCorrectNumberOfTimes_WithBreakStatement()
+        {
+            var code = @"
+                counter = 0;
+                do {
+                    counter = counter + 1;
+                    if (counter == 5) {
+                        break;
+                    }
+                } while (true);
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void DoWhileLoop_ExecutesCorrectNumberOfTimes()
+        {
+            var code = @"
+                counter = 0;
+                do {
+                    counter = counter + 1;
+                } while (counter < 5);
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
         public void Function_WithForLoop_ReturnsCorrectValue()
         {
             var customCode = @"

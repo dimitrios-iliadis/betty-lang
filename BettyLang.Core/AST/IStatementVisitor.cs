@@ -5,6 +5,7 @@
         void Visit(IfStatement node);
         void Visit(ForStatement node);
         void Visit(WhileStatement node);
+        void Visit(DoWhileStatement node);
         void Visit(BreakStatement node);
         void Visit(ContinueStatement node);
         void Visit(ReturnStatement node);

@@ -277,6 +277,18 @@ namespace BettyLang.Core
             return new WhileStatement(condition, body);
         }
 
+        private DoWhileStatement ParseDoWhileStatement()
+        {             
+            Consume(TokenType.Do);
+            var body = (_currentToken.Type == TokenType.LBrace) ? ParseCompoundStatement() : ParseStatement();
+            Consume(TokenType.While);
+            Consume(TokenType.LParen);
+            var condition = ParseExpression();
+            Consume(TokenType.RParen);
+            Consume(TokenType.Semicolon);
+            return new DoWhileStatement(condition, body);
+        }
+
         private BreakStatement ParseBreakStatement()
         {
             Consume(TokenType.Break);
@@ -311,6 +323,7 @@ namespace BettyLang.Core
                 TokenType.If => ParseIfStatement(),
                 TokenType.For => ParseForStatement(),
                 TokenType.While => ParseWhileStatement(),
+                TokenType.Do => ParseDoWhileStatement(),
                 TokenType.Break => ParseBreakStatement(),
                 TokenType.Continue => ParseContinueStatement(),
                 TokenType.Return => ParseReturnStatement(),

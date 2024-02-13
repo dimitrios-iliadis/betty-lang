@@ -70,6 +70,28 @@ namespace BettyLang.Core.Interpreter
             _context.FlowState = ControlFlowState.Continue;
         }
 
+        public void Visit(DoWhileStatement node)
+        {
+            _context.IsInLoop = true;
+
+            node.Body.Accept(this);
+
+            while (node.Condition.Accept(this).AsBoolean())
+            {
+                node.Body.Accept(this);
+
+                if (_context.FlowState == ControlFlowState.Continue)
+                {
+                    _context.FlowState = ControlFlowState.Normal;
+                }
+                else if (_context.FlowState == ControlFlowState.Break)
+                {
+                    _context.FlowState = ControlFlowState.Normal;
+                    break;
+                }
+            }
+        }
+
         public void Visit(ForStatement node)
         {
             // Execute the initializer once before the loop starts.
