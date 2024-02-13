@@ -205,11 +205,12 @@ namespace BettyLang.Core.Interpreter
                 case TokenType.Slash:
                 case TokenType.Caret:
                 case TokenType.Modulo:
-                    if (leftResult.Type != ValueType.Number || rightResult.Type != ValueType.Number)
+                    return (leftResult.Type, rightResult.Type) switch 
                     {
-                        throw new InvalidOperationException("Arithmetic operations require both operands to be numbers.");
-                    }
-                    return PerformArithmeticOperation(leftResult, rightResult, node.Operator);
+                        (ValueType.Number or ValueType.Char, ValueType.Number or ValueType.Char) =>
+                            PerformArithmeticOperation(leftResult, rightResult, node.Operator),
+                        _ => throw new InvalidOperationException("Arithmetic operations require both operands to be numbers.")
+                    };
 
                 case TokenType.EqualEqual:
                 case TokenType.NotEqual:
@@ -245,7 +246,7 @@ namespace BettyLang.Core.Interpreter
         {
             switch (leftResult.Type, rightResult.Type)
             {
-                case (ValueType.Number, ValueType.Number):
+                case (ValueType.Number or ValueType.Char, ValueType.Number or ValueType.Char):
                     double leftNumber = leftResult.AsNumber();
                     double rightNumber = rightResult.AsNumber();
                     return InterpreterValue.FromBoolean(operatorType switch
@@ -287,6 +288,7 @@ namespace BettyLang.Core.Interpreter
         public InterpreterValue Visit(BooleanLiteral node) => InterpreterValue.FromBoolean(node.Value);
         public InterpreterValue Visit(NumberLiteral node) => InterpreterValue.FromNumber(node.Value);
         public InterpreterValue Visit(StringLiteral node) => InterpreterValue.FromString(node.Value);
+        public InterpreterValue Visit(CharLiteral node) => InterpreterValue.FromChar(node.Value);
 
         public void Visit(CompoundStatement node)
         {
@@ -388,8 +390,10 @@ namespace BettyLang.Core.Interpreter
         {
             var operandResult = node.Operand.Accept(this);
 
-            if (operandResult.Type != ValueType.Number)
-                throw new InvalidOperationException("Prefix operators can only be applied to number variables.");
+            if (operandResult.Type != ValueType.Number 
+                && operandResult.Type != ValueType.Char)
+                throw new InvalidOperationException(
+                    "Prefix operators can only be applied to number or character variables.");
 
             var variableName = node.Operand.Name;
             var currentValue = operandResult.AsNumber();
@@ -408,8 +412,10 @@ namespace BettyLang.Core.Interpreter
         {
             var operandResult = node.Operand.Accept(this);
 
-            if (operandResult.Type != ValueType.Number)
-                throw new InvalidOperationException("Postfix operators can only be applied to number variables.");
+            if (operandResult.Type != ValueType.Number 
+                && operandResult.Type != ValueType.Char)
+                throw new InvalidOperationException(
+                    "Postfix operators can only be applied to number or character variables.");
 
             var variableName = node.Operand.Name;
             var currentValue = operandResult.AsNumber();

@@ -16,6 +16,7 @@ namespace BettyLang.Core.Interpreter
             { "tostr", ToStringFunction },
             { "tobool", ToBooleanFunction },
             { "tonum", ToNumberFunction },
+            { "tochar", ToCharFunction },
 
             { "concat", ConcatFunction },
             { "len", LengthFunction },
@@ -25,7 +26,9 @@ namespace BettyLang.Core.Interpreter
             { "tan", TanFunction },
             { "abs", AbsFunction },
             { "pow", PowFunction },
-            { "sqrt", SqrtFunction }
+            { "sqrt", SqrtFunction },
+            { "floor", FloorFunction },
+            { "ceil", CeilFunction },
         };
     }
 }

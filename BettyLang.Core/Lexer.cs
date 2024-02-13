@@ -192,6 +192,37 @@
             return nextToken;
         }
 
+        private char ScanCharLiteral()
+        {
+            Advance(); // Skip the opening quote
+
+            var charLiteral = _currentChar;
+
+            // Check for escape character
+            if (charLiteral == '\\')
+            {
+                Advance(); // Skip the escape character
+
+                // Replace the escape sequence with the actual character
+                charLiteral = _currentChar switch
+                {
+                    'n' => '\n',    // Newline
+                    't' => '\t',    // Tab
+                    '"' => '\"',    // Double quote
+                    '\'' => '\'',   // Single quote
+                    '\\' => '\\',   // Backslash
+                    _ => throw new Exception($"Unrecognized escape sequence: \\{_currentChar}"),
+                };
+            }
+            
+            Advance(); // Move past the character
+
+            if (_currentChar != '\'') // Check for unterminated character literal
+                throw new Exception("Unterminated character literal.");
+            Advance(); // Skip the closing quote
+            return charLiteral;
+        }
+
         public Token GetNextToken()
         {
             while (_currentChar != '\0')
@@ -216,6 +247,9 @@
 
                 if (_currentChar == '.' && Char.IsDigit(PeekNextChar()))
                     return new Token(TokenType.NumberLiteral, ScanNumberLiteral(hasLeadingDot: true));
+
+                if (_currentChar == '\'')
+                    return new Token(TokenType.CharLiteral, ScanCharLiteral().ToString());
 
                 if (_currentChar == '"')
                     return new Token(TokenType.StringLiteral, ScanStringLiteral());

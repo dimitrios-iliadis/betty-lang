@@ -19,6 +19,10 @@ namespace BettyLang.Core.Interpreter
                 case ValueType.Number:
                     return argResult;
 
+                case ValueType.Char:
+                    numberValue = argResult.AsNumber(); // Get the numeric value of the character.
+                    break;
+
                 case ValueType.Boolean:
                     numberValue = argResult.AsBoolean() ? 1 : 0;
                     break;

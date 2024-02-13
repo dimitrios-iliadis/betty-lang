@@ -3,6 +3,17 @@
     public class IntrinsicFunctionTests : InterpreterTestBase
     {
         [Fact]
+        public void CeilFunction_ReturnsCorrectValue()
+        {
+            var code = "return ceil(5.5);";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+
+            Assert.Equal(6.0, result.AsNumber());
+        }
+
+        [Fact]
         public void LengthFunction_ReturnsCorrectValue()
         {
             var code = "return len(\"Hello\");";

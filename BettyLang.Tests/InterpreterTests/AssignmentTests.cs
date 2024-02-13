@@ -3,6 +3,16 @@
     public class AssignmentTests : InterpreterTestBase
     {
         [Fact]
+        public void CharAssignmentAndIncrement_ReturnsCorrectValue()
+        {
+            var code = "x = 'a'; x++; return x;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal('a' + 1, result.AsNumber());
+        }
+
+        [Fact]
         public void ChainAssignment_ReturnsCorrectValue()
         {
             var code = "x = y = 5; return x + y;";

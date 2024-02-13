@@ -3,6 +3,46 @@
     public class LiteralTests
     {
         [Theory]
+        [InlineData(@"'a'", "a")]
+        [InlineData(@"'\n'", "\n")]
+        [InlineData(@"'\t'", "\t")]
+        [InlineData(@"'\\'", "\\")]
+        [InlineData(@"'1'", "1")]
+        [InlineData(@"' '", " ")]
+        [InlineData(@"'\''", "'")]
+        public void GetNextToken_HandlesCharLiteralsCorrectly(string input, string expectedValue)
+        {
+            var lexer = new Lexer(input);
+
+            var token = lexer.GetNextToken();
+
+            Assert.Equal(TokenType.CharLiteral, token.Type);
+            Assert.Equal(expectedValue, token.Value);
+        }
+
+        [Fact]
+        public void GetNextToken_ThrowsExceptionForEmptyCharLiteral()
+        {
+            // Arrange
+            var input = "''";
+            var lexer = new Lexer(input);
+
+            // Act & Assert
+            Assert.Throws<Exception>(() => lexer.GetNextToken());
+        }
+
+        [Fact]
+        public void GetNextToken_ThrowsExceptionForUnterminatedCharLiteral()
+        {
+            // Arrange
+            var input = "'a";
+            var lexer = new Lexer(input);
+
+            // Act & Assert
+            Assert.Throws<Exception>(() => lexer.GetNextToken());
+        }
+
+        [Theory]
         [InlineData("123", "123")]
         [InlineData("0", "0")]
         [InlineData("123.456", "123.456")]

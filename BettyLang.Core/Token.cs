@@ -2,7 +2,7 @@
 {
     public enum TokenType
     {
-        NumberLiteral, StringLiteral, True, False, Identifier,
+        NumberLiteral, CharLiteral, StringLiteral, True, False, Identifier,
 
         Not, And, Or,
 

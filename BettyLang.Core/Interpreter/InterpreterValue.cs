@@ -7,6 +7,7 @@ namespace BettyLang.Core.Interpreter
         Number,
         String,
         Boolean,
+        Char,
         None
     }
 
@@ -18,6 +19,9 @@ namespace BettyLang.Core.Interpreter
 
         [FieldOffset(4)]
         private readonly double _number;
+
+        [FieldOffset(4)]
+        private readonly char _char;
 
         [FieldOffset(4)]
         private readonly int _stringId;
@@ -45,6 +49,11 @@ namespace BettyLang.Core.Interpreter
             _boolean = boolean;
         }
 
+        private InterpreterValue(char character) : this(ValueType.Char)
+        {
+            _char = character;
+        }
+
         public static InterpreterValue FromString(string str)
         {
             int stringId = StringTable.AddString(str);
@@ -53,10 +62,21 @@ namespace BettyLang.Core.Interpreter
 
         public static InterpreterValue FromNumber(double number) => new InterpreterValue(number);
         public static InterpreterValue FromBoolean(bool boolean) => new InterpreterValue(boolean);
+        public static InterpreterValue FromChar(char character) => new InterpreterValue(character);
         public static InterpreterValue None() => new InterpreterValue(ValueType.None);
+
+        public readonly char AsChar()
+        {
+            if (Type != ValueType.Char)
+                throw new InvalidOperationException($"Expected a character, but got {Type}.");
+            return _char;
+        }
 
         public readonly double AsNumber()
         {
+            if (Type == ValueType.Char)
+                return _char + 0; // Convert the character to its numeric value.
+
             if (Type != ValueType.Number)
                 throw new InvalidOperationException($"Expected a number, but got {Type}.");
             return _number;
@@ -83,6 +103,7 @@ namespace BettyLang.Core.Interpreter
                 ValueType.Number => _number.ToString(),
                 ValueType.String => StringTable.GetString(_stringId),
                 ValueType.Boolean => _boolean.ToString(),
+                ValueType.Char => _char.ToString(),
                 ValueType.None => "None",
                 _ => throw new InvalidOperationException($"Unknown type {Type}.")
             };

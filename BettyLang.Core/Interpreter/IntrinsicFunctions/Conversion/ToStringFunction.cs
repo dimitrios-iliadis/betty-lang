@@ -13,15 +13,8 @@ namespace BettyLang.Core.Interpreter
 
             var argResult = call.Arguments[0].Accept(visitor);
 
-            // Convert the argument result to string based on its type
-            return InterpreterValue.FromString(argResult.Type switch
-            {
-                ValueType.Number => argResult.AsNumber().ToString(),
-                ValueType.Boolean => argResult.AsBoolean().ToString(),
-                ValueType.String => argResult.AsString(),
-                ValueType.None => "None",
-                _ => throw new InvalidOperationException("Unsupported type for string conversion.")
-            });
+            // Convert the argument result to string and return it.
+            return InterpreterValue.FromString(argResult.ToString());
         }
     }
 }

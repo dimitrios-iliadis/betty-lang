@@ -21,6 +21,11 @@ namespace BettyLang.Core.Interpreter
                     booleanValue = argResult.AsNumber() != 0;
                     break;
 
+                case ValueType.Char:
+                    // Any character is true
+                    booleanValue = true;
+                    break;
+
                 case ValueType.String:
                     // Consider non-empty strings as true, and optionally parse "true" and "false"
                     var str = argResult.AsString();

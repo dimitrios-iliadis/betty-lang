@@ -89,6 +89,10 @@ namespace BettyLang.Core
                     Consume(TokenType.NumberLiteral);
                     return new NumberLiteral(token);
 
+                case TokenType.CharLiteral:
+                    Consume(TokenType.CharLiteral);
+                    return new CharLiteral(char.Parse(token.Value!));
+
                 case TokenType.LParen:
                     Consume(TokenType.LParen);
                     var node = ParseExpression();
