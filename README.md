@@ -13,7 +13,7 @@ Betty is an interpreted, dynamically-typed programming language designed for edu
 
 Here is a simple program in Betty:
 
-```C
+```
 # This program prompts the user to enter a number
 # and then prints its factorial using recursion.
 
