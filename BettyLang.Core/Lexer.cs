@@ -45,7 +45,7 @@
             ['%'] = TokenType.Modulo
         };
 
-        private static readonly Dictionary<string, TokenType> _doubleCharOperators = new()
+        private static readonly Dictionary<string, TokenType> _multiCharOperators = new()
         {
             ["=="] = TokenType.EqualEqual,
             ["<="] = TokenType.LessThanOrEqual,
@@ -60,7 +60,9 @@
             ["*="] = TokenType.StarEqual,
             ["/="] = TokenType.SlashEqual,
             ["^="] = TokenType.CaretEqual,
-            ["%="] = TokenType.ModuloEqual
+            ["%="] = TokenType.ModuloEqual,
+            ["//"] = TokenType.SlashSlash,
+            ["//="] = TokenType.SlashSlashEqual
         };
 
         public Lexer(string input)
@@ -70,9 +72,9 @@
             _currentChar = _input.Length > 0 ? _input[_position] : '\0'; // Handle empty input
         }
 
-        private void Advance()
+        private void Advance(int offset = 1)
         {
-            _position++;
+            _position += offset;
             if (_position > _input.Length - 1)
                 _currentChar = '\0';
             else
@@ -169,7 +171,18 @@
             return new Token(TokenType.Identifier, result);
         }
 
-        private char PeekNextChar() => (_position + 1 >= _input.Length) ? '\0' : _input[_position + 1];
+        private char PeekNextChar(int lookahead = 1)
+        {
+            int peekPosition = _position + lookahead;
+            if (peekPosition >= _input.Length)
+            {
+                return '\0'; // Return null character if peeking past the end of input
+            }
+            else
+            {
+                return _input[peekPosition];
+            }
+        }
 
         private void SkipComment()
         {
@@ -223,6 +236,41 @@
             return charLiteral;
         }
 
+        private Token ScanOperator()
+        {
+            // Start by building a two-character operator
+            string twoCharOperator = _currentChar.ToString() + PeekNextChar();
+
+            // Check if the two-character sequence is a valid operator
+            if (_multiCharOperators.TryGetValue(twoCharOperator, out TokenType tokenType))
+            {
+                // Peek ahead one more character to see if there's a valid three-character operator
+                string threeCharOperator = twoCharOperator + PeekNextChar(2); // Peek two characters ahead
+
+                // Check if the three-character sequence is a valid operator
+                if (_multiCharOperators.TryGetValue(threeCharOperator, out TokenType threeCharTokenType))
+                {
+                    Advance(3); // Move past the three-character operator
+                    return new Token(threeCharTokenType);
+                }
+                else
+                {
+                    Advance(2); // Move past the two-character operator if no valid three-character operator found
+                    return new Token(tokenType);
+                }
+            }
+
+            // If we reach here, no valid two or three-character operator was found; handle as a single character
+
+            if (_singleCharOperators.TryGetValue(_currentChar, out tokenType))
+            {
+                Advance(); // Move past the single character operator
+                return new Token(tokenType);
+            }
+
+            throw new Exception($"Unrecognized character: {_currentChar}");
+        }
+
         public Token GetNextToken()
         {
             while (_currentChar != '\0')
@@ -233,7 +281,7 @@
                     continue;
                 }
 
-                if (_currentChar == '/' && PeekNextChar() == '/')
+                if (_currentChar == '#')
                 {
                     SkipComment();
                     continue;
@@ -254,21 +302,7 @@
                 if (_currentChar == '"')
                     return new Token(TokenType.StringLiteral, ScanStringLiteral());
 
-                string doubleCharOperator = _currentChar.ToString() + PeekNextChar();
-                if (_doubleCharOperators.TryGetValue(doubleCharOperator, out TokenType tokenType))
-                {
-                    Advance();
-                    Advance();
-                    return new Token(tokenType);
-                }
-
-                if (_singleCharOperators.TryGetValue(_currentChar, out tokenType))
-                {
-                    Advance();
-                    return new Token(tokenType);
-                }
-
-                throw new Exception($"Unrecognized character: {_currentChar}");
+                return ScanOperator(); // This will throw if the character is not a valid operator
             }
 
             return new Token(TokenType.EOF);

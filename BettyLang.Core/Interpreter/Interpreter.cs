@@ -203,6 +203,7 @@ namespace BettyLang.Core.Interpreter
                 case TokenType.Minus:
                 case TokenType.Star:
                 case TokenType.Slash:
+                case TokenType.SlashSlash:
                 case TokenType.Caret:
                 case TokenType.Modulo:
                     return (leftResult.Type, rightResult.Type) switch 
@@ -236,6 +237,7 @@ namespace BettyLang.Core.Interpreter
                 TokenType.Minus => InterpreterValue.FromNumber(leftNumber - rightNumber),
                 TokenType.Star => InterpreterValue.FromNumber(leftNumber * rightNumber),
                 TokenType.Slash => InterpreterValue.FromNumber(leftNumber / rightNumber),
+                TokenType.SlashSlash => InterpreterValue.FromNumber(Math.Floor(leftNumber / rightNumber)),
                 TokenType.Caret => InterpreterValue.FromNumber(Math.Pow(leftNumber, rightNumber)),
                 TokenType.Modulo => InterpreterValue.FromNumber(leftNumber % rightNumber),
                 _ => throw new Exception($"Unsupported arithmetic operator: {operatorType}")

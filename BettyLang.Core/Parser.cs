@@ -8,8 +8,7 @@ namespace BettyLang.Core
         private Token _currentToken;
         private readonly HashSet<string> _definedFunctions = [];
 
-        private static readonly HashSet<TokenType> _comparisonOperators =
-        [
+        private static readonly HashSet<TokenType> _comparisonOperators = [
             TokenType.GreaterThan,
             TokenType.LessThan,
             TokenType.GreaterThanOrEqual,
@@ -18,16 +17,27 @@ namespace BettyLang.Core
             TokenType.NotEqual
         ];
 
-        private static readonly HashSet<TokenType> _assignmentOperators =
-        [
+        private static readonly HashSet<TokenType> _assignmentOperators = [
             TokenType.Equal,
             TokenType.PlusEqual,
             TokenType.MinusEqual,
             TokenType.StarEqual,
             TokenType.SlashEqual,
             TokenType.CaretEqual,
-            TokenType.ModuloEqual
+            TokenType.ModuloEqual,
+            TokenType.SlashSlashEqual
         ];
+
+        private static readonly HashSet<TokenType> _multiplicativeOperators = [
+            TokenType.Star,
+            TokenType.Slash,
+            TokenType.SlashSlash,
+            TokenType.Modulo
+        ];
+
+        private static bool IsComparisonOperator(TokenType type) => _comparisonOperators.Contains(type);
+        private static bool IsAssignmentOperator(TokenType type) => _assignmentOperators.Contains(type);
+        private static bool IsMultiplicativeOperator(TokenType type) => _multiplicativeOperators.Contains(type);
 
         public Parser(Lexer lexer)
         {
@@ -133,17 +143,10 @@ namespace BettyLang.Core
 
             var node = ParseExponent();
 
-            while (_currentToken.Type == TokenType.Star || _currentToken.Type == TokenType.Slash
-                || _currentToken.Type == TokenType.Modulo)
+            while (IsMultiplicativeOperator(_currentToken.Type))
             {
                 var token = _currentToken;
-                if (token.Type == TokenType.Star)
-                    Consume(TokenType.Star);
-                else if (token.Type == TokenType.Slash)
-                    Consume(TokenType.Slash);
-                else if (token.Type == TokenType.Modulo)
-                    Consume(TokenType.Modulo);
-
+                Consume(token.Type);
                 node = new BinaryOperatorExpression(node, token.Type, ParseExponent());
             }
 
@@ -363,6 +366,7 @@ namespace BettyLang.Core
                     TokenType.SlashEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Slash, rightExpr)),
                     TokenType.CaretEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Caret, rightExpr)),
                     TokenType.ModuloEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Modulo, rightExpr)),
+                    TokenType.SlashSlashEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.SlashSlash, rightExpr)),
                     _ => throw new Exception($"Unexpected token: {assignmentOperator.Type}")
                 };
 
@@ -371,8 +375,6 @@ namespace BettyLang.Core
 
             return leftExpr; // If no assignment operator is found, return the left expression
         }
-
-        private static bool IsAssignmentOperator(TokenType type) => _assignmentOperators.Contains(type);
 
         private EmptyStatement ParseEmptyStatement()
         {
@@ -491,8 +493,6 @@ namespace BettyLang.Core
             return node;
         }
 
-        private static bool IsComparisonOperator(TokenType type) => _comparisonOperators.Contains(type);
-
         private Expression ParseLogicalOrExpression()
         {
             var node = ParseLogicalAndExpression();
@@ -528,10 +528,7 @@ namespace BettyLang.Core
             while (_currentToken.Type == TokenType.Plus || _currentToken.Type == TokenType.Minus)
             {
                 var token = _currentToken;
-                if (token.Type == TokenType.Plus)
-                    Consume(TokenType.Plus);
-                else if (token.Type == TokenType.Minus)
-                    Consume(TokenType.Minus);
+                Consume(token.Type); // Consume the Plus or Minus operator
 
                 node = new BinaryOperatorExpression(node, token.Type, ParseTerm());
             }

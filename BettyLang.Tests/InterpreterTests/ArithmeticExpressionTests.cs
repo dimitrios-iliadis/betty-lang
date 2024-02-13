@@ -3,6 +3,16 @@ namespace BettyLang.Tests.InterpreterTests
     public class ArithmeticExpressionTests : InterpreterTestBase
     {
         [Fact]
+        public void PostfixAndPrefixAddition_WithAssignment_ReturnsCorrectValue()
+        {
+            var code = "x = 0; x = x++ + ++x; return x;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal(2, result.AsNumber());
+        }
+
+        [Fact]
         public void CharMultiplication_ReturnsCorrectProduct()
         {
             var code = "return 'a' * 'b';";
@@ -20,6 +30,16 @@ namespace BettyLang.Tests.InterpreterTests
 
             var result = interpreter.Interpret();
             Assert.Equal('a' - 'b', result.AsNumber());
+        }
+
+        [Fact]
+        public void CharIntegerDivision_ReturnsCorrectQuotient()
+        {
+            var code = "return 'a' // 'b';";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal('a' / 'b', result.AsNumber());
         }
 
         [Fact]

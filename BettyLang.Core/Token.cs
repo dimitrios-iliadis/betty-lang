@@ -6,9 +6,10 @@
 
         Not, And, Or,
 
-        Plus, Minus, Star, Slash, Caret, Modulo,
+        Plus, Minus, Star, Slash, SlashSlash, Caret, Modulo,
 
-        Increment, Decrement, PlusEqual, MinusEqual, StarEqual, SlashEqual, CaretEqual, ModuloEqual,
+        Increment, Decrement, PlusEqual, MinusEqual, 
+        StarEqual, SlashEqual, CaretEqual, ModuloEqual, SlashSlashEqual,
 
         LParen, RParen, LBrace, RBrace, Semicolon, Comma, QuestionMark, Colon,
 

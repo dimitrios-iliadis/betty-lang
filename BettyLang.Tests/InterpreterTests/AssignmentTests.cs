@@ -3,6 +3,16 @@
     public class AssignmentTests : InterpreterTestBase
     {
         [Fact]
+        public void IntegerDivisionAssignment_ReturnsCorrectValue()
+        {
+            var code = "x = 5; x //= 2; return x;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal(2.0, result.AsNumber());
+        }
+
+        [Fact]
         public void CharAssignmentAndIncrement_ReturnsCorrectValue()
         {
             var code = "x = 'a'; x++; return x;";
