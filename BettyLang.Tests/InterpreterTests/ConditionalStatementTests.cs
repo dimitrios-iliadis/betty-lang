@@ -3,6 +3,64 @@
     public class ConditionalStatementTests : InterpreterTestBase
     {
         [Fact]
+        public void Function_WithForLoop_ReturnsCorrectValue()
+        {
+            var customCode = @"
+                func myfunc() {
+                    counter = 0;
+                    for (i = 0; i < 5; i++) {
+                        if (counter == 3) {
+                            return counter;
+                        }
+                        counter = counter + 1;
+                    }
+                }
+
+                func main() {
+                    result = myfunc();
+                    return result;
+                }
+            ";
+            var interpreter = SetupInterpreterCustom(customCode);
+            var result = interpreter.Interpret();
+            Assert.Equal(3.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void ForLoop_WithReturnStatement()
+        {
+            var code = @"
+                for (i = 0; i < 5; i = i + 1) {
+                    if (i == 3) {
+                        return i;
+                    }
+                }
+                return 0;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(3.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void ForLoop_ExecutesCorrectNumberOfTimes_WithEmptyConditionAndIncrement()
+        {
+            var code = @"
+                counter = 0;
+                for (; ; ) {
+                    counter = counter + 1;
+                    if (counter == 5) {
+                        break;
+                    }
+                }
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
         public void ForLoop_SingleStatement_ExecutesCorrectNumberOfTimes()
         {
             var code = @"
@@ -22,6 +80,26 @@
             var code = @"
                 counter = 0;
                 for (i = 0; i < 5; i = i + 1) {
+                    if (i == 2) {
+                        continue;
+                    }
+                    counter = counter + 1;
+                }
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(4.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void WhileLoop_WithContinueStatement()
+        {
+            var code = @"
+                counter = 0;
+                i = 0;
+                while (i < 5) {
+                    i = i + 1;
                     if (i == 2) {
                         continue;
                     }
@@ -339,24 +417,6 @@
             var code = @"
                 counter = 0;
                 while (counter < 5) counter = counter + 1;
-                return counter;
-            ";
-            var interpreter = SetupInterpreter(code);
-            var result = interpreter.Interpret();
-            Assert.Equal(5.0, result.AsNumber());
-        }
-
-        [Fact]
-        public void WhileLoop_WithContinueStatement()
-        {
-            var code = @"
-                counter = 0;
-                while (counter < 5) {
-                    counter = counter + 1;
-                    if (counter == 2) {
-                        continue;
-                    }
-                }
                 return counter;
             ";
             var interpreter = SetupInterpreter(code);

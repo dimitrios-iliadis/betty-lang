@@ -77,12 +77,8 @@ namespace BettyLang.Core.Interpreter
 
             _context.IsInLoop = true; // Set the loop state to true to allow continue and break statements.
 
-            while (true) // Loop indefinitely, we'll manage the exit conditions manually.
+            while (node.Condition == null || node.Condition.Accept(this).AsBoolean())
             {
-                // Check the loop's condition at the start of each iteration. Exit if false.
-                bool condition = node.Condition == null || node.Condition.Accept(this).AsBoolean();
-                if (!condition) break;
-
                 // Execute the body of the loop.
                 node.Body.Accept(this);
 
@@ -109,7 +105,7 @@ namespace BettyLang.Core.Interpreter
         {
             _context.IsInLoop = true;
 
-            while (node.Condition.Accept(this).AsBoolean() && _context.FlowState == ControlFlowState.Normal)
+            while (node.Condition.Accept(this).AsBoolean())
             {
                 // Execute the body of the loop.
                 node.Body.Accept(this);

@@ -3,6 +3,24 @@
     public class ControlFlowTests : ParserTestBase
     {
         [Fact]
+        public void ParsesForStatement()
+        {
+            var code = "func main() { for (x = 0; x < 10; x = x + 1) { y = y + 1; } }";
+            var parser = SetupParser(code);
+            var result = parser.Parse() as Program;
+
+            Assert.NotNull(result);
+            var mainFunction = result.Functions[0];
+            var forStatement = mainFunction.Body.Statements[0] as ForStatement;
+
+            Assert.NotNull(forStatement);
+            Assert.NotNull(forStatement.Initializer);
+            Assert.NotNull(forStatement.Condition);
+            Assert.NotNull(forStatement.Increment);
+            Assert.Single((forStatement.Body as CompoundStatement)!.Statements);
+        }
+
+        [Fact]
         public void ParsesIfStatement()
         {
             var code = "func main() { if (x > 5) { x = x - 1; } }";
@@ -26,6 +44,7 @@
             var parser = SetupParser(code);
             var result = parser.Parse() as Program;
 
+            Assert.NotNull(result);
             var mainFunction = result.Functions[0];
             var whileStatement = mainFunction.Body.Statements[0] as WhileStatement;
 
@@ -41,6 +60,7 @@
             var parser = SetupParser(code);
             var result = parser.Parse() as Program;
 
+            Assert.NotNull(result);
             var mainFunction = result.Functions[0];
             var compoundStatement = mainFunction.Body.Statements[0] as CompoundStatement;
 
@@ -55,6 +75,7 @@
             var parser = SetupParser(code);
             var result = parser.Parse() as Program;
 
+            Assert.NotNull(result);
             var mainFunction = result.Functions[0];
             var ifStatement = mainFunction.Body.Statements[0] as IfStatement;
             var whileStatement = (ifStatement!.ThenStatement as CompoundStatement)!.Statements[0] as WhileStatement;
@@ -71,6 +92,7 @@
             var parser = SetupParser(code);
             var result = parser.Parse() as Program;
 
+            Assert.NotNull(result);
             var mainFunction = result.Functions[0];
             var ifStatement = mainFunction.Body.Statements[0] as IfStatement;
 
