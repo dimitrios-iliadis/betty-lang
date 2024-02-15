@@ -21,6 +21,9 @@ namespace BettyLang.Core.Interpreter
 
             { "concat", ConcatFunction },
 
+            { "isdigit", IsDigitFunction },
+            { "isspace", IsSpaceFunction },
+
             { "len", LengthFunction },
 
             { "append", AppendFunction },

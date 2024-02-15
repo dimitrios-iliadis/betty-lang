@@ -17,6 +17,10 @@ namespace BettyLang.Core.Interpreter
 
         public InterpreterResult Visit(Program node)
         {
+            // Visit each global variable declaration and store it in the global scope
+            foreach (var global in node.Globals)
+                _scopeManager.DeclareGlobal(global, InterpreterResult.None()); // Initialize to None
+
             // Visit each function definition and store it in a dictionary
             foreach (var function in node.Functions)
                 function.Accept(this);
@@ -127,6 +131,8 @@ namespace BettyLang.Core.Interpreter
                     break;
                 }
             }
+
+            _context.IsInLoop = false;
         }
 
         public void Visit(ForStatement node)

@@ -47,10 +47,15 @@ namespace BettyLang.Core
         private void Consume(TokenType tokenType)
         {
             if (_currentToken.Type == tokenType)
+            {
                 _currentToken = _lexer.GetNextToken();
+            }
             else
-                throw new Exception($"Unexpected token: Expected {tokenType}, found {_currentToken.Type}");
+            {
+                throw new Exception($"Unexpected token: Expected {tokenType}, found {_currentToken.Type} at line {_currentToken.Line}, column {_currentToken.Column}");
+            }
         }
+
 
         private ListValue ParseListLiteral()
         {
@@ -485,8 +490,37 @@ namespace BettyLang.Core
             return parameters;
         }
 
+        private List<string> ParseGlobalVariableDeclarations()
+        {
+            var globals = new List<string>();
+
+            while (_currentToken.Type == TokenType.Global)
+            {
+                Consume(TokenType.Global);
+                var variableName = (string)_currentToken.Value!;
+                Consume(TokenType.Identifier);
+                globals.Add(variableName);
+
+                // Check for multiple global variable declarations on the same line
+                while (_currentToken.Type == TokenType.Comma)
+                {
+                    Consume(TokenType.Comma);
+                    variableName = (string)_currentToken.Value!;
+                    Consume(TokenType.Identifier);
+                    globals.Add(variableName);
+                }
+
+                Consume(TokenType.Semicolon);
+            }
+
+            return globals;
+        }
+
         private Program ParseProgram()
         {
+            // Parse global variable declarations at the beginning of the program
+            var globals = ParseGlobalVariableDeclarations();
+
             var functions = new List<FunctionDefinition>();
 
             while (_currentToken.Type != TokenType.EOF)
@@ -500,7 +534,7 @@ namespace BettyLang.Core
                     throw new Exception("Unexpected token: " + _currentToken.Type);
             }
 
-            return new Program(functions);
+            return new Program(globals, functions);
         }
 
         private Expression ParseComparisonExpression()

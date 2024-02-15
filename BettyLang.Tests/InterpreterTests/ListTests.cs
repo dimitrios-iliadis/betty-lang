@@ -5,6 +5,65 @@ namespace BettyLang.Tests.InterpreterTests
     public class ListTests : InterpreterTestBase
     {
         [Fact]
+        public void List_CompoundAssignment_NestedList_PlusAnotherList_ReturnsCorrectValue()
+        {
+            var code = "x = [[1, 2], [3, 4]]; x += [[5, 6]]; return x;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            var expected = new List<InterpreterResult>
+            {
+                InterpreterResult.FromList([
+                    InterpreterResult.FromNumber(1),
+                    InterpreterResult.FromNumber(2),
+                ]),
+                InterpreterResult.FromList([InterpreterResult.FromNumber(3), InterpreterResult.FromNumber(4)]),
+                InterpreterResult.FromList([InterpreterResult.FromNumber(5), InterpreterResult.FromNumber(6)])
+            };
+            Assert.Equal(result.AsList(), expected);
+        }
+
+        [Fact]
+        public void ListLength_CompoundAssignment_NestedList_ReturnsCorrectValue()
+        {
+            var code = "x = [[1, 2], [3, 4]]; x[0] += [5, 6]; return len(x);";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal(2.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void ListLength_CompoundAssignment_ReturnsCorrectValue()
+        {
+            var code = "x = [ 1, 2, 3 ]; x += 4; return len(x);";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal(4.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void List_CompoundAssignment_NestedList_ReturnsCorrectValue()
+        {
+            var code = "x = [[1, 2], [3, 4]]; x[0] += [5, 6]; return x;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            var expected = new List<InterpreterResult>
+            {
+                InterpreterResult.FromList([
+                    InterpreterResult.FromNumber(1),
+                    InterpreterResult.FromNumber(2),
+                    InterpreterResult.FromNumber(5),
+                    InterpreterResult.FromNumber(6)
+                ]),
+                InterpreterResult.FromList([InterpreterResult.FromNumber(3), InterpreterResult.FromNumber(4)]),
+            };
+            Assert.Equal(result.AsList(), expected);
+        }
+
+        [Fact]
         public void NestedListAccess_ReturnsCorrectInnerMember()
         {
             var code = """

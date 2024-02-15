@@ -1,17 +1,18 @@
-﻿using System.Globalization;
-
-namespace BettyLang.Core
+﻿namespace BettyLang.Core
 {
     public class Lexer
     {
         private readonly string _input;
         private int _position;
+        private int _currentLine = 1;
+        private int _currentColumn = 1;
         private char _currentChar;
         private readonly System.Text.StringBuilder _stringBuilder = new();
 
         private static readonly Dictionary<string, Token> _reservedKeywords = new()
         {
             ["func"] = new Token(TokenType.Func),
+            ["global"] = new Token(TokenType.Global),
             ["true"] = new Token(TokenType.BooleanLiteral, true),
             ["false"] = new Token(TokenType.BooleanLiteral, false),
             ["if"] = new Token(TokenType.If),
@@ -78,11 +79,29 @@ namespace BettyLang.Core
 
         private void Advance(int offset = 1)
         {
-            _position += offset;
-            if (_position > _input.Length - 1)
-                _currentChar = '\0';
-            else
-                _currentChar = _input[_position];
+            for (int i = 0; i < offset; i++)
+            {
+                if (_currentChar == '\n')
+                {
+                    _currentLine++;
+                    _currentColumn = 1;
+                }
+                else
+                {
+                    _currentColumn++;
+                }
+
+                _position++;
+                if (_position >= _input.Length)
+                {
+                    _currentChar = '\0';
+                    break; // Exit the loop if we've reached the end of the input
+                }
+                else
+                {
+                    _currentChar = _input[_position];
+                }
+            }
         }
 
         private void SkipWhitespace()
@@ -109,6 +128,7 @@ namespace BettyLang.Core
                         case '"': _stringBuilder.Append('\"'); break; // Double quote
                         case '\'': _stringBuilder.Append('\''); break; // Single quote
                         case '\\': _stringBuilder.Append('\\'); break; // Backslash
+                        case '0': _stringBuilder.Append('\0'); break; // Null character
                         default:
                             throw new Exception($"Unrecognized escape sequence: \\{_currentChar}");
                     }
@@ -155,7 +175,7 @@ namespace BettyLang.Core
             }
 
             // Use invariant culture to parse numbers to ensure consistent behavior across different locales
-            return double.Parse(_stringBuilder.ToString(), CultureInfo.InvariantCulture);
+            return double.Parse(_stringBuilder.ToString(), System.Globalization.CultureInfo.InvariantCulture);
         }
 
         private Token ScanIdentifierOrKeyword()
@@ -171,9 +191,9 @@ namespace BettyLang.Core
             var result = _stringBuilder.ToString().ToLower();
 
             if (_reservedKeywords.TryGetValue(result, out Token token))
-                return token;
+                return new Token(token.Type, token.Value, _currentLine, _currentColumn);
 
-            return new Token(TokenType.Identifier, result);
+            return new Token(TokenType.Identifier, result, _currentLine, _currentColumn);
         }
 
         private char Peek(int lookahead = 1)
@@ -229,6 +249,7 @@ namespace BettyLang.Core
                     '"' => '\"',    // Double quote
                     '\'' => '\'',   // Single quote
                     '\\' => '\\',   // Backslash
+                    '0' => '\0',    // Null character
                     _ => throw new Exception($"Unrecognized escape sequence: \\{_currentChar}"),
                 };
             }
@@ -256,12 +277,12 @@ namespace BettyLang.Core
                 if (_multiCharOperators.TryGetValue(threeCharOperator, out TokenType threeCharTokenType))
                 {
                     Advance(3); // Move past the three-character operator
-                    return new Token(threeCharTokenType);
+                    return new Token(threeCharTokenType, null, _currentLine, _currentColumn);
                 }
                 else
                 {
                     Advance(2); // Move past the two-character operator if no valid three-character operator found
-                    return new Token(tokenType);
+                    return new Token(tokenType, null, _currentLine, _currentColumn);
                 }
             }
 
@@ -270,10 +291,10 @@ namespace BettyLang.Core
             if (_singleCharOperators.TryGetValue(_currentChar, out tokenType))
             {
                 Advance(); // Move past the single character operator
-                return new Token(tokenType);
+                return new Token(tokenType, null, _currentLine, _currentColumn);
             }
 
-            throw new Exception($"Unrecognized character: {_currentChar}");
+            throw new Exception($"Unrecognized character: {_currentChar} at line {_currentLine}, column {_currentColumn}");
         }
 
         public Token GetNextToken()
@@ -296,16 +317,16 @@ namespace BettyLang.Core
                     return ScanIdentifierOrKeyword();
 
                 if (Char.IsDigit(_currentChar))
-                    return new Token(TokenType.NumberLiteral, ScanNumberLiteral(hasLeadingDot: false));
+                    return new Token(TokenType.NumberLiteral, ScanNumberLiteral(hasLeadingDot: false), _currentLine, _currentColumn);
 
                 if (_currentChar == '.' && Char.IsDigit(Peek()))
-                    return new Token(TokenType.NumberLiteral, ScanNumberLiteral(hasLeadingDot: true));
+                    return new Token(TokenType.NumberLiteral, ScanNumberLiteral(hasLeadingDot: true), _currentLine, _currentColumn);
 
                 if (_currentChar == '\'')
-                    return new Token(TokenType.CharLiteral, ScanCharLiteral());
+                    return new Token(TokenType.CharLiteral, ScanCharLiteral(), _currentLine, _currentColumn);
 
                 if (_currentChar == '"')
-                    return new Token(TokenType.StringLiteral, ScanStringLiteral());
+                    return new Token(TokenType.StringLiteral, ScanStringLiteral(), _currentLine, _currentColumn);
 
                 return ScanOperator(); // This will throw if the character is not a valid operator
             }

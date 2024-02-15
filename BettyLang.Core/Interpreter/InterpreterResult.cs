@@ -122,7 +122,7 @@
                 ResultType.String => StringTable.GetString(_stringId),
                 ResultType.Boolean => _boolean.ToString(),
                 ResultType.Char => _char.ToString(),
-                ResultType.List => $"List[{_list.Count}]",
+                ResultType.List => $"[{string.Join(", ", _list.Select(item => item.ToString()))}]",
                 ResultType.None => "None",
                 _ => throw new InvalidOperationException($"Unknown type {Type}.")
             };

@@ -14,7 +14,7 @@
         LParen, RParen, LBrace, RBrace, LBracket, RBracket, 
         Semicolon, Comma, QuestionMark, Colon,
 
-        Func,
+        Func, Global,
 
         Equal, If, Elif, Else, For, While, Do, Break, Continue, Return,
 
@@ -23,9 +23,11 @@
         EOF
     }
 
-    public readonly struct Token(TokenType type, object? value = default)
+    public readonly struct Token(TokenType type, object? value = default, int line = 0, int column = 0)
     {
         public TokenType Type { get; } = type;
         public object? Value { get; } = value;
+        public int Line { get; } = line;
+        public int Column { get; } = column;
     }
 }

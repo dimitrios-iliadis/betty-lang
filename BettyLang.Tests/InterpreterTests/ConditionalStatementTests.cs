@@ -3,6 +3,50 @@
     public class ConditionalStatementTests : InterpreterTestBase
     {
         [Fact]
+        public void NestedWhileLoops_ContinueStatement_OutsideInnerIf()
+        {
+            var code = @"
+                i = 0;
+                j = 0;
+                while (i < 10) {
+                    if (j == 8) {
+		                while (j < 10) j++;
+		                continue;
+	                }
+	                i++;
+                }
+                return i;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(10.0, result.AsNumber());
+        }
+
+        [Fact]
+        public void NestedWhileLoops_ContinueStatement()
+        {
+            var code = @"
+                counter = 0;
+                i = 0;
+                while (i < 5) {
+                    i = i + 1;
+                    j = 0;
+                    while (j < 5) {
+                        j = j + 1;
+                        if (j == 3) {
+                            continue;
+                        }
+                        counter = counter + 1;
+                    }
+                }
+                return counter;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.Equal(20.0, result.AsNumber());
+        }
+
+        [Fact]
         public void DoWhileLoop_ExecutesCorrectNumberOfTimes_WithContinueStatement()
         {
             var code = @"

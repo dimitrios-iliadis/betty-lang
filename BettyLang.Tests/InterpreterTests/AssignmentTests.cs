@@ -3,6 +3,16 @@
     public class AssignmentTests : InterpreterTestBase
     {
         [Fact]
+        public void Assignment_EmptyString_ReturnsCorrectValue()
+        {
+            var code = "x = \"\"; return x;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal("", result.AsString());
+        }
+
+        [Fact]
         public void CompoundAssignment_WithChar_ReturnsCorrectValue()
         {
             var code = "x = 'a'; x += 1; return x;";
