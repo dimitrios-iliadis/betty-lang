@@ -545,8 +545,9 @@ namespace BettyLang.Core.Interpreter
                         if (index < 0 || index >= list.Count)
                             throw new IndexOutOfRangeException("List index out of range.");
 
-                        // Ensure the target element is a number
-                        if (list[index].Type != ResultType.Number)
+                        // Ensure the target element is a number or a character
+                        if (list[index].Type != ResultType.Number 
+                            && list[index].Type != ResultType.Char)
                             throw new InvalidOperationException(
                                 $"{fixity} {op} operators can only be applied to numbers or characters.");
 
