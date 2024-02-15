@@ -17,9 +17,13 @@ namespace BettyLang.Core.Interpreter
             { "tobool", ToBooleanFunction },
             { "tonum", ToNumberFunction },
             { "tochar", ToCharFunction },
+            { "tolist", ToListFunction },
 
             { "concat", ConcatFunction },
+
             { "len", LengthFunction },
+
+            { "append", AppendFunction },
 
             { "sin", SinFunction },
             { "cos", CosFunction },

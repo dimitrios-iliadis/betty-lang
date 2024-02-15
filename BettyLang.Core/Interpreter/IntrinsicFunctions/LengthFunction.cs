@@ -19,6 +19,13 @@ namespace BettyLang.Core.Interpreter
                 var length = argResult.AsString().Length;
                 return InterpreterResult.FromNumber(length);
             }
+
+            if (argResult.Type == ResultType.List)
+            {
+                // Return the length of the list
+                var length = argResult.AsList().Count;
+                return InterpreterResult.FromNumber(length);
+            }
             
             throw new Exception($"{call.FunctionName} function is not defined for the given argument type.");
         }
