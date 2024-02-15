@@ -8,41 +8,40 @@ namespace BettyLang.Core
         private Token _currentToken;
         private readonly HashSet<string> _definedFunctions = [];
 
-        private static readonly HashSet<TokenType> _comparisonOperators = [
+        private static readonly HashSet<TokenType> _comparisonOperators = new()
+        {
             TokenType.GreaterThan,
             TokenType.LessThan,
             TokenType.GreaterThanOrEqual,
             TokenType.LessThanOrEqual,
             TokenType.EqualEqual,
             TokenType.NotEqual
-        ];
+        };
 
-        private static readonly HashSet<TokenType> _assignmentOperators = [
+        private static readonly HashSet<TokenType> _assignmentOperators = new()
+        {
             TokenType.Equal,
             TokenType.PlusEqual,
             TokenType.MinusEqual,
-            TokenType.StarEqual,
-            TokenType.SlashEqual,
+            TokenType.MulEqual,
+            TokenType.DivEqual,
             TokenType.CaretEqual,
-            TokenType.ModuloEqual,
-            TokenType.SlashSlashEqual
-        ];
+            TokenType.ModEqual,
+            TokenType.IntDivEqual
+        };
 
-        private static readonly HashSet<TokenType> _multiplicativeOperators = [
-            TokenType.Star,
-            TokenType.Slash,
-            TokenType.SlashSlash,
-            TokenType.Modulo
-        ];
-
-        private static bool IsComparisonOperator(TokenType type) => _comparisonOperators.Contains(type);
-        private static bool IsAssignmentOperator(TokenType type) => _assignmentOperators.Contains(type);
-        private static bool IsMultiplicativeOperator(TokenType type) => _multiplicativeOperators.Contains(type);
+        private static readonly HashSet<TokenType> _multiplicativeOperators = new()
+        {
+            TokenType.Mul,
+            TokenType.Div,
+            TokenType.IntDiv,
+            TokenType.Mod
+        };
 
         public Parser(Lexer lexer)
         {
             _lexer = lexer;
-            _currentToken = _lexer.GetNextToken();
+            _currentToken = _lexer.GetNextToken(); // Set current token to the first token from the input
         }
 
         private void Consume(TokenType tokenType)
@@ -53,97 +52,139 @@ namespace BettyLang.Core
                 throw new Exception($"Unexpected token: Expected {tokenType}, found {_currentToken.Type}");
         }
 
-        private StringLiteral ParseStringLiteral()
+        private ListValue ParseListLiteral()
         {
-            var token = _currentToken;
-            Consume(TokenType.StringLiteral);
-            return new StringLiteral(token.Value!);
+            Consume(TokenType.LBracket); // Consume the opening bracket
+            var elements = new List<Expression>(); // Create a list to store the elements
+
+            // Check if the list is not empty
+            if (_currentToken.Type != TokenType.RBracket)
+            {
+                do
+                {
+                    if (_currentToken.Type == TokenType.Comma)
+                        Consume(TokenType.Comma);
+
+                    elements.Add(ParseExpression());
+                }
+                while (_currentToken.Type == TokenType.Comma);
+            }
+
+            Consume(TokenType.RBracket); // Consume the closing bracket
+            return new ListValue(elements);
         }
 
-        private Variable ParseVariable()
+        private ElementAccessExpression ParseElementAccess(Expression listExpr)
         {
-            var node = new Variable(_currentToken.Value!);
-            Consume(TokenType.Identifier);
-            return node;
+            Consume(TokenType.LBracket);
+            var indexExpr = ParseExpression();
+            Consume(TokenType.RBracket);
+            return new ElementAccessExpression(listExpr, indexExpr);
         }
 
         private Expression ParseFactor()
         {
+            // Step 1: Handle primary expressions and unary operators
+            Expression expr = ParsePrimaryOrUnaryExpression();
+
+            // Step 2: Loop to handle postfix operations (function calls, element access, postfix operators)
+            while (true)
+            {
+                switch (_currentToken.Type)
+                {
+                    case TokenType.LParen:
+                        // Function call
+                        expr = ParseFunctionCall(expr);
+                        break;
+
+                    case TokenType.LBracket:
+                        // Element access
+                        expr = ParseElementAccess(expr);
+                        break;
+
+                    case TokenType.Increment:
+                    case TokenType.Decrement:
+                        // Postfix increment/decrement
+                        var operatorToken = _currentToken;
+                        Consume(operatorToken.Type);
+                        expr = new UnaryOperatorExpression(expr, operatorToken.Type, OperatorFixity.Postfix);
+                        break;
+
+                    default:
+                        // No postfix operation, return the expression
+                        return expr;
+                }
+            }
+        }
+
+        private Expression ParsePrimaryOrUnaryExpression()
+        {
             var token = _currentToken;
+            Expression expr;
 
             switch (token.Type)
             {
-                case TokenType.True:
-                case TokenType.False:
+                // Literals
+                case TokenType.NumberLiteral:
+                case TokenType.CharLiteral:
+                case TokenType.StringLiteral:
+                case TokenType.BooleanLiteral:
+                    expr = ParseLiteral(token);
                     Consume(token.Type);
-                    return new BooleanLiteral(token.Type == TokenType.True);
+                    break;
 
-                case TokenType.Increment:
-                case TokenType.Decrement:
-                    var lookahead = _lexer.PeekNextToken();
-                    if (lookahead.Type == TokenType.Identifier)
-                    {
-                        Consume(token.Type);
-                        var variable = ParseVariable();
-                        return new PrefixOperator(variable, token.Type);
-                    }
-                    throw new Exception("Expected an identifier after increment/decrement operator.");
+                // Handle list literals
+                case TokenType.LBracket:
+                    expr = ParseListLiteral();
+                    break;
 
+                // Unary operators and prefix increment/decrement
                 case TokenType.Plus:
                 case TokenType.Minus:
                 case TokenType.Not:
+                case TokenType.Increment:
+                case TokenType.Decrement:
                     Consume(token.Type);
-                    return new UnaryOperatorExpression(token, ParseFactor());
+                    expr = new UnaryOperatorExpression(ParseFactor(), token.Type, OperatorFixity.Prefix);
+                    break;
 
-                case TokenType.NumberLiteral:
-                    Consume(TokenType.NumberLiteral);
-                    return new NumberLiteral(token);
-
-                case TokenType.CharLiteral:
-                    Consume(TokenType.CharLiteral);
-                    return new CharLiteral(char.Parse(token.Value!));
-
+                // Parenthesized expressions
                 case TokenType.LParen:
                     Consume(TokenType.LParen);
-                    var node = ParseExpression();
+                    expr = ParseExpression();
                     Consume(TokenType.RParen);
-                    return node;
+                    break;
 
+                // Variables or function call placeholders
                 case TokenType.Identifier:
-                    // Peek at the next token to distinguish between variable and function call
-                    lookahead = _lexer.PeekNextToken();
-                    if (lookahead.Type == TokenType.LParen)
-                    {
-                        // Function call
-                        return ParseFunctionCall();
-                    }
-                    else
-                    {
-                        // Variable
-                        Consume(TokenType.Identifier);
-                        // Check for postfix increment/decrement
-                        if (_currentToken.Type == TokenType.Increment || _currentToken.Type == TokenType.Decrement)
-                        {
-                            var op = _currentToken;
-                            Consume(op.Type);
-                            return new PostfixOperator(new Variable(token.Value!), op.Type);
-                        }
-                        return new Variable(token.Value!);
-                    }
+                    expr = new Variable((string)token.Value!);
+                    Consume(TokenType.Identifier);
+                    break;
 
                 default:
                     throw new Exception($"Unexpected token: {token.Type}");
             }
+
+            return expr;
+        }
+
+        private static Expression ParseLiteral(Token token)
+        {
+            return token.Type switch
+            {
+                TokenType.NumberLiteral => new NumberLiteral((double)token.Value!),
+                TokenType.CharLiteral => new CharLiteral((char)token.Value!),
+                TokenType.StringLiteral => new StringLiteral((string)token.Value!),
+                TokenType.BooleanLiteral => new BooleanLiteral((bool)token.Value!),
+                _ => throw new InvalidOperationException("Invalid literal type."),
+            };
         }
 
         private Expression ParseTerm()
         {
-            if (_currentToken.Type == TokenType.StringLiteral)
-                return ParseStringLiteral();
-
             var node = ParseExponent();
 
-            while (IsMultiplicativeOperator(_currentToken.Type))
+            while (_multiplicativeOperators.Contains(_currentToken.Type))
             {
                 var token = _currentToken;
                 Consume(token.Type);
@@ -349,31 +390,18 @@ namespace BettyLang.Core
 
         private Expression ParseAssignmentExpression()
         {
-            var leftExpr = ParseLogicalOrExpression(); // Parse the highest precedence expressions first
+            Expression lhs = ParseLogicalOrExpression();
 
-            if (IsAssignmentOperator(_currentToken.Type))
+            if (_assignmentOperators.Contains(_currentToken.Type))
             {
-                var assignmentOperator = _currentToken;
-                Consume(assignmentOperator.Type); // Move past the assignment operator
+                TokenType operatorType = _currentToken.Type;
+                Consume(operatorType); // Move past the operator
 
-                var rightExpr = ParseAssignmentExpression(); // Parse the right expression recursively, allowing for chained assignments
-                rightExpr = assignmentOperator.Type switch
-                {
-                    TokenType.Equal => new AssignmentExpression(leftExpr, rightExpr),
-                    TokenType.PlusEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Plus, rightExpr)),
-                    TokenType.MinusEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Minus, rightExpr)),
-                    TokenType.StarEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Star, rightExpr)),
-                    TokenType.SlashEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Slash, rightExpr)),
-                    TokenType.CaretEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Caret, rightExpr)),
-                    TokenType.ModuloEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.Modulo, rightExpr)),
-                    TokenType.SlashSlashEqual => new AssignmentExpression(leftExpr, new BinaryOperatorExpression(leftExpr, TokenType.SlashSlash, rightExpr)),
-                    _ => throw new Exception($"Unexpected token: {assignmentOperator.Type}")
-                };
-
-                return new AssignmentExpression(leftExpr, rightExpr); // Construct an assignment expression
+                Expression rhs = ParseAssignmentExpression(); // Recursively parse the RHS
+                return new AssignmentExpression(lhs, rhs, operatorType);
             }
 
-            return leftExpr; // If no assignment operator is found, return the left expression
+            return lhs; // If there's no assignment operator, just return the LHS
         }
 
         private EmptyStatement ParseEmptyStatement()
@@ -382,12 +410,8 @@ namespace BettyLang.Core
             return new EmptyStatement();
         }
 
-        private FunctionCall ParseFunctionCall()
+        private FunctionCall ParseFunctionCall(Expression functionExpr)
         {
-            // The current token is expected to be an identifier (the function name)
-            string functionName = _currentToken.Value!;
-            Consume(TokenType.Identifier);
-
             // Consume the opening parenthesis
             Consume(TokenType.LParen);
 
@@ -409,13 +433,13 @@ namespace BettyLang.Core
             Consume(TokenType.RParen);
 
             // Return a new function call node
-            return new FunctionCall(functionName, arguments);
+            return new FunctionCall((functionExpr as Variable)!.Name, arguments);
         }
 
         private FunctionDefinition ParseFunctionDefinition()
         {
             // "function" token is already consumed
-            string functionName = _currentToken.Value!;
+            string functionName = (string)_currentToken.Value!;
             Consume(TokenType.Identifier); // Function name
 
             // Check for duplicate function definition
@@ -441,7 +465,7 @@ namespace BettyLang.Core
                 {
                     if (_currentToken.Type == TokenType.Identifier)
                     {
-                        string paramName = _currentToken.Value!.ToString();
+                        string paramName = (string)_currentToken.Value!;
                         parameters.Add(paramName);
                         Consume(TokenType.Identifier);
                     }
@@ -483,7 +507,7 @@ namespace BettyLang.Core
         {
             var node = ParseArithmeticExpression();
 
-            while (IsComparisonOperator(_currentToken.Type))
+            while (_comparisonOperators.Contains(_currentToken.Type))
             {
                 var token = _currentToken;
                 Consume(token.Type); // Consume the comparison operator

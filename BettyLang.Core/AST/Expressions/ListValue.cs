@@ -2,9 +2,9 @@
 
 namespace BettyLang.Core.AST
 {
-    public class Variable(string name) : Expression
+    public class ListValue(List<Expression> elements) : Expression
     {
-        public string Name { get; } = name;
+        public List<Expression> Elements { get; } = elements;
 
         public override InterpreterResult Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }

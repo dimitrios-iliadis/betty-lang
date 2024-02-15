@@ -2,11 +2,12 @@
 
 namespace BettyLang.Core.AST
 {
-    public class AssignmentExpression(Expression lhs, Expression rhs) : Expression
+    public class AssignmentExpression(Expression left, Expression right, TokenType operatorType) : Expression
     {
-        public Expression LHS { get; } = lhs;
-        public Expression RHS { get; } = rhs;
+        public Expression Left { get; } = left;
+        public Expression Right { get; } = right;
+        public TokenType OperatorType { get; } = operatorType;
 
-        public override InterpreterValue Accept(IExpressionVisitor visitor) => visitor.Visit(this);
+        public override InterpreterResult Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }
 }

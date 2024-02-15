@@ -4,18 +4,18 @@ namespace BettyLang.Core.AST
 {
     public interface IExpressionVisitor
     {
-        InterpreterValue Visit(NumberLiteral node);
-        InterpreterValue Visit(BooleanLiteral node);
-        InterpreterValue Visit(StringLiteral node);
-        InterpreterValue Visit(CharLiteral node);
-        InterpreterValue Visit(BinaryOperatorExpression node);
-        InterpreterValue Visit(TernaryOperatorExpression node);
-        InterpreterValue Visit(UnaryOperatorExpression node);
-        InterpreterValue Visit(Variable node);
-        InterpreterValue Visit(FunctionCall node);
-        InterpreterValue Visit(Program node);
-        InterpreterValue Visit(PrefixOperator node);
-        InterpreterValue Visit(PostfixOperator node);
-        InterpreterValue Visit(AssignmentExpression node);
+        InterpreterResult Visit(NumberLiteral node);
+        InterpreterResult Visit(BooleanLiteral node);
+        InterpreterResult Visit(StringLiteral node);
+        InterpreterResult Visit(CharLiteral node);
+        InterpreterResult Visit(BinaryOperatorExpression node);
+        InterpreterResult Visit(TernaryOperatorExpression node);
+        InterpreterResult Visit(UnaryOperatorExpression node);
+        InterpreterResult Visit(Variable node);
+        InterpreterResult Visit(FunctionCall node);
+        InterpreterResult Visit(Program node);
+        InterpreterResult Visit(AssignmentExpression node);
+        InterpreterResult Visit(ElementAccessExpression node);
+        InterpreterResult Visit(ListValue node);
     }
 }

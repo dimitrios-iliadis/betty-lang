@@ -5,7 +5,7 @@ namespace BettyLang.Core.Interpreter
 {
     public partial class Interpreter
     {
-        private delegate InterpreterValue IntrinsicFunctionHandler(FunctionCall call, IExpressionVisitor visitor);
+        private delegate InterpreterResult IntrinsicFunctionHandler(FunctionCall call, IExpressionVisitor visitor);
 
         private static readonly Dictionary<string, IntrinsicFunctionHandler> _intrinsicFunctions = new()
         {

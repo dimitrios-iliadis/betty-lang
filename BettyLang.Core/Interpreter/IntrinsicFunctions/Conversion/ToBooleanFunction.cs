@@ -4,7 +4,7 @@ namespace BettyLang.Core.Interpreter
 {
     public static partial class IntrinsicFunctions
     {
-        public static InterpreterValue ToBooleanFunction(FunctionCall call, IExpressionVisitor visitor)
+        public static InterpreterResult ToBooleanFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             if (call.Arguments.Count != 1)
             {
@@ -16,17 +16,17 @@ namespace BettyLang.Core.Interpreter
             bool booleanValue;
             switch (argResult.Type)
             {
-                case ValueType.Number:
+                case ResultType.Number:
                     // Any number other than 0 is true, 0 is false
                     booleanValue = argResult.AsNumber() != 0;
                     break;
 
-                case ValueType.Char:
+                case ResultType.Char:
                     // Any character is true
                     booleanValue = true;
                     break;
 
-                case ValueType.String:
+                case ResultType.String:
                     // Consider non-empty strings as true, and optionally parse "true" and "false"
                     var str = argResult.AsString();
                     if (bool.TryParse(str, out bool parsedValue))
@@ -41,7 +41,7 @@ namespace BettyLang.Core.Interpreter
                     }
                     break;
 
-                case ValueType.Boolean:
+                case ResultType.Boolean:
                     // Return the boolean value directly
                     return argResult;
 
@@ -49,7 +49,7 @@ namespace BettyLang.Core.Interpreter
                     throw new InvalidOperationException($"Conversion to boolean not supported for type {argResult.Type}.");
             }
 
-            return InterpreterValue.FromBoolean(booleanValue);
+            return InterpreterResult.FromBoolean(booleanValue);
         }
     }
 }

@@ -2,16 +2,17 @@
 {
     public enum TokenType
     {
-        NumberLiteral, CharLiteral, StringLiteral, True, False, Identifier,
+        NumberLiteral, CharLiteral, StringLiteral, BooleanLiteral, Identifier,
 
         Not, And, Or,
 
-        Plus, Minus, Star, Slash, SlashSlash, Caret, Modulo,
+        Plus, Minus, Mul, Div, IntDiv, Caret, Mod,
 
         Increment, Decrement, PlusEqual, MinusEqual, 
-        StarEqual, SlashEqual, CaretEqual, ModuloEqual, SlashSlashEqual,
+        MulEqual, DivEqual, CaretEqual, ModEqual, IntDivEqual,
 
-        LParen, RParen, LBrace, RBrace, Semicolon, Comma, QuestionMark, Colon,
+        LParen, RParen, LBrace, RBrace, LBracket, RBracket, 
+        Semicolon, Comma, QuestionMark, Colon,
 
         Func,
 
@@ -22,9 +23,9 @@
         EOF
     }
 
-    public readonly struct Token(TokenType type, string? value = default)
+    public readonly struct Token(TokenType type, object? value = default)
     {
         public TokenType Type { get; } = type;
-        public string? Value { get; } = value;
+        public object? Value { get; } = value;
     }
 }

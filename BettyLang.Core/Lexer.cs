@@ -1,4 +1,6 @@
-﻿namespace BettyLang.Core
+﻿using System.Globalization;
+
+namespace BettyLang.Core
 {
     public class Lexer
     {
@@ -10,8 +12,8 @@
         private static readonly Dictionary<string, Token> _reservedKeywords = new()
         {
             ["func"] = new Token(TokenType.Func),
-            ["true"] = new Token(TokenType.True),
-            ["false"] = new Token(TokenType.False),
+            ["true"] = new Token(TokenType.BooleanLiteral, true),
+            ["false"] = new Token(TokenType.BooleanLiteral, false),
             ["if"] = new Token(TokenType.If),
             ["elif"] = new Token(TokenType.Elif),
             ["else"] = new Token(TokenType.Else),
@@ -27,8 +29,8 @@
         {
             ['+'] = TokenType.Plus,
             ['-'] = TokenType.Minus,
-            ['*'] = TokenType.Star,
-            ['/'] = TokenType.Slash,
+            ['*'] = TokenType.Mul,
+            ['/'] = TokenType.Div,
             ['^'] = TokenType.Caret,
             ['('] = TokenType.LParen,
             [')'] = TokenType.RParen,
@@ -42,7 +44,9 @@
             [','] = TokenType.Comma,
             ['?'] = TokenType.QuestionMark,
             [':'] = TokenType.Colon,
-            ['%'] = TokenType.Modulo
+            ['%'] = TokenType.Mod,
+            ['['] = TokenType.LBracket,
+            [']'] = TokenType.RBracket
         };
 
         private static readonly Dictionary<string, TokenType> _multiCharOperators = new()
@@ -57,12 +61,12 @@
             ["--"] = TokenType.Decrement,
             ["+="] = TokenType.PlusEqual,
             ["-="] = TokenType.MinusEqual,
-            ["*="] = TokenType.StarEqual,
-            ["/="] = TokenType.SlashEqual,
+            ["*="] = TokenType.MulEqual,
+            ["/="] = TokenType.DivEqual,
             ["^="] = TokenType.CaretEqual,
-            ["%="] = TokenType.ModuloEqual,
-            ["//"] = TokenType.SlashSlash,
-            ["//="] = TokenType.SlashSlashEqual
+            ["%="] = TokenType.ModEqual,
+            ["//"] = TokenType.IntDiv,
+            ["//="] = TokenType.IntDivEqual
         };
 
         public Lexer(string input)
@@ -124,7 +128,7 @@
             return _stringBuilder.ToString();
         }
 
-        private string ScanNumberLiteral(bool hasLeadingDot)
+        private double ScanNumberLiteral(bool hasLeadingDot)
         {
             _stringBuilder.Clear();
 
@@ -150,7 +154,8 @@
                 Advance();
             }
 
-            return _stringBuilder.ToString();
+            // Use invariant culture to parse numbers to ensure consistent behavior across different locales
+            return double.Parse(_stringBuilder.ToString(), CultureInfo.InvariantCulture);
         }
 
         private Token ScanIdentifierOrKeyword()
@@ -171,16 +176,16 @@
             return new Token(TokenType.Identifier, result);
         }
 
-        private char PeekNextChar(int lookahead = 1)
+        private char Peek(int lookahead = 1)
         {
-            int peekPosition = _position + lookahead;
-            if (peekPosition >= _input.Length)
+            int offset = _position + lookahead;
+            if (offset >= _input.Length)
             {
                 return '\0'; // Return null character if peeking past the end of input
             }
             else
             {
-                return _input[peekPosition];
+                return _input[offset];
             }
         }
 
@@ -239,13 +244,13 @@
         private Token ScanOperator()
         {
             // Start by building a two-character operator
-            string twoCharOperator = _currentChar.ToString() + PeekNextChar();
+            string twoCharOperator = _currentChar.ToString() + Peek();
 
             // Check if the two-character sequence is a valid operator
             if (_multiCharOperators.TryGetValue(twoCharOperator, out TokenType tokenType))
             {
                 // Peek ahead one more character to see if there's a valid three-character operator
-                string threeCharOperator = twoCharOperator + PeekNextChar(2); // Peek two characters ahead
+                string threeCharOperator = twoCharOperator + Peek(2); // Peek two characters ahead
 
                 // Check if the three-character sequence is a valid operator
                 if (_multiCharOperators.TryGetValue(threeCharOperator, out TokenType threeCharTokenType))
@@ -293,11 +298,11 @@
                 if (Char.IsDigit(_currentChar))
                     return new Token(TokenType.NumberLiteral, ScanNumberLiteral(hasLeadingDot: false));
 
-                if (_currentChar == '.' && Char.IsDigit(PeekNextChar()))
+                if (_currentChar == '.' && Char.IsDigit(Peek()))
                     return new Token(TokenType.NumberLiteral, ScanNumberLiteral(hasLeadingDot: true));
 
                 if (_currentChar == '\'')
-                    return new Token(TokenType.CharLiteral, ScanCharLiteral().ToString());
+                    return new Token(TokenType.CharLiteral, ScanCharLiteral());
 
                 if (_currentChar == '"')
                     return new Token(TokenType.StringLiteral, ScanStringLiteral());

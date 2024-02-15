@@ -4,7 +4,7 @@ namespace BettyLang.Core.Interpreter
 {
     public static partial class IntrinsicFunctions
     {
-        public static InterpreterValue ToStringFunction(FunctionCall call, IExpressionVisitor visitor)
+        public static InterpreterResult ToStringFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             if (call.Arguments.Count != 1)
             {
@@ -14,7 +14,7 @@ namespace BettyLang.Core.Interpreter
             var argResult = call.Arguments[0].Accept(visitor);
 
             // Convert the argument result to string and return it.
-            return InterpreterValue.FromString(argResult.ToString());
+            return InterpreterResult.FromString(argResult.ToString());
         }
     }
 }

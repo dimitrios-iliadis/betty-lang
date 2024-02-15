@@ -6,6 +6,6 @@ namespace BettyLang.Core.AST
     {
         public List<FunctionDefinition> Functions { get; } = functions;
 
-        public override InterpreterValue Accept(IExpressionVisitor visitor) => visitor.Visit(this);
+        public override InterpreterResult Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }
 }

@@ -4,7 +4,7 @@ namespace BettyLang.Core.Interpreter
 {
     public partial class Interpreter
     {
-        private static InterpreterValue LengthFunction(FunctionCall call, IExpressionVisitor visitor)
+        private static InterpreterResult LengthFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             // Ensure that only one argument is provided
             if (call.Arguments.Count != 1)
@@ -13,11 +13,11 @@ namespace BettyLang.Core.Interpreter
             // Use the visitor to evaluate the argument
             var argResult = call.Arguments[0].Accept(visitor);
 
-            if (argResult.Type == ValueType.String)
+            if (argResult.Type == ResultType.String)
             {
                 // Return the length of the string
                 var length = argResult.AsString().Length;
-                return InterpreterValue.FromNumber(length);
+                return InterpreterResult.FromNumber(length);
             }
             
             throw new Exception($"{call.FunctionName} function is not defined for the given argument type.");

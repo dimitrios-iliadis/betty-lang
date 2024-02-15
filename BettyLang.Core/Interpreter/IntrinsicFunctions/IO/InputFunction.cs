@@ -4,7 +4,7 @@ namespace BettyLang.Core.Interpreter
 {
     public static partial class IntrinsicFunctions
     {
-        public static InterpreterValue InputFunction(FunctionCall call, IExpressionVisitor visitor)
+        public static InterpreterResult InputFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             if (call.Arguments.Count > 1)
             {
@@ -21,7 +21,7 @@ namespace BettyLang.Core.Interpreter
             // Read input from the user
             string userInput = Console.ReadLine() ?? string.Empty;
 
-            return InterpreterValue.FromString(userInput);
+            return InterpreterResult.FromString(userInput);
         }
     }
 }

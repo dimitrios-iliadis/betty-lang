@@ -15,6 +15,6 @@ namespace BettyLang.Core.AST
             FalseExpression = falseExpression;
         }
 
-        public override InterpreterValue Accept(IExpressionVisitor visitor) => visitor.Visit(this);
+        public override InterpreterResult Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }
 }

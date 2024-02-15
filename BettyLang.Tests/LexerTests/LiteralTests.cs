@@ -17,7 +17,7 @@
             var token = lexer.GetNextToken();
 
             Assert.Equal(TokenType.CharLiteral, token.Type);
-            Assert.Equal(expectedValue, token.Value);
+            Assert.Equal(expectedValue, token.Value!.ToString());
         }
 
         [Fact]
@@ -55,7 +55,7 @@
             var token = lexer.GetNextToken();
 
             Assert.Equal(TokenType.NumberLiteral, token.Type);
-            Assert.Equal(expectedValue, token.Value);
+            Assert.Equal(expectedValue, token.Value!.ToString());
         }
 
         [Theory]
@@ -78,8 +78,8 @@
         }
 
         [Theory]
-        [InlineData("true", TokenType.True)]
-        [InlineData("false", TokenType.False)]
+        [InlineData("true", TokenType.BooleanLiteral)]
+        [InlineData("false", TokenType.BooleanLiteral)]
         public void GetNextToken_HandlesBooleanLiteralsCorrectly(string input, TokenType expectedTokenType)
         {
             var lexer = new Lexer(input);

@@ -97,7 +97,7 @@
         [Fact]
         public void PrintFunction_PrintsCorrectValue_WithStringConcatenation()
         {
-            var code = "print(\"Hello\" + \" \" + \"World\");";
+            var code = """print("Hello" + " " + "World"); """;
             var interpreter = SetupInterpreter(code);
             var output = new StringWriter();
             Console.SetOut(output);

@@ -2,11 +2,18 @@
 
 namespace BettyLang.Core.AST
 {
-    public class UnaryOperatorExpression(Token op, Expression expression) : Expression
+    public enum OperatorFixity
     {
-        public Token Operator { get; } = op;
-        public Expression Expression { get; } = expression;
+        Prefix,
+        Postfix
+    }
 
-        public override InterpreterValue Accept(IExpressionVisitor visitor) => visitor.Visit(this);
+    public class UnaryOperatorExpression(Expression operand, TokenType op, OperatorFixity fixity) : Expression
+    {
+        public Expression Operand { get; } = operand;
+        public TokenType Operator { get; } = op;
+        public OperatorFixity Fixity { get; } = fixity;
+
+        public override InterpreterResult Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }
 }

@@ -11,7 +11,7 @@ namespace BettyLang.Tests.InterpreterTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            Assert.Equal(InterpreterValue.None(), result);
+            Assert.Equal(ResultType.None, result.Type);
         }
 
         [Fact]

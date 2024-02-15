@@ -2,11 +2,10 @@
 
 namespace BettyLang.Core.AST
 {
-    public class NumberLiteral(Token token) : Expression
+    public class NumberLiteral(double value) : Expression
     {
-        public Token Token { get; } = token;
-        public double Value { get; } = double.Parse(token.Value!);
+        public double Value { get; } = value;
 
-        public override InterpreterValue Accept(IExpressionVisitor visitor) => visitor.Visit(this);
+        public override InterpreterResult Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }
 }

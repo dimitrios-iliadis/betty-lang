@@ -11,7 +11,7 @@
     public class InterpreterContext
     {
         public ControlFlowState FlowState { get; set; } = ControlFlowState.Normal;
-        public InterpreterValue LastReturnValue { get; set; } = InterpreterValue.None();
+        public InterpreterResult LastReturnValue { get; set; } = InterpreterResult.None();
         public bool IsInLoop { get; set; } = false;
     }
 }

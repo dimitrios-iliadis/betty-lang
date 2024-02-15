@@ -4,7 +4,7 @@ namespace BettyLang.Core.Interpreter
 {
     public static partial class IntrinsicFunctions
     {
-        public static InterpreterValue ToNumberFunction(FunctionCall call, IExpressionVisitor visitor)
+        public static InterpreterResult ToNumberFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             if (call.Arguments.Count != 1)
             {
@@ -16,18 +16,18 @@ namespace BettyLang.Core.Interpreter
             double numberValue;
             switch (argResult.Type)
             {
-                case ValueType.Number:
+                case ResultType.Number:
                     return argResult;
 
-                case ValueType.Char:
+                case ResultType.Char:
                     numberValue = argResult.AsNumber(); // Get the numeric value of the character.
                     break;
 
-                case ValueType.Boolean:
+                case ResultType.Boolean:
                     numberValue = argResult.AsBoolean() ? 1 : 0;
                     break;
 
-                case ValueType.String:
+                case ResultType.String:
                     if (!double.TryParse(argResult.AsString(), out numberValue))
                     {
                         throw new ArgumentException($"Could not convert string '{argResult.AsString()}' to number.");
@@ -38,7 +38,7 @@ namespace BettyLang.Core.Interpreter
                     throw new InvalidOperationException($"Conversion to number not supported for type {argResult.Type}.");
             }
 
-            return InterpreterValue.FromNumber(numberValue);
+            return InterpreterResult.FromNumber(numberValue);
         }
     }
 }

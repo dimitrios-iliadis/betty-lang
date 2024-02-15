@@ -3,6 +3,27 @@
     public class AssignmentTests : InterpreterTestBase
     {
         [Fact]
+        public void CompoundAssignment_WithChar_ReturnsCorrectValue()
+        {
+            var code = "x = 'a'; x += 1; return x;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal('a' + 1, result.AsNumber());
+        }
+
+        [Fact]
+
+        public void CompoundStringAssignment_ReturnsCorrectValue()
+        {
+            var code = "x = \"hello\"; x += \" world\"; return x;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal("hello world", result.AsString());
+        }
+
+        [Fact]
         public void IntegerDivisionAssignment_ReturnsCorrectValue()
         {
             var code = "x = 5; x //= 2; return x;";
@@ -59,7 +80,7 @@
         [InlineData("/=", 2.0)]
         [InlineData("^=", 216.0)]
         [InlineData("%=", 0)]
-        public void AssignmentWithShortHandArithmeticExpression_ReturnsCorrectValue(string op, double expected)
+        public void CompoundNumberAssignment_ReturnsCorrectValue(string op, double expected)
         {
             var code = $"x = 6; x {op} 3; return x;";
             var interpreter = SetupInterpreter(code);
