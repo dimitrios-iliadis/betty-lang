@@ -331,6 +331,29 @@ namespace BettyLang.Core.Interpreter
                         _ => throw new Exception($"Unsupported operator for boolean comparison: {operatorType}")
                     });
 
+                case (ResultType.List, ResultType.List) when operatorType == TokenType.EqualEqual || operatorType == TokenType.NotEqual:
+                    var leftList = leftResult.AsList();
+                    var rightList = rightResult.AsList();
+
+                    // Short-circuit evaluation for lists of different lengths
+                    if (leftList.Count != rightList.Count)
+                        return InterpreterResult.FromBoolean(operatorType == TokenType.NotEqual);
+
+                    // Perform element-wise comparison
+                    for (int i = 0; i < leftList.Count; i++)
+                    {
+                        // Use the equality operator for element comparison
+                        var elementComparisonResult = PerformComparison(leftList[i], rightList[i], TokenType.EqualEqual);
+                        if (!elementComparisonResult.AsBoolean())
+                        {
+                            // If any element comparison returns false for equality, the lists are not equal
+                            return InterpreterResult.FromBoolean(operatorType == TokenType.NotEqual);
+                        }
+                    }
+
+                    // If we reach here, all elements are equal
+                    return InterpreterResult.FromBoolean(operatorType == TokenType.EqualEqual);
+
                 default:
                     throw new Exception("Type mismatch or unsupported types for comparison.");
             }
