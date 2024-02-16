@@ -113,7 +113,7 @@ namespace BettyLang.Core.Interpreter
 
         public void Visit(DoWhileStatement node)
         {
-            _context.IsInLoop = true;
+            _context.EnterLoop();
 
             node.Body.Accept(this);
 
@@ -132,7 +132,7 @@ namespace BettyLang.Core.Interpreter
                 }
             }
 
-            _context.IsInLoop = false;
+            _context.ExitLoop();
         }
 
         public void Visit(ForStatement node)
@@ -140,7 +140,7 @@ namespace BettyLang.Core.Interpreter
             // Execute the initializer once before the loop starts.
             node.Initializer?.Accept(this);
 
-            _context.IsInLoop = true; // Set the loop state to true to allow continue and break statements.
+            _context.EnterLoop(); // Enter a new loop context.
 
             while (node.Condition == null || node.Condition.Accept(this).AsBoolean())
             {
@@ -163,12 +163,12 @@ namespace BettyLang.Core.Interpreter
                 node.Increment?.Accept(this);
             }
 
-            _context.IsInLoop = false; // Ensure to reset the loop state after exiting.
+            _context.ExitLoop(); // Exit the loop context.
         }
 
         public void Visit(WhileStatement node)
         {
-            _context.IsInLoop = true;
+            _context.EnterLoop();
 
             while (node.Condition.Accept(this).AsBoolean())
             {
@@ -188,7 +188,7 @@ namespace BettyLang.Core.Interpreter
                 }
             }
 
-            _context.IsInLoop = false;
+            _context.ExitLoop();
         }
 
         public void Visit(IfStatement node)
@@ -473,7 +473,6 @@ namespace BettyLang.Core.Interpreter
         public InterpreterResult Visit(Variable node) => _scopeManager.LookupVariable(node.Name);
 
         public void Visit(EmptyStatement node) { }
-
         public InterpreterResult Visit(FunctionCall node)
         {
             // If the function is an intrinsic function, invoke it
@@ -487,11 +486,11 @@ namespace BettyLang.Core.Interpreter
             // Enter a new scope for function execution
             _scopeManager.EnterScope();
 
-            // Prepare for function execution
-            bool previousLoopContext = _context.IsInLoop;
-            _context.IsInLoop = false; // Reset loop context
+            // Prepare for function execution by saving the current context
+            int previousLoopDepth = _context.LoopDepth;
+            _context.LoopDepth = 0; // Reset loop depth for the new function context
             var previousFlowState = _context.FlowState; // Save the current flow state
-            _context.FlowState = ControlFlowState.Normal; // Reset flow for function execution
+            _context.FlowState = ControlFlowState.Normal; // Reset flow state for function execution
 
             // Set function parameters in the new scope
             for (int i = 0; i < node.Arguments.Count; i++)
@@ -507,14 +506,15 @@ namespace BettyLang.Core.Interpreter
             InterpreterResult returnValue = _context.FlowState == ControlFlowState.Return ? _context.LastReturnValue : InterpreterResult.None();
 
             // Restore the context after function execution
-            _context.IsInLoop = previousLoopContext;
-            _context.FlowState = previousFlowState;
+            _context.LoopDepth = previousLoopDepth; // Restore the loop depth to its previous state
+            _context.FlowState = previousFlowState; // Restore the flow state to its previous state
 
             // Exit the function scope
             _scopeManager.ExitScope();
 
             return returnValue;
         }
+
 
         public void Visit(FunctionDefinition node)
         {
