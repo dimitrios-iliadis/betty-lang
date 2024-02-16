@@ -182,7 +182,7 @@
         {
             _stringBuilder.Clear();
 
-            while (_currentChar != '\0' && Char.IsLetterOrDigit(_currentChar))
+            while (_currentChar != '\0' && (Char.IsLetterOrDigit(_currentChar) || _currentChar == '_'))
             {
                 _stringBuilder.Append(_currentChar);
                 Advance();
@@ -313,7 +313,7 @@
                     continue;
                 }
 
-                if (Char.IsLetter(_currentChar))
+                if (Char.IsLetter(_currentChar) || _currentChar == '_')
                     return ScanIdentifierOrKeyword();
 
                 if (Char.IsDigit(_currentChar))
