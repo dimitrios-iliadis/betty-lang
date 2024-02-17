@@ -4,7 +4,7 @@ namespace BettyLang.Core.Interpreter
 { 
     public static partial class IntrinsicFunctions
     {
-        public static InterpreterResult ToCharFunction(FunctionCall call, IExpressionVisitor visitor)
+        public static Value ToCharFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             if (call.Arguments.Count != 1)
             {
@@ -16,7 +16,7 @@ namespace BettyLang.Core.Interpreter
             char charValue;
             switch (argResult.Type)
             {
-                case ResultType.Number:
+                case ValueType.Number:
                     var number = argResult.AsNumber();
                     if (number < char.MinValue || number > char.MaxValue)
                     {
@@ -25,10 +25,10 @@ namespace BettyLang.Core.Interpreter
                     charValue = (char)number; // Safely cast now that we've checked the range.
                     break;
 
-                case ResultType.Char:
+                case ValueType.Char:
                     return argResult; // No conversion needed.
 
-                case ResultType.String:
+                case ValueType.String:
                     var stringValue = argResult.AsString();
                     if (stringValue.Length != 1)
                     {
@@ -37,7 +37,7 @@ namespace BettyLang.Core.Interpreter
                     charValue = stringValue[0];
                     break;
 
-                case ResultType.Boolean:
+                case ValueType.Boolean:
                     charValue = argResult.AsBoolean() ? 'T' : 'F';
                     break;
 
@@ -45,7 +45,7 @@ namespace BettyLang.Core.Interpreter
                     throw new InvalidOperationException($"Conversion to char not supported for type {argResult.Type}.");
             }
 
-            return InterpreterResult.FromChar(charValue);
+            return Value.FromChar(charValue);
         }
     }
 }

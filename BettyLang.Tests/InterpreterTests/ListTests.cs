@@ -5,20 +5,30 @@ namespace BettyLang.Tests.InterpreterTests
     public class ListTests : InterpreterTestBase
     {
         [Fact]
+        public void ListElement_PostfixIncrement_ReturnsCorrectValue()
+        {
+            var code = "x = [ 1, 2, 3 ]; x[1]++; return x[1];";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal(3, result.AsNumber());
+        }
+
+        [Fact]
         public void List_CompoundAssignment_NestedList_PlusAnotherList_ReturnsCorrectValue()
         {
             var code = "x = [[1, 2], [3, 4]]; x += [[5, 6]]; return x;";
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            var expected = new List<InterpreterResult>
+            var expected = new List<Value>
             {
-                InterpreterResult.FromList([
-                    InterpreterResult.FromNumber(1),
-                    InterpreterResult.FromNumber(2),
+                Value.FromList([
+                    Value.FromNumber(1),
+                    Value.FromNumber(2),
                 ]),
-                InterpreterResult.FromList([InterpreterResult.FromNumber(3), InterpreterResult.FromNumber(4)]),
-                InterpreterResult.FromList([InterpreterResult.FromNumber(5), InterpreterResult.FromNumber(6)])
+                Value.FromList([Value.FromNumber(3), Value.FromNumber(4)]),
+                Value.FromList([Value.FromNumber(5), Value.FromNumber(6)])
             };
             Assert.Equal(result.AsList(), expected);
         }
@@ -50,15 +60,15 @@ namespace BettyLang.Tests.InterpreterTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            var expected = new List<InterpreterResult>
+            var expected = new List<Value>
             {
-                InterpreterResult.FromList([
-                    InterpreterResult.FromNumber(1),
-                    InterpreterResult.FromNumber(2),
-                    InterpreterResult.FromNumber(5),
-                    InterpreterResult.FromNumber(6)
+                Value.FromList([
+                    Value.FromNumber(1),
+                    Value.FromNumber(2),
+                    Value.FromNumber(5),
+                    Value.FromNumber(6)
                 ]),
-                InterpreterResult.FromList([InterpreterResult.FromNumber(3), InterpreterResult.FromNumber(4)]),
+                Value.FromList([Value.FromNumber(3), Value.FromNumber(4)]),
             };
             Assert.Equal(result.AsList(), expected);
         }
@@ -91,14 +101,14 @@ namespace BettyLang.Tests.InterpreterTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            var expected = new List<InterpreterResult>
+            var expected = new List<Value>
             {
-                InterpreterResult.FromNumber(1),
-                InterpreterResult.FromNumber(2),
-                InterpreterResult.FromNumber(3),
-                InterpreterResult.FromNumber(4),
-                InterpreterResult.FromNumber(5),
-                InterpreterResult.FromNumber(6)
+                Value.FromNumber(1),
+                Value.FromNumber(2),
+                Value.FromNumber(3),
+                Value.FromNumber(4),
+                Value.FromNumber(5),
+                Value.FromNumber(6)
             };
             Assert.Equal(result.AsList(), expected);
         }
@@ -110,14 +120,14 @@ namespace BettyLang.Tests.InterpreterTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            var expected = new List<InterpreterResult>
+            var expected = new List<Value>
             {
-                InterpreterResult.FromNumber(1),
-                InterpreterResult.FromNumber(2),
-                InterpreterResult.FromNumber(3),
-                InterpreterResult.FromNumber(4),
-                InterpreterResult.FromNumber(5),
-                InterpreterResult.FromNumber(6)
+                Value.FromNumber(1),
+                Value.FromNumber(2),
+                Value.FromNumber(3),
+                Value.FromNumber(4),
+                Value.FromNumber(5),
+                Value.FromNumber(6)
             };
             Assert.Equal(result.AsList(), expected);
         }
@@ -129,12 +139,12 @@ namespace BettyLang.Tests.InterpreterTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            var expected = new List<InterpreterResult>
+            var expected = new List<Value>
             {
-                InterpreterResult.FromNumber(1),
-                InterpreterResult.FromNumber(2),
-                InterpreterResult.FromNumber(3),
-                InterpreterResult.FromNumber(4)
+                Value.FromNumber(1),
+                Value.FromNumber(2),
+                Value.FromNumber(3),
+                Value.FromNumber(4)
             };
             Assert.Equal(result.AsList(), expected);
         }
@@ -146,12 +156,12 @@ namespace BettyLang.Tests.InterpreterTests
             var interpreter = SetupInterpreter(code);
 
             var result = interpreter.Interpret();
-            var expected = new List<InterpreterResult>
+            var expected = new List<Value>
             {
-                InterpreterResult.FromNumber(1),
-                InterpreterResult.FromNumber(2),
-                InterpreterResult.FromNumber(3),
-                InterpreterResult.FromNumber(4),
+                Value.FromNumber(1),
+                Value.FromNumber(2),
+                Value.FromNumber(3),
+                Value.FromNumber(4),
             };
             Assert.Equal(result.AsList(), expected);
         }
@@ -164,11 +174,11 @@ namespace BettyLang.Tests.InterpreterTests
 
             var result = interpreter.Interpret();
 
-            var expected = new List<InterpreterResult>
+            var expected = new List<Value>
             {
-                InterpreterResult.FromNumber(1),
-                InterpreterResult.FromString("hello"),
-                InterpreterResult.FromNumber(3)
+                Value.FromNumber(1),
+                Value.FromString("hello"),
+                Value.FromNumber(3)
             };
 
             Assert.Equal(result.AsList(), expected);

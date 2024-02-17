@@ -9,17 +9,17 @@ namespace BettyLang.Core.Interpreter
         private readonly ScopeManager _scopeManager = new();
         private readonly InterpreterContext _context = new();
 
-        public InterpreterResult Interpret()
+        public Value Interpret()
         {
             var tree = _parser.Parse();
             return tree.Accept(this);
         }
 
-        public InterpreterResult Visit(Program node)
+        public Value Visit(Program node)
         {
             // Visit each global variable declaration and store it in the global scope
             foreach (var global in node.Globals)
-                _scopeManager.DeclareGlobal(global, InterpreterResult.None()); // Initialize to None
+                _scopeManager.DeclareGlobal(global, Value.None()); // Initialize to None
 
             // Visit each function definition and store it in a dictionary
             foreach (var function in node.Functions)
@@ -37,18 +37,18 @@ namespace BettyLang.Core.Interpreter
             throw new Exception("No main function found.");
         }
 
-        public InterpreterResult Visit(ListValue node)
+        public Value Visit(ListValue node)
         {
             var elements = node.Elements.Select(e => e.Accept(this)).ToList();
-            return InterpreterResult.FromList(elements);
+            return Value.FromList(elements);
         }
 
-        public InterpreterResult Visit(ElementAccessExpression node)
+        public Value Visit(IndexerExpression node)
         {
-            var collection = node.List.Accept(this);
+            var collection = node.Collection.Accept(this);
             var index = node.Index.Accept(this);
 
-            if (index.Type != ResultType.Number || index.AsNumber() % 1 != 0)
+            if (index.Type != ValueType.Number || index.AsNumber() % 1 != 0)
             {
                 throw new InvalidOperationException("Index for element access must be an integer.");
             }
@@ -57,24 +57,24 @@ namespace BettyLang.Core.Interpreter
 
             switch (collection.Type)
             {
-                case ResultType.String:
+                case ValueType.String:
                     var stringValue = collection.AsString();
                     if (indexValue < 0 || indexValue >= stringValue.Length)
                         throw new IndexOutOfRangeException("String index out of range.");
-                    return InterpreterResult.FromChar(stringValue[indexValue]);
+                    return Value.FromChar(stringValue[indexValue]);
 
-                case ResultType.List:
+                case ValueType.List:
                     var listValue = collection.AsList();
                     if (indexValue < 0 || indexValue >= listValue.Count)
                         throw new IndexOutOfRangeException("List index out of range.");
                     return listValue[indexValue];
 
                 default:
-                    throw new InvalidOperationException("Element access is supported only for lists and strings.");
+                    throw new InvalidOperationException("Indexing is supported only for lists and strings.");
             }
         }
 
-        public InterpreterResult Visit(TernaryOperatorExpression node)
+        public Value Visit(TernaryOperatorExpression node)
         {
             bool conditionResult = node.Condition.Accept(this).AsBoolean();
             return conditionResult ? node.TrueExpression.Accept(this) : node.FalseExpression.Accept(this);
@@ -88,7 +88,7 @@ namespace BettyLang.Core.Interpreter
             }
             else
             {
-                _context.LastReturnValue = InterpreterResult.None();
+                _context.LastReturnValue = Value.None();
             }
             _context.FlowState = ControlFlowState.Return;
         }
@@ -219,7 +219,7 @@ namespace BettyLang.Core.Interpreter
             }
         }
 
-        public InterpreterResult Visit(BinaryOperatorExpression node)
+        public Value Visit(BinaryOperatorExpression node)
         {
             var leftResult = node.Left.Accept(this);
             var rightResult = node.Right.Accept(this);
@@ -228,33 +228,33 @@ namespace BettyLang.Core.Interpreter
             {
                 case TokenType.And:
                 case TokenType.Or:
-                    if (leftResult.Type != ResultType.Boolean || rightResult.Type != ResultType.Boolean)
+                    if (leftResult.Type != ValueType.Boolean || rightResult.Type != ValueType.Boolean)
                     {
                         throw new InvalidOperationException("Logical operations require both operands to be boolean.");
                     }
                     bool leftBoolean = leftResult.AsBoolean();
                     bool rightBoolean = rightResult.AsBoolean();
-                    return InterpreterResult.FromBoolean(
+                    return Value.FromBoolean(
                         node.Operator == TokenType.And ? leftBoolean && rightBoolean : leftBoolean || rightBoolean);
 
                 case TokenType.Plus:
                     // If either operand is a string, concatenate as strings
-                    if (leftResult.Type == ResultType.String || rightResult.Type == ResultType.String)
+                    if (leftResult.Type == ValueType.String || rightResult.Type == ValueType.String)
                     {
-                        return InterpreterResult.FromString(leftResult.ToString() + rightResult.ToString());
+                        return Value.FromString(leftResult.ToString() + rightResult.ToString());
                     }
                     // If the left operand is a list, add the right operand to the list
-                    if (leftResult.Type == ResultType.List)
+                    if (leftResult.Type == ValueType.List)
                     {
-                        return InterpreterResult.AddToList(leftResult, rightResult);
+                        return Value.AddToList(leftResult, rightResult);
                     }
                     // If the right operand is a list, add the left operand to the list
-                    if (rightResult.Type == ResultType.List)
+                    if (rightResult.Type == ValueType.List)
                     {
-                        return InterpreterResult.AddToList(rightResult, leftResult);
+                        return Value.AddToList(rightResult, leftResult);
                     }
                     // If none are strings or lists, perform numerical addition
-                    return InterpreterResult.FromNumber(leftResult.AsNumber() + rightResult.AsNumber());
+                    return Value.FromNumber(leftResult.AsNumber() + rightResult.AsNumber());
                 case TokenType.Minus:
                 case TokenType.Mul:
                 case TokenType.Div:
@@ -263,7 +263,7 @@ namespace BettyLang.Core.Interpreter
                 case TokenType.Mod:
                     return (leftResult.Type, rightResult.Type) switch 
                     {
-                        (ResultType.Number or ResultType.Char, ResultType.Number or ResultType.Char) =>
+                        (ValueType.Number or ValueType.Char, ValueType.Number or ValueType.Char) =>
                             PerformArithmeticOperation(leftResult, rightResult, node.Operator),
                         _ => throw new InvalidOperationException("Arithmetic operations require both operands to be numbers.")
                     };
@@ -281,32 +281,32 @@ namespace BettyLang.Core.Interpreter
             }
         }
 
-        private static InterpreterResult PerformArithmeticOperation(InterpreterResult leftResult, InterpreterResult rightResult, TokenType operatorType)
+        private static Value PerformArithmeticOperation(Value leftResult, Value rightResult, TokenType operatorType)
         {
             double leftNumber = leftResult.AsNumber();
             double rightNumber = rightResult.AsNumber();
 
             return operatorType switch
             {
-                TokenType.Plus => InterpreterResult.FromNumber(leftNumber + rightNumber),
-                TokenType.Minus => InterpreterResult.FromNumber(leftNumber - rightNumber),
-                TokenType.Mul => InterpreterResult.FromNumber(leftNumber * rightNumber),
-                TokenType.Div => InterpreterResult.FromNumber(leftNumber / rightNumber),
-                TokenType.IntDiv => InterpreterResult.FromNumber(Math.Floor(leftNumber / rightNumber)),
-                TokenType.Caret => InterpreterResult.FromNumber(Math.Pow(leftNumber, rightNumber)),
-                TokenType.Mod => InterpreterResult.FromNumber(leftNumber % rightNumber),
+                TokenType.Plus => Value.FromNumber(leftNumber + rightNumber),
+                TokenType.Minus => Value.FromNumber(leftNumber - rightNumber),
+                TokenType.Mul => Value.FromNumber(leftNumber * rightNumber),
+                TokenType.Div => Value.FromNumber(leftNumber / rightNumber),
+                TokenType.IntDiv => Value.FromNumber(Math.Floor(leftNumber / rightNumber)),
+                TokenType.Caret => Value.FromNumber(Math.Pow(leftNumber, rightNumber)),
+                TokenType.Mod => Value.FromNumber(leftNumber % rightNumber),
                 _ => throw new Exception($"Unsupported arithmetic operator: {operatorType}")
             };
         }
 
-        private static InterpreterResult PerformComparison(InterpreterResult leftResult, InterpreterResult rightResult, TokenType operatorType)
+        private static Value PerformComparison(Value leftResult, Value rightResult, TokenType operatorType)
         {
             switch (leftResult.Type, rightResult.Type)
             {
-                case (ResultType.Number or ResultType.Char, ResultType.Number or ResultType.Char):
+                case (ValueType.Number or ValueType.Char, ValueType.Number or ValueType.Char):
                     double leftNumber = leftResult.AsNumber();
                     double rightNumber = rightResult.AsNumber();
-                    return InterpreterResult.FromBoolean(operatorType switch
+                    return Value.FromBoolean(operatorType switch
                     {
                         TokenType.EqualEqual => leftNumber == rightNumber,
                         TokenType.NotEqual => leftNumber != rightNumber,
@@ -317,33 +317,33 @@ namespace BettyLang.Core.Interpreter
                         _ => throw new Exception($"Unsupported operator for number comparison: {operatorType}")
                     });
 
-                case (ResultType.String, ResultType.String):
+                case (ValueType.String, ValueType.String):
                     string leftString = leftResult.AsString();
                     string rightString = rightResult.AsString();
-                    return InterpreterResult.FromBoolean(operatorType switch
+                    return Value.FromBoolean(operatorType switch
                     {
                         TokenType.EqualEqual => leftString == rightString,
                         TokenType.NotEqual => leftString != rightString,
                         _ => throw new Exception($"Unsupported operator for string comparison: {operatorType}")
                     });
 
-                case (ResultType.Boolean, ResultType.Boolean):
+                case (ValueType.Boolean, ValueType.Boolean):
                     bool leftBoolean = leftResult.AsBoolean();
                     bool rightBoolean = rightResult.AsBoolean();
-                    return InterpreterResult.FromBoolean(operatorType switch
+                    return Value.FromBoolean(operatorType switch
                     {
                         TokenType.EqualEqual => leftBoolean == rightBoolean,
                         TokenType.NotEqual => leftBoolean != rightBoolean,
                         _ => throw new Exception($"Unsupported operator for boolean comparison: {operatorType}")
                     });
 
-                case (ResultType.List, ResultType.List) when operatorType == TokenType.EqualEqual || operatorType == TokenType.NotEqual:
+                case (ValueType.List, ValueType.List) when operatorType == TokenType.EqualEqual || operatorType == TokenType.NotEqual:
                     var leftList = leftResult.AsList();
                     var rightList = rightResult.AsList();
 
                     // Short-circuit evaluation for lists of different lengths
                     if (leftList.Count != rightList.Count)
-                        return InterpreterResult.FromBoolean(operatorType == TokenType.NotEqual);
+                        return Value.FromBoolean(operatorType == TokenType.NotEqual);
 
                     // Perform element-wise comparison
                     for (int i = 0; i < leftList.Count; i++)
@@ -353,22 +353,22 @@ namespace BettyLang.Core.Interpreter
                         if (!elementComparisonResult.AsBoolean())
                         {
                             // If any element comparison returns false for equality, the lists are not equal
-                            return InterpreterResult.FromBoolean(operatorType == TokenType.NotEqual);
+                            return Value.FromBoolean(operatorType == TokenType.NotEqual);
                         }
                     }
 
                     // If we reach here, all elements are equal
-                    return InterpreterResult.FromBoolean(operatorType == TokenType.EqualEqual);
+                    return Value.FromBoolean(operatorType == TokenType.EqualEqual);
 
                 default:
                     throw new Exception("Type mismatch or unsupported types for comparison.");
             }
         }
 
-        public InterpreterResult Visit(BooleanLiteral node) => InterpreterResult.FromBoolean(node.Value);
-        public InterpreterResult Visit(NumberLiteral node) => InterpreterResult.FromNumber(node.Value);
-        public InterpreterResult Visit(StringLiteral node) => InterpreterResult.FromString(node.Value);
-        public InterpreterResult Visit(CharLiteral node) => InterpreterResult.FromChar(node.Value);
+        public Value Visit(BooleanLiteral node) => Value.FromBoolean(node.Value);
+        public Value Visit(NumberLiteral node) => Value.FromNumber(node.Value);
+        public Value Visit(StringLiteral node) => Value.FromString(node.Value);
+        public Value Visit(CharLiteral node) => Value.FromChar(node.Value);
 
         public void Visit(CompoundStatement node)
         {
@@ -384,11 +384,11 @@ namespace BettyLang.Core.Interpreter
             }
         }
 
-        private static InterpreterResult ApplyCompoundOperation(InterpreterResult left, InterpreterResult right, TokenType operatorType)
+        private static Value ApplyCompoundOperation(Value left, Value right, TokenType operatorType)
         {
             switch (left.Type, right.Type)
             {
-                case (ResultType.Number or ResultType.Char, ResultType.Number or ResultType.Char):
+                case (ValueType.Number or ValueType.Char, ValueType.Number or ValueType.Char):
                     operatorType = operatorType switch
                     {
                         TokenType.PlusEqual => TokenType.Plus,
@@ -402,25 +402,25 @@ namespace BettyLang.Core.Interpreter
                     };
                     return PerformArithmeticOperation(left, right, operatorType);
 
-                case (ResultType.String, _):
+                case (ValueType.String, _):
                     if (operatorType != TokenType.PlusEqual)
                         throw new InvalidOperationException("Compound assignment for strings only supports the += operator.");
-                    return InterpreterResult.FromString(left.AsString() + right.ToString());
+                    return Value.FromString(left.AsString() + right.ToString());
 
-                case (ResultType.List, _):
+                case (ValueType.List, _):
                     if (operatorType != TokenType.PlusEqual)
                         throw new InvalidOperationException("Compound assignment for lists only supports the += operator.");
-                    return InterpreterResult.AddToList(left, right);
+                    return Value.AddToList(left, right);
 
                 default:
                     throw new InvalidOperationException("Compound assignment is not supported for the given types.");
             }
         }
 
-        public InterpreterResult Visit(AssignmentExpression node)
+        public Value Visit(AssignmentExpression node)
         {
             // Evaluate RHS
-            InterpreterResult rhsValue = node.Right.Accept(this);
+            Value rhsValue = node.Right.Accept(this);
 
             // Simple variable assignment
             if (node.Left is Variable variableNode)
@@ -439,15 +439,15 @@ namespace BettyLang.Core.Interpreter
                 return rhsValue;
             }
             // Assignment to a list element
-            else if (node.Left is ElementAccessExpression elementAccess)
+            else if (node.Left is IndexerExpression indexer)
             {
-                InterpreterResult listValue = elementAccess.List.Accept(this);
-                InterpreterResult indexValue = elementAccess.Index.Accept(this);
+                Value listValue = indexer.Collection.Accept(this);
+                Value indexValue = indexer.Index.Accept(this);
 
-                if (listValue.Type != ResultType.List || indexValue.Type != ResultType.Number)
-                    throw new InvalidOperationException("Invalid element access or index type.");
+                if (listValue.Type != ValueType.List || indexValue.Type != ValueType.Number)
+                    throw new InvalidOperationException("Unsupported type or invalid index.");
 
-                List<InterpreterResult> list = listValue.AsList();
+                List<Value> list = listValue.AsList();
                 int index = Convert.ToInt32(indexValue.AsNumber());
 
                 // Ensure index is within bounds
@@ -470,10 +470,10 @@ namespace BettyLang.Core.Interpreter
             }
         }
 
-        public InterpreterResult Visit(Variable node) => _scopeManager.LookupVariable(node.Name);
+        public Value Visit(Variable node) => _scopeManager.LookupVariable(node.Name);
 
         public void Visit(EmptyStatement node) { }
-        public InterpreterResult Visit(FunctionCall node)
+        public Value Visit(FunctionCall node)
         {
             // If the function is an intrinsic function, invoke it
             if (_intrinsicFunctions.TryGetValue(node.FunctionName, out var intrinsicFunction))
@@ -503,7 +503,9 @@ namespace BettyLang.Core.Interpreter
             function.Body.Accept(this);
 
             // Capture the return value if the function execution resulted in a return
-            InterpreterResult returnValue = _context.FlowState == ControlFlowState.Return ? _context.LastReturnValue : InterpreterResult.None();
+            Value returnValue = 
+                _context.FlowState == ControlFlowState.Return 
+                ? _context.LastReturnValue : Value.None();
 
             // Restore the context after function execution
             _context.LoopDepth = previousLoopDepth; // Restore the loop depth to its previous state
@@ -524,7 +526,7 @@ namespace BettyLang.Core.Interpreter
             _functions[node.FunctionName] = node;
         }
 
-        public InterpreterResult Visit(UnaryOperatorExpression node)
+        public Value Visit(UnaryOperatorExpression node)
         {
             var operandResult = node.Operand.Accept(this);
             TokenType op = node.Operator;
@@ -535,14 +537,14 @@ namespace BettyLang.Core.Interpreter
                 case (TokenType.Plus, OperatorFixity.Prefix):
                     return operandResult;
                 case (TokenType.Minus, OperatorFixity.Prefix):
-                    return InterpreterResult.FromNumber(-operandResult.AsNumber());
+                    return Value.FromNumber(-operandResult.AsNumber());
                 case (TokenType.Not, OperatorFixity.Prefix):
-                    return InterpreterResult.FromBoolean(!operandResult.AsBoolean());
+                    return Value.FromBoolean(!operandResult.AsBoolean());
 
                 case (TokenType.Increment or TokenType.Decrement, _):
                     if (node.Operand is Variable variableNode)
                     {
-                        if (operandResult.Type != ResultType.Number && operandResult.Type != ResultType.Char)
+                        if (operandResult.Type != ValueType.Number && operandResult.Type != ValueType.Char)
                             throw new InvalidOperationException(
                                 $"{fixity} {op} operators can only be applied to numbers or characters.");
 
@@ -554,19 +556,19 @@ namespace BettyLang.Core.Interpreter
                             TokenType.Decrement => currentValue - 1,
                             _ => throw new InvalidOperationException($"Unsupported {fixity} assignment operator {op}")
                         };
-                        _scopeManager.SetVariable(variableName, InterpreterResult.FromNumber(newValue));
+                        _scopeManager.SetVariable(variableName, Value.FromNumber(newValue));
 
                         return node.Fixity == OperatorFixity.Prefix ?
-                            InterpreterResult.FromNumber(newValue) : InterpreterResult.FromNumber(currentValue);
+                            Value.FromNumber(newValue) : Value.FromNumber(currentValue);
                     }
 
                     // Check if the operand is an element access in a list
-                    if (node.Operand is ElementAccessExpression elementAccess)
+                    if (node.Operand is IndexerExpression indexer)
                     {
                         // Ensure the list and index are valid
-                        var listResult = elementAccess.List.Accept(this);
-                        var indexResult = elementAccess.Index.Accept(this);
-                        if (listResult.Type != ResultType.List || indexResult.Type != ResultType.Number)
+                        var listResult = indexer.Collection.Accept(this);
+                        var indexResult = indexer.Index.Accept(this);
+                        if (listResult.Type != ValueType.List || indexResult.Type != ValueType.Number)
                             throw new InvalidOperationException("Invalid element access in list.");
 
                         var list = listResult.AsList();
@@ -575,8 +577,8 @@ namespace BettyLang.Core.Interpreter
                             throw new IndexOutOfRangeException("List index out of range.");
 
                         // Ensure the target element is a number or a character
-                        if (list[index].Type != ResultType.Number 
-                            && list[index].Type != ResultType.Char)
+                        if (list[index].Type != ValueType.Number 
+                            && list[index].Type != ValueType.Char)
                             throw new InvalidOperationException(
                                 $"{fixity} {op} operators can only be applied to numbers or characters.");
 
@@ -589,11 +591,11 @@ namespace BettyLang.Core.Interpreter
                         };
 
                         // Update the list element
-                        list[index] = InterpreterResult.FromNumber(newValue);
+                        list[index] = Value.FromNumber(newValue);
 
                         // Depending on whether it's prefix or postfix, return the new or old value
                         return node.Fixity == OperatorFixity.Prefix ? 
-                            InterpreterResult.FromNumber(newValue) : InterpreterResult.FromNumber(currentValue);
+                            Value.FromNumber(newValue) : Value.FromNumber(currentValue);
                     }
 
                     throw new Exception($"The operand of a {fixity} {op} operator must be a variable or a list element.");

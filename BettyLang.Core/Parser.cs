@@ -56,8 +56,7 @@ namespace BettyLang.Core
             }
         }
 
-
-        private ListValue ParseListLiteral()
+        private ListValue ParseList()
         {
             Consume(TokenType.LBracket); // Consume the opening bracket
             var elements = new List<Expression>(); // Create a list to store the elements
@@ -79,12 +78,12 @@ namespace BettyLang.Core
             return new ListValue(elements);
         }
 
-        private ElementAccessExpression ParseElementAccess(Expression listExpr)
+        private IndexerExpression ParseIndexerExpression(Expression listExpr)
         {
             Consume(TokenType.LBracket);
             var indexExpr = ParseExpression();
             Consume(TokenType.RBracket);
-            return new ElementAccessExpression(listExpr, indexExpr);
+            return new IndexerExpression(listExpr, indexExpr);
         }
 
         private Expression ParseFactor()
@@ -104,12 +103,12 @@ namespace BettyLang.Core
 
                     case TokenType.LBracket:
                         // Element access
-                        expr = ParseElementAccess(expr);
+                        expr = ParseIndexerExpression(expr);
                         break;
 
                     case TokenType.Increment:
                     case TokenType.Decrement:
-                        // Postfix increment/decrement
+                        // Postfix increment or decrement
                         var operatorToken = _currentToken;
                         Consume(operatorToken.Type);
                         expr = new UnaryOperatorExpression(expr, operatorToken.Type, OperatorFixity.Postfix);
@@ -140,7 +139,7 @@ namespace BettyLang.Core
 
                 // Handle list literals
                 case TokenType.LBracket:
-                    expr = ParseListLiteral();
+                    expr = ParseList();
                     break;
 
                 // Unary operators and prefix increment/decrement

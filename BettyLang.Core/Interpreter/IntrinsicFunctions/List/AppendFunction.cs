@@ -4,7 +4,7 @@ namespace BettyLang.Core.Interpreter
 { 
     public partial class IntrinsicFunctions
     {
-        public static InterpreterResult AppendFunction(FunctionCall call, IExpressionVisitor visitor)
+        public static Value AppendFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             if (call.Arguments.Count != 2)
             {
@@ -12,7 +12,7 @@ namespace BettyLang.Core.Interpreter
             }
 
             var listResult = call.Arguments[0].Accept(visitor);
-            if (listResult.Type != ResultType.List)
+            if (listResult.Type != ValueType.List)
             {
                 throw new InvalidOperationException("The first argument of append must be a list.");
             }
@@ -22,7 +22,7 @@ namespace BettyLang.Core.Interpreter
             list.Add(element);
 
             // Return the modified list as a new InterpreterResult.
-            return InterpreterResult.FromList(new List<InterpreterResult>(list));
+            return Value.FromList(new List<Value>(list));
         }
     }
 }

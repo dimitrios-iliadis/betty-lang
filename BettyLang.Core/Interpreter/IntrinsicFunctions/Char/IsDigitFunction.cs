@@ -4,7 +4,7 @@ namespace BettyLang.Core.Interpreter
 {
     public static partial class IntrinsicFunctions
     {
-        public static InterpreterResult IsDigitFunction(FunctionCall call, IExpressionVisitor visitor)
+        public static Value IsDigitFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             // Ensure that only one argument is provided
             if (call.Arguments.Count != 1)
@@ -13,11 +13,11 @@ namespace BettyLang.Core.Interpreter
             // Use the visitor to evaluate the argument
             var argResult = call.Arguments[0].Accept(visitor);
 
-            if (argResult.Type == ResultType.Char)
+            if (argResult.Type == ValueType.Char)
             {
                 // Return whether the character is a digit
                 var isDigit = char.IsDigit(argResult.AsChar());
-                return InterpreterResult.FromBoolean(isDigit);
+                return Value.FromBoolean(isDigit);
             }
 
             throw new Exception($"{call.FunctionName} function is not defined for the given argument type.");

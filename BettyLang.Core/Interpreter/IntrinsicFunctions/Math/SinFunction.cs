@@ -4,7 +4,7 @@ namespace BettyLang.Core.Interpreter
 {
     public static partial class IntrinsicFunctions
     {
-        public static InterpreterResult SinFunction(FunctionCall call, IExpressionVisitor visitor)
+        public static Value SinFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             if (call.Arguments.Count != 1)
             {
@@ -12,13 +12,13 @@ namespace BettyLang.Core.Interpreter
             }
 
             var argValue = call.Arguments[0].Accept(visitor);
-            if (argValue.Type != ResultType.Number)
+            if (argValue.Type != ValueType.Number)
             {
                 throw new ArgumentException($"Argument for {call.FunctionName} must be a number.");
             }
 
             double result = Math.Sin(argValue.AsNumber());
-            return InterpreterResult.FromNumber(result);
+            return Value.FromNumber(result);
         }
     }
 }

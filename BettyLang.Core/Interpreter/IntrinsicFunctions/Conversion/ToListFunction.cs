@@ -4,7 +4,7 @@ namespace BettyLang.Core.Interpreter
 {
     public static partial class IntrinsicFunctions
     {
-        public static InterpreterResult ToListFunction(FunctionCall call, IExpressionVisitor visitor)
+        public static Value ToListFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             if (call.Arguments.Count != 1)
             {
@@ -13,17 +13,17 @@ namespace BettyLang.Core.Interpreter
 
             var argResult = call.Arguments[0].Accept(visitor);
 
-            if (argResult.Type != ResultType.String)
+            if (argResult.Type != ValueType.String)
             {
                 throw new InvalidOperationException($"Conversion to list not supported for type {argResult.Type}.");
             }
 
             var str = argResult.AsString();
-            var list = new List<InterpreterResult>();
+            var list = new List<Value>();
             foreach (var c in str)
-                list.Add(InterpreterResult.FromChar(c));
+                list.Add(Value.FromChar(c));
 
-            return InterpreterResult.FromList(list);
+            return Value.FromList(list);
         }
     }
 }

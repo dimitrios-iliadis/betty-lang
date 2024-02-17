@@ -14,6 +14,6 @@ namespace BettyLang.Core.AST
         public TokenType Operator { get; } = op;
         public OperatorFixity Fixity { get; } = fixity;
 
-        public override InterpreterResult Accept(IExpressionVisitor visitor) => visitor.Visit(this);
+        public override Value Accept(IExpressionVisitor visitor) => visitor.Visit(this);
     }
 }

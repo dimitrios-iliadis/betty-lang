@@ -2,8 +2,8 @@
 {
     public class ScopeManager
     {
-        private readonly Dictionary<string, InterpreterResult> _globals = new();
-        private readonly Stack<Dictionary<string, InterpreterResult>> _scopes = new();
+        private readonly Dictionary<string, Value> _globals = new();
+        private readonly Stack<Dictionary<string, Value>> _scopes = new();
 
         public void EnterScope()
         {
@@ -15,7 +15,7 @@
             _scopes.Pop();
         }
 
-        public void DeclareGlobal(string name, InterpreterResult value)
+        public void DeclareGlobal(string name, Value value)
         {
             if (_globals.ContainsKey(name))
             {
@@ -26,7 +26,7 @@
             _globals[name] = value;
         }
 
-        public void SetVariable(string name, InterpreterResult value)
+        public void SetVariable(string name, Value value)
         {
             if (_globals.ContainsKey(name))
             {
@@ -41,7 +41,7 @@
             }
         }
 
-        public InterpreterResult LookupVariable(string name)
+        public Value LookupVariable(string name)
         {
             // Check local scopes first
             foreach (var scope in _scopes)

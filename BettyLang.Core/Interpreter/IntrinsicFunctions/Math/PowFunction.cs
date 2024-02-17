@@ -4,7 +4,7 @@ namespace BettyLang.Core.Interpreter
 {
     public static partial class IntrinsicFunctions
     {
-        public static InterpreterResult PowFunction(FunctionCall call, IExpressionVisitor visitor)
+        public static Value PowFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             if (call.Arguments.Count != 2)
             {
@@ -13,13 +13,13 @@ namespace BettyLang.Core.Interpreter
 
             var baseValue = call.Arguments[0].Accept(visitor);
             var exponentValue = call.Arguments[1].Accept(visitor);
-            if (baseValue.Type != ResultType.Number || exponentValue.Type != ResultType.Number)
+            if (baseValue.Type != ValueType.Number || exponentValue.Type != ValueType.Number)
             {
                 throw new ArgumentException($"Arguments for {call.FunctionName} must be numbers.");
             }
 
             double result = Math.Pow(baseValue.AsNumber(), exponentValue.AsNumber());
-            return InterpreterResult.FromNumber(result);
+            return Value.FromNumber(result);
         }
     }
 }

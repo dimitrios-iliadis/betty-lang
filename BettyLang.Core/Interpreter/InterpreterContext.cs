@@ -11,7 +11,7 @@
     public class InterpreterContext
     {
         public ControlFlowState FlowState { get; set; } = ControlFlowState.Normal;
-        public InterpreterResult LastReturnValue { get; set; } = InterpreterResult.None();
+        public Value LastReturnValue { get; set; } = Value.None();
         public int LoopDepth { get; set; } = 0;
 
         // Method to enter a new loop, increasing loop depth

@@ -4,7 +4,7 @@ namespace BettyLang.Core.Interpreter
 {
     public static partial class IntrinsicFunctions
     {
-        public static InterpreterResult PrintFunction(FunctionCall call, IExpressionVisitor visitor)
+        public static Value PrintFunction(FunctionCall call, IExpressionVisitor visitor)
         {
             // Concatenate all arguments into a single string
             var stringBuilder = new System.Text.StringBuilder();
@@ -20,7 +20,7 @@ namespace BettyLang.Core.Interpreter
 
             Console.Write(stringBuilder.ToString());
 
-            return InterpreterResult.None();
+            return Value.None();
         }
     }
 }
