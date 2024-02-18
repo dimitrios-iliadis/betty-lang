@@ -237,7 +237,8 @@
             var charLiteral = _currentChar;
 
             // Check for escape character
-            if (charLiteral == '\\')
+            bool isEscapeChar = charLiteral == '\\';
+            if (isEscapeChar)
             {
                 Advance(); // Skip the escape character
 
@@ -253,7 +254,10 @@
                     _ => throw new Exception($"Unrecognized escape sequence: \\{_currentChar}"),
                 };
             }
-            
+
+            if (!isEscapeChar && _currentChar == '\'') // Check for empty character literal
+                throw new Exception("Empty character literal.");
+
             Advance(); // Move past the character
 
             if (_currentChar != '\'') // Check for unterminated character literal

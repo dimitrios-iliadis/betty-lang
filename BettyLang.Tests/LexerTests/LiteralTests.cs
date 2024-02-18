@@ -43,19 +43,19 @@
         }
 
         [Theory]
-        [InlineData("123", "123")]
-        [InlineData("0", "0")]
-        [InlineData("123.456", "123.456")]
-        [InlineData(".789", "0.789")]
-        [InlineData("0.1", "0.1")]
-        public void GetNextToken_HandlesNumberLiteralsCorrectly(string input, string expectedValue)
+        [InlineData("123", 123)]
+        [InlineData("0", 0)]
+        [InlineData("123.456", 123.456)]
+        [InlineData(".789", 0.789)]
+        [InlineData("0.1", 0.1)]
+        public void GetNextToken_HandlesNumberLiteralsCorrectly(string input, double expectedValue)
         {
             var lexer = new Lexer(input);
 
             var token = lexer.GetNextToken();
 
             Assert.Equal(TokenType.NumberLiteral, token.Type);
-            Assert.Equal(expectedValue, token.Value!.ToString());
+            Assert.Equal(expectedValue, token.Value!);
         }
 
         [Theory]
