@@ -27,7 +27,7 @@ Below are some examples to help you get acquainted with Betty's syntax and featu
 
 Demonstrates how to define a function and use post-increment and pre-increment operations.
 
-```
+```Python
 func increment()
 {
     count = 0;
@@ -45,7 +45,7 @@ func main()
 
 Shows implicit type conversion from character to ASCII value and arithmetic operations.
 
-```
+```Python
 func charArithmetic()
 {
     charValue = 'a';
@@ -67,7 +67,7 @@ func main()
 
 Illustrates the use of integer division shorthand and how to include comments.
 
-```
+```Python
 func divisionExample()
 {
     x = 10;
@@ -89,7 +89,7 @@ func main()
 
 This example demonstrates character increment and explicit conversion to character type.
 
-```
+```Python
 func charIncrement()
 {
     x = 'a';
@@ -107,7 +107,7 @@ func main()
 
 A simple demonstration of recursion and the if control structure to calculate a factorial.
 
-```
+```Python
 func factorial(n)
 {
     if (n == 1)
@@ -131,7 +131,7 @@ func main()
 
 Showcases loops (`while`, `for`) and conditional (`if-else`) statements.
 
-```
+```Python
 func loopExamples()
 {
     # While loop example
