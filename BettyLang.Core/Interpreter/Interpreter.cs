@@ -135,6 +135,41 @@ namespace BettyLang.Core.Interpreter
             _context.ExitLoop();
         }
 
+        public void Visit(ForEachStatement node)
+        {
+            var iterableValue = node.Iterable.Accept(this); // Evaluate the iterable expression
+
+            if (iterableValue.Type != ValueType.List 
+                && iterableValue.Type != ValueType.String)
+            {
+                throw new InvalidOperationException("The iterable in a foreach statement must be a list or a string.");
+            }
+
+            var list = iterableValue.AsList();
+
+            _context.EnterLoop(); // Enter a new loop context
+
+            foreach (var element in list)
+            {
+                // Set the loop variable to the current element
+                _scopeManager.SetVariable(node.VariableName, element);
+
+                node.Body.Accept(this); // Execute the body of the loop
+
+                if (_context.FlowState == ControlFlowState.Continue)
+                {
+                    _context.FlowState = ControlFlowState.Normal;
+                }
+                else if (_context.FlowState == ControlFlowState.Break)
+                {
+                    _context.FlowState = ControlFlowState.Normal;
+                    break;
+                }
+            }
+
+            _context.ExitLoop(); // Exit the loop context
+        }
+
         public void Visit(ForStatement node)
         {
             // Execute the initializer once before the loop starts.

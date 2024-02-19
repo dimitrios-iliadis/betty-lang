@@ -19,6 +19,8 @@
             ["elif"] = new Token(TokenType.Elif),
             ["else"] = new Token(TokenType.Else),
             ["for"] = new Token(TokenType.For),
+            ["foreach"] = new Token(TokenType.ForEach),
+            ["in"] = new Token(TokenType.In),
             ["while"] = new Token(TokenType.While),
             ["do"] = new Token(TokenType.Do),
             ["break"] = new Token(TokenType.Break),

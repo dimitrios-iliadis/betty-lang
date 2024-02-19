@@ -367,6 +367,19 @@ namespace BettyLang.Core
             return new ReturnStatement(returnValue);
         }
 
+        private ForEachStatement ParseForEachStatement()
+        {
+            Consume(TokenType.ForEach);
+            Consume(TokenType.LParen);
+            var variableName = (string)_currentToken.Value!;
+            Consume(TokenType.Identifier);
+            Consume(TokenType.In);
+            var listExpression = ParseExpression();
+            Consume(TokenType.RParen);
+            var body = (_currentToken.Type == TokenType.LBrace) ? ParseCompoundStatement() : ParseStatement();
+            return new ForEachStatement(variableName, listExpression, body);
+        }
+
         private Statement ParseStatement()
         {
             return _currentToken.Type switch
@@ -374,6 +387,7 @@ namespace BettyLang.Core
                 TokenType.LBrace => ParseCompoundStatement(),
                 TokenType.If => ParseIfStatement(),
                 TokenType.For => ParseForStatement(),
+                TokenType.ForEach => ParseForEachStatement(),
                 TokenType.While => ParseWhileStatement(),
                 TokenType.Do => ParseDoWhileStatement(),
                 TokenType.Break => ParseBreakStatement(),

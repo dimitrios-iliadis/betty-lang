@@ -1,6 +1,4 @@
-﻿using BettyLang.Core.Interpreter;
-
-namespace BettyLang.Tests.InterpreterTests
+﻿namespace BettyLang.Tests.InterpreterTests
 {
     public class ExpressionStatementTests : InterpreterTestBase
     {

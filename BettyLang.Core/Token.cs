@@ -16,7 +16,7 @@
 
         Func, Global,
 
-        Equal, If, Elif, Else, For, While, Do, Break, Continue, Return,
+        Equal, If, Elif, Else, For, ForEach, In, While, Do, Break, Continue, Return,
 
         EqualEqual, LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual, NotEqual,
 

@@ -109,6 +109,9 @@
 
         public List<Value> AsList()
         {
+            if (Type == ValueType.String)
+                return new List<Value>(StringTable.GetString(_stringId).Select(c => Value.FromChar(c)));
+
             if (Type != ValueType.List)
                 throw new InvalidOperationException($"Expected a {ValueType.List}, but got {Type}.");
             return _list;
