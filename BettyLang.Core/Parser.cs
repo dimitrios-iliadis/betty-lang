@@ -56,9 +56,25 @@ namespace BettyLang.Core
             }
         }
 
-        private ListValue ParseList()
+        private FunctionCall ParseRange()
+        {
+            var start = ParseExpression(); // Parse the start of the range
+            Consume(TokenType.DotDot);
+            var end = ParseExpression(); // Parse the end of the range
+            Consume(TokenType.RBracket); // Consume the closing bracket (end of the range)
+
+            // Construct and return a FunctionCall AST node for the range function
+            return new FunctionCall("range", new List<Expression> { start, end });
+        }
+
+        private Expression ParseListOrRange()
         {
             Consume(TokenType.LBracket); // Consume the opening bracket
+
+            // Check if the list is actually a range
+            if (_lexer.PeekNextToken().Type == TokenType.DotDot)
+                return ParseRange();
+
             var elements = new List<Expression>(); // Create a list to store the elements
 
             // Check if the list is not empty
@@ -91,7 +107,7 @@ namespace BettyLang.Core
             // Step 1: Handle primary expressions and unary operators
             Expression expr = ParsePrimaryOrUnaryExpression();
 
-            // Step 2: Loop to handle postfix operations (function calls, element access, postfix operators)
+            // Step 2: Loop to handle postfix operations (function calls, indexers, postfix operators)
             while (true)
             {
                 switch (_currentToken.Type)
@@ -102,7 +118,7 @@ namespace BettyLang.Core
                         break;
 
                     case TokenType.LBracket:
-                        // Element access
+                        // Indexer expression
                         expr = ParseIndexerExpression(expr);
                         break;
 
@@ -137,9 +153,10 @@ namespace BettyLang.Core
                     Consume(token.Type);
                     break;
 
-                // Handle list literals
+                // Lists or list ranges
                 case TokenType.LBracket:
-                    expr = ParseList();
+
+                    expr = ParseListOrRange();
                     break;
 
                 // Unary operators and prefix increment/decrement

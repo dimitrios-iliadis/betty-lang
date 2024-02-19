@@ -28,6 +28,9 @@ namespace BettyLang.Tests.LexerTests
         [InlineData("%=", TokenType.ModEqual)]
         [InlineData("^", TokenType.Caret)]
         [InlineData("^=", TokenType.CaretEqual)]
+        [InlineData("//", TokenType.IntDiv)]
+        [InlineData("//=", TokenType.IntDivEqual)]
+        [InlineData("..", TokenType.DotDot)]
         public void GetNextToken_HandlesOperatorsCorrectly(string input, TokenType expectedTokenType)
         {
             var lexer = new Lexer(input);

@@ -54,6 +54,7 @@
 
         private static readonly Dictionary<string, TokenType> _multiCharOperators = new()
         {
+            [".."] = TokenType.DotDot, // Range operator [start..end]
             ["=="] = TokenType.EqualEqual,
             ["<="] = TokenType.LessThanOrEqual,
             [">="] = TokenType.GreaterThanOrEqual,
@@ -164,6 +165,10 @@
 
             while (Char.IsDigit(_currentChar) || _currentChar == '.')
             {
+                // Break if the next character is also a dot (range operator)
+                if (_currentChar == '.' && Peek() == '.')
+                    break; 
+
                 if (_currentChar == '.')
                 {
                     if (dotEncountered) // Throw when encountering multiple dots

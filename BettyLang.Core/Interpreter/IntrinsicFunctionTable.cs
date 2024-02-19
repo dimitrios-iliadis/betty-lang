@@ -27,6 +27,7 @@ namespace BettyLang.Core.Interpreter
             { "len", LengthFunction },
 
             { "append", AppendFunction },
+            { "range", RangeFunction },
 
             { "sin", SinFunction },
             { "cos", CosFunction },

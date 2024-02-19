@@ -5,6 +5,70 @@ namespace BettyLang.Tests.InterpreterTests
     public class ListTests : InterpreterTestBase
     {
         [Fact]
+        public void ForEachLoop_RangeSyntax_ReturnsCorrectValue()
+        {
+            var code = "x = 0; foreach (i in [1..5]) { x += i; } return x;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal(10, result.AsNumber());
+        }
+
+        [Fact]
+        public void ForEachLoop_List_ReturnsCorrectValue()
+        {
+            var code = "x = 0; foreach (i in [1, 2, 3, 4]) { x += i; } return x;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal(10, result.AsNumber());
+        }
+
+        [Fact]
+        public void ForEachLoop_RangeFunction_ReturnsCorrectValue()
+        {
+            var code = "x = 0; foreach (i in range(1, 5)) { x += i; } return x;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            Assert.Equal(10, result.AsNumber());
+        }
+
+        [Fact]
+        public void AppendFunction_ReturnsCorrectValue()
+        {
+            var code = "x = [ 1, 2, 3 ]; append(x, 4); return x;";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            var expected = new List<Value>
+            {
+                Value.FromNumber(1),
+                Value.FromNumber(2),
+                Value.FromNumber(3),
+                Value.FromNumber(4)
+            };
+            Assert.Equal(result.AsList(), expected);
+        }
+
+        [Fact]
+        public void ListRangeFunction_ReturnsCorrectValue()
+        {
+            var code = "return range(1, 5);";
+            var interpreter = SetupInterpreter(code);
+
+            var result = interpreter.Interpret();
+            var expected = new List<Value>
+            {
+                Value.FromNumber(1),
+                Value.FromNumber(2),
+                Value.FromNumber(3),
+                Value.FromNumber(4)
+            };
+            Assert.Equal(result.AsList(), expected);
+        }
+
+        [Fact]
         public void ListElement_PostfixIncrement_ReturnsCorrectValue()
         {
             var code = "x = [ 1, 2, 3 ]; x[1]++; return x[1];";

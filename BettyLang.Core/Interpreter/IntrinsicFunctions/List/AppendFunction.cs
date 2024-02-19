@@ -2,7 +2,7 @@
 
 namespace BettyLang.Core.Interpreter
 { 
-    public partial class IntrinsicFunctions
+    public static partial class IntrinsicFunctions
     {
         public static Value AppendFunction(FunctionCall call, IExpressionVisitor visitor)
         {

@@ -12,7 +12,7 @@
         MulEqual, DivEqual, CaretEqual, ModEqual, IntDivEqual,
 
         LParen, RParen, LBrace, RBrace, LBracket, RBracket, 
-        Semicolon, Comma, QuestionMark, Colon,
+        Semicolon, Comma, QuestionMark, Colon, DotDot,
 
         Func, Global,
 
