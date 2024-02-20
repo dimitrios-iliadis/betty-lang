@@ -155,7 +155,6 @@ namespace BettyLang.Core
 
                 // Lists or list ranges
                 case TokenType.LBracket:
-
                     expr = ParseListOrRange();
                     break;
 
