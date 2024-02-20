@@ -28,6 +28,8 @@ namespace BettyLang.Core.Interpreter
 
             { "append", AppendFunction },
             { "range", RangeFunction },
+            { "remove", RemoveFunction },
+            { "removeat", RemoveAtFunction },
 
             { "sin", SinFunction },
             { "cos", CosFunction },
