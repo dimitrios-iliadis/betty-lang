@@ -78,8 +78,8 @@
         }
 
         [Theory]
-        [InlineData("true", TokenType.BooleanLiteral)]
-        [InlineData("false", TokenType.BooleanLiteral)]
+        [InlineData("true", TokenType.TrueKeyword)]
+        [InlineData("false", TokenType.FalseKeyword)]
         public void GetNextToken_HandlesBooleanLiteralsCorrectly(string input, TokenType expectedTokenType)
         {
             var lexer = new Lexer(input);

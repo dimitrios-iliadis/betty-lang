@@ -5,7 +5,7 @@ namespace BettyLang.Core.AST
     public interface IExpressionVisitor
     {
         Value Visit(NumberLiteral node);
-        Value Visit(BooleanLiteral node);
+        Value Visit(BooleanExpression node);
         Value Visit(StringLiteral node);
         Value Visit(CharLiteral node);
         Value Visit(BinaryOperatorExpression node);

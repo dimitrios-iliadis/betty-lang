@@ -9,23 +9,23 @@
         private char _currentChar;
         private readonly System.Text.StringBuilder _stringBuilder = new();
 
-        private static readonly Dictionary<string, Token> _reservedKeywords = new()
+        private static readonly Dictionary<string, TokenType> _reservedKeywords = new()
         {
-            ["func"] = new Token(TokenType.Func),
-            ["global"] = new Token(TokenType.Global),
-            ["true"] = new Token(TokenType.BooleanLiteral, true),
-            ["false"] = new Token(TokenType.BooleanLiteral, false),
-            ["if"] = new Token(TokenType.If),
-            ["elif"] = new Token(TokenType.Elif),
-            ["else"] = new Token(TokenType.Else),
-            ["for"] = new Token(TokenType.For),
-            ["foreach"] = new Token(TokenType.ForEach),
-            ["in"] = new Token(TokenType.In),
-            ["while"] = new Token(TokenType.While),
-            ["do"] = new Token(TokenType.Do),
-            ["break"] = new Token(TokenType.Break),
-            ["continue"] = new Token(TokenType.Continue),
-            ["return"] = new Token(TokenType.Return)
+            ["func"] = TokenType.Func,
+            ["global"] = TokenType.Global,
+            ["true"] = TokenType.TrueKeyword,
+            ["false"] = TokenType.FalseKeyword,
+            ["if"] = TokenType.If,
+            ["elif"] = TokenType.Elif,
+            ["else"] = TokenType.Else,
+            ["for"] = TokenType.For,
+            ["foreach"] = TokenType.ForEach,
+            ["in"] = TokenType.In,
+            ["while"] = TokenType.While,
+            ["do"] = TokenType.Do,
+            ["break"] = TokenType.Break,
+            ["continue"] = TokenType.Continue,
+            ["return"] = TokenType.Return
         };
 
         private static readonly Dictionary<char, TokenType> _singleCharOperators = new()
@@ -197,8 +197,8 @@
 
             var result = _stringBuilder.ToString().ToLower();
 
-            if (_reservedKeywords.TryGetValue(result, out Token token))
-                return new Token(token.Type, token.Value, _currentLine, _currentColumn);
+            if (_reservedKeywords.TryGetValue(result, out TokenType type))
+                return new Token(type, _currentLine, _currentColumn);  
 
             return new Token(TokenType.Identifier, result, _currentLine, _currentColumn);
         }
@@ -276,33 +276,35 @@
         private Token ScanOperator()
         {
             // Start by building a two-character operator
-            string twoCharOperator = _currentChar.ToString() + Peek();
+            string multiCharOperator = _currentChar.ToString() + Peek();
 
             // Check if the two-character sequence is a valid operator
-            if (_multiCharOperators.TryGetValue(twoCharOperator, out TokenType tokenType))
+            if (_multiCharOperators.TryGetValue(multiCharOperator, out TokenType type))
             {
+                var twoCharTokenType = type;
+
                 // Peek ahead one more character to see if there's a valid three-character operator
-                string threeCharOperator = twoCharOperator + Peek(2); // Peek two characters ahead
+                multiCharOperator += Peek(2); // Peek two characters ahead
 
                 // Check if the three-character sequence is a valid operator
-                if (_multiCharOperators.TryGetValue(threeCharOperator, out TokenType threeCharTokenType))
+                if (_multiCharOperators.TryGetValue(multiCharOperator, out type))
                 {
                     Advance(3); // Move past the three-character operator
-                    return new Token(threeCharTokenType, null, _currentLine, _currentColumn);
+                    return new Token(type, null, _currentLine, _currentColumn);
                 }
                 else
                 {
                     Advance(2); // Move past the two-character operator if no valid three-character operator found
-                    return new Token(tokenType, null, _currentLine, _currentColumn);
+                    return new Token(twoCharTokenType, null, _currentLine, _currentColumn);
                 }
             }
 
             // If we reach here, no valid two or three-character operator was found; handle as a single character
 
-            if (_singleCharOperators.TryGetValue(_currentChar, out tokenType))
+            if (_singleCharOperators.TryGetValue(_currentChar, out type))
             {
                 Advance(); // Move past the single character operator
-                return new Token(tokenType, null, _currentLine, _currentColumn);
+                return new Token(type, null, _currentLine, _currentColumn);
             }
 
             throw new Exception($"Unrecognized character: {_currentChar} at line {_currentLine}, column {_currentColumn}");

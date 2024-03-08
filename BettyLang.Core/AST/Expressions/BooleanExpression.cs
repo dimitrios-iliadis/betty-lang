@@ -2,7 +2,7 @@
 
 namespace BettyLang.Core.AST
 {
-    public class BooleanLiteral(bool value) : Expression
+    public class BooleanExpression(bool value) : Expression
     {
         public bool Value { get; } = value;
 

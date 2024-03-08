@@ -148,9 +148,15 @@ namespace BettyLang.Core
                 case TokenType.NumberLiteral:
                 case TokenType.CharLiteral:
                 case TokenType.StringLiteral:
-                case TokenType.BooleanLiteral:
                     expr = ParseLiteral(token);
                     Consume(token.Type);
+                    break;
+
+                // Boolean keywords
+                case TokenType.TrueKeyword:
+                case TokenType.FalseKeyword:
+                    Consume(token.Type);
+                    expr = new BooleanExpression(token.Type == TokenType.TrueKeyword);
                     break;
 
                 // Lists or list ranges
@@ -195,7 +201,6 @@ namespace BettyLang.Core
                 TokenType.NumberLiteral => new NumberLiteral((double)token.Value!),
                 TokenType.CharLiteral => new CharLiteral((char)token.Value!),
                 TokenType.StringLiteral => new StringLiteral((string)token.Value!),
-                TokenType.BooleanLiteral => new BooleanLiteral((bool)token.Value!),
                 _ => throw new InvalidOperationException("Invalid literal type."),
             };
         }

@@ -400,7 +400,7 @@ namespace BettyLang.Core.Interpreter
             }
         }
 
-        public Value Visit(BooleanLiteral node) => Value.FromBoolean(node.Value);
+        public Value Visit(BooleanExpression node) => Value.FromBoolean(node.Value);
         public Value Visit(NumberLiteral node) => Value.FromNumber(node.Value);
         public Value Visit(StringLiteral node) => Value.FromString(node.Value);
         public Value Visit(CharLiteral node) => Value.FromChar(node.Value);
