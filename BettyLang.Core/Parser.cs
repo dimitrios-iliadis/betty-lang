@@ -1,4 +1,5 @@
 ﻿using BettyLang.Core.AST;
+using Expression = BettyLang.Core.AST.Expression;
 
 namespace BettyLang.Core
 {
@@ -8,15 +9,11 @@ namespace BettyLang.Core
         private Token _currentToken;
         private readonly HashSet<string> _definedFunctions = [];
 
-        private static readonly HashSet<TokenType> _comparisonOperators = new()
+        public Parser(Lexer lexer)
         {
-            TokenType.GreaterThan,
-            TokenType.LessThan,
-            TokenType.GreaterThanOrEqual,
-            TokenType.LessThanOrEqual,
-            TokenType.EqualEqual,
-            TokenType.NotEqual
-        };
+            _lexer = lexer;
+            _currentToken = _lexer.GetNextToken(); // Set current token to the first token from the input
+        }
 
         private static readonly HashSet<TokenType> _assignmentOperators = new()
         {
@@ -25,24 +22,46 @@ namespace BettyLang.Core
             TokenType.MinusEqual,
             TokenType.MulEqual,
             TokenType.DivEqual,
-            TokenType.CaretEqual,
             TokenType.ModEqual,
-            TokenType.IntDivEqual
+            TokenType.IntDivEqual,
+            TokenType.CaretEqual,
         };
 
-        private static readonly HashSet<TokenType> _multiplicativeOperators = new()
+        private int GetPrecedence()
         {
-            TokenType.Mul,
-            TokenType.Div,
-            TokenType.IntDiv,
-            TokenType.Mod
-        };
+            return _currentToken.Type switch
+            {
+                TokenType.QuestionMark => 2, // Ternary operator precedence
 
-        public Parser(Lexer lexer)
-        {
-            _lexer = lexer;
-            _currentToken = _lexer.GetNextToken(); // Set current token to the first token from the input
+                // Comparison operators
+                TokenType.EqualEqual => 1,
+                TokenType.NotEqual => 1,
+                TokenType.LessThan => 1,
+                TokenType.LessThanOrEqual => 1,
+                TokenType.GreaterThan => 1,
+                TokenType.GreaterThanOrEqual => 1,
+
+                // Logical operators
+                TokenType.And => 5,
+                TokenType.Or => 6,
+
+                // Arithmetic operators
+                TokenType.Plus => 3,
+                TokenType.Minus => 3,
+
+                // Multiplicative operators
+                TokenType.Mul => 4,
+                TokenType.Div => 4,
+                TokenType.Mod => 4,
+                TokenType.IntDiv => 4,
+
+                // Exponentiation
+                TokenType.Caret => 7,       // Highest precedence for exponentiation
+
+                _ => 0, // Default precedence
+            };
         }
+
 
         private void Consume(TokenType tokenType)
         {
@@ -54,6 +73,61 @@ namespace BettyLang.Core
             {
                 throw new Exception($"Unexpected token: Expected {tokenType}, found {_currentToken.Type} at line {_currentToken.Line}, column {_currentToken.Column}");
             }
+        }
+
+        private Expression ParseExpression(int precedence = 0)
+        {
+            var left = ParseFactor();
+
+            while (true)
+            {
+                var currentPrecedence = GetPrecedence();
+
+                if (precedence > currentPrecedence)
+                    break;
+
+                var token = _currentToken;
+
+                // Special handling for assignment (right-associative)
+                if (_assignmentOperators.Contains(token.Type))
+                {
+                    // Only parse assignment if we're at a precedence level that allows it
+                    if (precedence > 0)
+                        break;
+
+                    Consume(token.Type);
+                    var right = ParseExpression(0);  // Parse the right side with minimum precedence
+                    left = new AssignmentExpression(left, right, token.Type);
+                }
+                else if (token.Type == TokenType.QuestionMark)
+                {
+                    // Ternary operator handling (right-associative)
+                    if (precedence > currentPrecedence)
+                        break;
+
+                    Consume(TokenType.QuestionMark);
+                    var trueExpression = ParseExpression(0);  // Parse true part
+
+                    Consume(TokenType.Colon);
+
+                    // Parse false part with the same precedence to ensure right-associativity
+                    var falseExpression = ParseExpression(currentPrecedence);  // Fixed: no decrement here
+
+                    left = new TernaryOperatorExpression(left, trueExpression, falseExpression);
+                }
+                else
+                {
+                    // For other operators (left-associative)
+                    if (precedence >= currentPrecedence)
+                        break;
+
+                    Consume(token.Type);
+                    var right = ParseExpression(currentPrecedence + (token.Type == TokenType.Caret ? 1 : 0));
+                    left = new BinaryOperatorExpression(left, token.Type, right);
+                }
+            }
+
+            return left;
         }
 
         private FunctionCall ParseRange()
@@ -105,7 +179,7 @@ namespace BettyLang.Core
         private Expression ParseFactor()
         {
             // Step 1: Handle primary expressions and unary operators
-            Expression expr = ParsePrimaryOrUnaryExpression();
+            Expression expr = ParsePrefix();
 
             // Step 2: Loop to handle postfix operations (function calls, indexers, postfix operators)
             while (true)
@@ -137,7 +211,7 @@ namespace BettyLang.Core
             }
         }
 
-        private Expression ParsePrimaryOrUnaryExpression()
+        private Expression ParsePrefix()
         {
             var token = _currentToken;
             Expression expr;
@@ -203,50 +277,6 @@ namespace BettyLang.Core
                 TokenType.StringLiteral => new StringLiteral((string)token.Value!),
                 _ => throw new InvalidOperationException("Invalid literal type."),
             };
-        }
-
-        private Expression ParseTerm()
-        {
-            var node = ParseExponent();
-
-            while (_multiplicativeOperators.Contains(_currentToken.Type))
-            {
-                var token = _currentToken;
-                Consume(token.Type);
-                node = new BinaryOperatorExpression(node, token.Type, ParseExponent());
-            }
-
-            return node;
-        }
-
-        private Expression ParseExponent()
-        {
-            var node = ParseFactor();
-
-            while (_currentToken.Type == TokenType.Caret)
-            {
-                var token = _currentToken;
-                Consume(TokenType.Caret);
-                node = new BinaryOperatorExpression(node, token.Type, ParseExponent());
-            }
-
-            return node;
-        }
-
-        private Expression ParseExpression()
-        {
-            var node = ParseAssignmentExpression();
-
-            while (_currentToken.Type == TokenType.QuestionMark)
-            {
-                Consume(TokenType.QuestionMark);
-                var trueExpression = ParseExpression();
-                Consume(TokenType.Colon);
-                var falseExpression = ParseExpression();
-                node = new TernaryOperatorExpression(condition: node, trueExpression, falseExpression);
-            }
-
-            return node;
         }
 
         private CompoundStatement ParseCompoundStatement()
@@ -427,22 +457,6 @@ namespace BettyLang.Core
             return new ExpressionStatement(expression);
         }
 
-        private Expression ParseAssignmentExpression()
-        {
-            Expression lhs = ParseLogicalOrExpression();
-
-            if (_assignmentOperators.Contains(_currentToken.Type))
-            {
-                TokenType operatorType = _currentToken.Type;
-                Consume(operatorType); // Move past the operator
-
-                Expression rhs = ParseAssignmentExpression(); // Recursively parse the RHS
-                return new AssignmentExpression(lhs, rhs, operatorType);
-            }
-
-            return lhs; // If there's no assignment operator, just return the LHS
-        }
-
         private EmptyStatement ParseEmptyStatement()
         {
             Consume(TokenType.Semicolon);
@@ -569,63 +583,6 @@ namespace BettyLang.Core
             }
 
             return new Program(globals, functions);
-        }
-
-        private Expression ParseComparisonExpression()
-        {
-            var node = ParseArithmeticExpression();
-
-            while (_comparisonOperators.Contains(_currentToken.Type))
-            {
-                var token = _currentToken;
-                Consume(token.Type); // Consume the comparison operator
-                node = new BinaryOperatorExpression(node, token.Type, ParseArithmeticExpression());
-            }
-
-            return node;
-        }
-
-        private Expression ParseLogicalOrExpression()
-        {
-            var node = ParseLogicalAndExpression();
-
-            while (_currentToken.Type == TokenType.Or)
-            {
-                var token = _currentToken;
-                Consume(token.Type); // Consume the Or operator
-                node = new BinaryOperatorExpression(node, token.Type, ParseLogicalAndExpression());
-            }
-
-            return node;
-        }
-
-        private Expression ParseLogicalAndExpression()
-        {
-            var node = ParseComparisonExpression();
-
-            while (_currentToken.Type == TokenType.And)
-            {
-                var token = _currentToken;
-                Consume(token.Type); // Consume the And operator
-                node = new BinaryOperatorExpression(node, token.Type, ParseComparisonExpression());
-            }
-
-            return node;
-        }
-
-        private Expression ParseArithmeticExpression()
-        {
-            var node = ParseTerm();
-
-            while (_currentToken.Type == TokenType.Plus || _currentToken.Type == TokenType.Minus)
-            {
-                var token = _currentToken;
-                Consume(token.Type); // Consume the Plus or Minus operator
-
-                node = new BinaryOperatorExpression(node, token.Type, ParseTerm());
-            }
-
-            return node;
         }
 
         public Expression Parse()

@@ -466,6 +466,15 @@
         }
 
         [Fact]
+        public void ComparisonExpression_ReturnsTrue()
+        {
+            var code = "return (1 + 1 == 2);";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.True(result.AsBoolean());
+        }
+
+        [Fact]
         public void TernaryOperator_WithArithmeticExpressions()
         {
             var code = "return (1 + 1 == 2) ? (3 * 2) : (4 / 2);";
