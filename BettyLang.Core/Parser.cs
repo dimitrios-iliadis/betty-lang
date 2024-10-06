@@ -29,36 +29,37 @@ namespace BettyLang.Core
 
         private int GetPrecedence()
         {
+            // Define operator precedences
             return _currentToken.Type switch
             {
-                TokenType.QuestionMark => 2, // Ternary operator precedence
+                TokenType.QuestionMark => 1,  // Ternary operator precedence
 
                 // Comparison operators
-                TokenType.EqualEqual => 1,
-                TokenType.NotEqual => 1,
-                TokenType.LessThan => 1,
-                TokenType.LessThanOrEqual => 1,
-                TokenType.GreaterThan => 1,
-                TokenType.GreaterThanOrEqual => 1,
+                TokenType.EqualEqual => 2,
+                TokenType.NotEqual => 2,
+                TokenType.LessThan => 2,
+                TokenType.LessThanOrEqual => 2,
+                TokenType.GreaterThan => 2,
+                TokenType.GreaterThanOrEqual => 2,
 
                 // Logical operators
-                TokenType.And => 5,
-                TokenType.Or => 6,
+                TokenType.And => 3,
+                TokenType.Or => 4,
 
                 // Arithmetic operators
-                TokenType.Plus => 3,
-                TokenType.Minus => 3,
+                TokenType.Plus => 5,
+                TokenType.Minus => 5,
 
                 // Multiplicative operators
-                TokenType.Mul => 4,
-                TokenType.Div => 4,
-                TokenType.Mod => 4,
-                TokenType.IntDiv => 4,
+                TokenType.Mul => 6,
+                TokenType.Div => 6,
+                TokenType.Mod => 6,
+                TokenType.IntDiv => 6,
 
-                // Exponentiation
-                TokenType.Caret => 7,       // Highest precedence for exponentiation
+                // Exponentiation (highest precedence)
+                TokenType.Caret => 7,
 
-                _ => 0, // Default precedence
+                _ => 0,  // Default precedence for unknown operators
             };
         }
 
@@ -77,12 +78,13 @@ namespace BettyLang.Core
 
         private Expression ParseExpression(int precedence = 0)
         {
-            var left = ParseFactor();
+            var left = ParsePrimary();
 
             while (true)
             {
                 var currentPrecedence = GetPrecedence();
 
+                // Check if the current operator's precedence allows us to continue parsing
                 if (precedence > currentPrecedence)
                     break;
 
@@ -102,17 +104,18 @@ namespace BettyLang.Core
                 else if (token.Type == TokenType.QuestionMark)
                 {
                     // Ternary operator handling (right-associative)
-                    if (precedence > currentPrecedence)
-                        break;
-
                     Consume(TokenType.QuestionMark);
-                    var trueExpression = ParseExpression(0);  // Parse true part
+
+                    // Parse the true expression part of the ternary operator
+                    var trueExpression = ParseExpression(0);  // Ternary is right-associative, so parse with min precedence
 
                     Consume(TokenType.Colon);
 
-                    // Parse false part with the same precedence to ensure right-associativity
-                    var falseExpression = ParseExpression(currentPrecedence);  // Fixed: no decrement here
+                    // Parse the false expression part of the ternary operator
+                    // IMPORTANT: Parse false part with the SAME precedence to ensure right-associativity
+                    var falseExpression = ParseExpression(currentPrecedence);
 
+                    // Create the ternary expression node
                     left = new TernaryOperatorExpression(left, trueExpression, falseExpression);
                 }
                 else
@@ -176,7 +179,7 @@ namespace BettyLang.Core
             return new IndexerExpression(listExpr, indexExpr);
         }
 
-        private Expression ParseFactor()
+        private Expression ParsePrimary()
         {
             // Step 1: Handle primary expressions and unary operators
             Expression expr = ParsePrefix();
@@ -245,7 +248,7 @@ namespace BettyLang.Core
                 case TokenType.Increment:
                 case TokenType.Decrement:
                     Consume(token.Type);
-                    expr = new UnaryOperatorExpression(ParseFactor(), token.Type, OperatorFixity.Prefix);
+                    expr = new UnaryOperatorExpression(ParsePrimary(), token.Type, OperatorFixity.Prefix);
                     break;
 
                 // Parenthesized expressions
