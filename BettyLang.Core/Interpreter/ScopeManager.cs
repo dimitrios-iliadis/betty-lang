@@ -70,7 +70,7 @@
                 return globalValue;
             }
 
-            throw new Exception($"Variable '{name}' is not defined in this scope.");
+            throw new Exception($"Variable '{name}' is not defined in any (active) scope.");
         }
     }
 }
