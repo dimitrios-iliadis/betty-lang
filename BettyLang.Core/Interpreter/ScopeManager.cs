@@ -28,18 +28,30 @@
 
         public void SetVariable(string name, Value value)
         {
+            // Check all active scopes from innermost to outermost
+            foreach (var scope in _scopes)
+            {
+                if (scope.ContainsKey(name))
+                {
+                    // Update the variable in the first scope where it is found
+                    scope[name] = value;
+                    return;
+                }
+            }
+
+            // If the variable is not found in any scope, check the globals
             if (_globals.ContainsKey(name))
             {
                 // Update the global variable if it exists
                 _globals[name] = value;
+                return;
             }
-            else
-            {
-                // Otherwise, update or declare the variable in the current scope
-                var currentScope = _scopes.Peek();
-                currentScope[name] = value;
-            }
+
+            // Otherwise, declare the variable in the current (innermost) scope
+            var currentScope = _scopes.Peek();
+            currentScope[name] = value;
         }
+
 
         public Value LookupVariable(string name)
         {
@@ -58,7 +70,7 @@
                 return globalValue;
             }
 
-            throw new Exception($"Variable '{name}' is not defined in any scope.");
+            throw new Exception($"Variable '{name}' is not defined in this scope.");
         }
     }
 }
