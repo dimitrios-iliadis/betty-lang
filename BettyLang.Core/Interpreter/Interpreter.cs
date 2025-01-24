@@ -382,6 +382,10 @@ namespace BettyLang.Core.Interpreter
                     {
                         TokenType.EqualEqual => leftString == rightString,
                         TokenType.NotEqual => leftString != rightString,
+                        TokenType.LessThan => leftString.CompareTo(rightString) < 0,
+                        TokenType.LessThanOrEqual => leftString.CompareTo(rightString) <= 0,
+                        TokenType.GreaterThan => leftString.CompareTo(rightString) > 0,
+                        TokenType.GreaterThanOrEqual => leftString.CompareTo(rightString) >= 0,
                         _ => throw new Exception($"Unsupported operator for string comparison: {operatorType}")
                     });
 
