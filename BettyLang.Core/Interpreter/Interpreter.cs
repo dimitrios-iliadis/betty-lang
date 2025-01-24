@@ -1,5 +1,4 @@
 ﻿using BettyLang.Core.AST;
-using System.Xml.Linq;
 
 namespace BettyLang.Core.Interpreter
 {
@@ -116,8 +115,6 @@ namespace BettyLang.Core.Interpreter
         {
             _context.EnterLoop();
 
-            _scopeManager.EnterScope();
-
             node.Body.Accept(this);
 
             while (node.Condition.Accept(this).AsBoolean())
@@ -135,8 +132,6 @@ namespace BettyLang.Core.Interpreter
                 }
             }
 
-            _scopeManager.ExitScope();
-
             _context.ExitLoop();
         }
 
@@ -153,8 +148,6 @@ namespace BettyLang.Core.Interpreter
             var list = iterableValue.AsList();
 
             _context.EnterLoop(); // Enter a new loop context
-
-            _scopeManager.EnterScope();
 
             foreach (var element in list)
             {
@@ -174,8 +167,6 @@ namespace BettyLang.Core.Interpreter
                 }
             }
 
-            _scopeManager.ExitScope();
-
             _context.ExitLoop(); // Exit the loop context
         }
 
@@ -185,8 +176,6 @@ namespace BettyLang.Core.Interpreter
             node.Initializer?.Accept(this);
 
             _context.EnterLoop(); // Enter a new loop context.
-
-            _scopeManager.EnterScope();
 
             while (node.Condition == null || node.Condition.Accept(this).AsBoolean())
             {
@@ -209,16 +198,12 @@ namespace BettyLang.Core.Interpreter
                 node.Increment?.Accept(this);
             }
 
-            _scopeManager.ExitScope();
-
             _context.ExitLoop(); // Exit the loop context.
         }
 
         public void Visit(WhileStatement node)
         {
             _context.EnterLoop();
-
-            _scopeManager.EnterScope();
 
             while (node.Condition.Accept(this).AsBoolean())
             {
@@ -238,8 +223,6 @@ namespace BettyLang.Core.Interpreter
                 }
             }
 
-            _scopeManager.ExitScope();
-
             _context.ExitLoop();
         }
 
@@ -249,9 +232,7 @@ namespace BettyLang.Core.Interpreter
 
             if (conditionResult)
             {
-                _scopeManager.EnterScope();
                 node.ThenStatement.Accept(this);
-                _scopeManager.ExitScope();
             }
             else
             {
@@ -260,9 +241,7 @@ namespace BettyLang.Core.Interpreter
                 {
                     if (Condition.Accept(this).AsBoolean())
                     {
-                        _scopeManager.EnterScope();
                         Statement.Accept(this);
-                        _scopeManager.ExitScope();
                         elseifExecuted = true;
                         break; // Exit after the first true elseif to prevent executing multiple blocks
                     }
@@ -270,9 +249,7 @@ namespace BettyLang.Core.Interpreter
 
                 if (!elseifExecuted && node.ElseStatement != null)
                 {
-                    _scopeManager.EnterScope();
                     node.ElseStatement.Accept(this);
-                    _scopeManager.ExitScope();
                 }
             }
         }
@@ -382,10 +359,6 @@ namespace BettyLang.Core.Interpreter
                     {
                         TokenType.EqualEqual => leftString == rightString,
                         TokenType.NotEqual => leftString != rightString,
-                        TokenType.LessThan => leftString.CompareTo(rightString) < 0,
-                        TokenType.LessThanOrEqual => leftString.CompareTo(rightString) <= 0,
-                        TokenType.GreaterThan => leftString.CompareTo(rightString) > 0,
-                        TokenType.GreaterThanOrEqual => leftString.CompareTo(rightString) >= 0,
                         _ => throw new Exception($"Unsupported operator for string comparison: {operatorType}")
                     });
 
@@ -434,8 +407,6 @@ namespace BettyLang.Core.Interpreter
 
         public void Visit(CompoundStatement node)
         {
-            _scopeManager.EnterScope();
-
             foreach (var statement in node.Statements)
             {
                 statement.Accept(this);
@@ -446,8 +417,6 @@ namespace BettyLang.Core.Interpreter
                     break; // Exit the compound statement early
                 }
             }
-
-            _scopeManager.ExitScope();
         }
 
         private static Value ApplyCompoundOperation(Value left, Value right, TokenType operatorType)
@@ -582,6 +551,7 @@ namespace BettyLang.Core.Interpreter
 
             return returnValue;
         }
+
 
         public void Visit(FunctionDefinition node)
         {
