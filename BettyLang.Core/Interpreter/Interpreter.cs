@@ -375,26 +375,22 @@ namespace BettyLang.Core.Interpreter
                     });
 
                 case (ValueType.String, ValueType.String):
-                    string leftString = leftResult.AsString();
-                    string rightString = rightResult.AsString();
                     return Value.FromBoolean(operatorType switch
                     {
-                        TokenType.EqualEqual => leftString == rightString,
-                        TokenType.NotEqual => leftString != rightString,
-                        TokenType.LessThan => leftString.CompareTo(rightString) < 0,
-                        TokenType.LessThanOrEqual => leftString.CompareTo(rightString) <= 0,
-                        TokenType.GreaterThan => leftString.CompareTo(rightString) > 0,
-                        TokenType.GreaterThanOrEqual => leftString.CompareTo(rightString) >= 0,
+                        TokenType.EqualEqual => leftResult == rightResult,
+                        TokenType.NotEqual => leftResult != rightResult,
+                        TokenType.LessThan => leftResult.AsString().CompareTo(rightResult.AsString()) < 0,
+                        TokenType.LessThanOrEqual => leftResult.AsString().CompareTo(rightResult.AsString()) <= 0,
+                        TokenType.GreaterThan => leftResult.AsString().CompareTo(rightResult.AsString()) > 0,
+                        TokenType.GreaterThanOrEqual => leftResult.AsString().CompareTo(rightResult.AsString()) >= 0,
                         _ => throw new Exception($"Unsupported operator for string comparison: {operatorType}")
                     });
 
                 case (ValueType.Boolean, ValueType.Boolean):
-                    bool leftBoolean = leftResult.AsBoolean();
-                    bool rightBoolean = rightResult.AsBoolean();
                     return Value.FromBoolean(operatorType switch
                     {
-                        TokenType.EqualEqual => leftBoolean == rightBoolean,
-                        TokenType.NotEqual => leftBoolean != rightBoolean,
+                        TokenType.EqualEqual => leftResult == rightResult,
+                        TokenType.NotEqual => leftResult != rightResult,
                         _ => throw new Exception($"Unsupported operator for boolean comparison: {operatorType}")
                     });
 
