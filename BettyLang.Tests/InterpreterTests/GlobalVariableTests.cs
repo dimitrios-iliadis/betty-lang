@@ -3,6 +3,29 @@
     public class GlobalVariableTests : InterpreterTestBase
     {
         [Fact]
+        public void GlobalVariable_CanBeShadowedByFunctionParameter()
+        {
+            var code = """
+                global x;
+
+                func foo(x) {
+                    x = 4;
+                }
+
+                func main() {
+                    x = 5;
+                    foo(3);
+                    return x;
+                }
+                """;
+            var interpreter = SetupInterpreterCustom(code);
+
+            var result = interpreter.Interpret();
+
+            Assert.Equal(5.0, result.AsNumber());
+        }
+
+        [Fact]
         public void GlobalVariable_CanBeAssignedAndRead()
         {
             var code = """

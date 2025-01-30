@@ -561,7 +561,7 @@ namespace BettyLang.Core.Interpreter
             for (int i = 0; i < node.Arguments.Count; i++)
             {
                 var argValue = node.Arguments[i].Accept(this);
-                _scopeManager.SetVariable(function.Parameters[i], argValue);
+                _scopeManager.SetVariable(function.Parameters[i], argValue, true);
             }
 
             // Execute function body

@@ -26,7 +26,7 @@
             _globals[name] = value;
         }
 
-        public void SetVariable(string name, Value value)
+        public void SetVariable(string name, Value value, bool isFunctionParam = false)
         {
             // Check all active scopes from innermost to outermost
             foreach (var scope in _scopes)
@@ -39,8 +39,8 @@
                 }
             }
 
-            // If the variable is not found in any scope, check the globals
-            if (_globals.ContainsKey(name))
+            // If the variable is not a function parameter and is not found in any scope, check the globals
+            if (!isFunctionParam & _globals.ContainsKey(name))
             {
                 // Update the global variable if it exists
                 _globals[name] = value;
@@ -51,7 +51,6 @@
             var currentScope = _scopes.Peek();
             currentScope[name] = value;
         }
-
 
         public Value LookupVariable(string name)
         {
