@@ -358,47 +358,36 @@ namespace BettyLang.Core.Interpreter
 
         private static Value PerformComparison(Value leftResult, Value rightResult, TokenType operatorType)
         {
-            switch (leftResult.Type, rightResult.Type)
+            // Handle equality and inequality checks first, since they are common across all types
+            if (operatorType == TokenType.EqualEqual || operatorType == TokenType.NotEqual)
             {
-                case (ValueType.Number or ValueType.Char, ValueType.Number or ValueType.Char):
-                    return Value.FromBoolean(operatorType switch
-                    {
-                        TokenType.EqualEqual => leftResult.Equals(rightResult),
-                        TokenType.NotEqual => !leftResult.Equals(rightResult),
-                        TokenType.LessThan => leftResult.AsNumber() < rightResult.AsNumber(),
-                        TokenType.LessThanOrEqual => leftResult.AsNumber() <= rightResult.AsNumber(),
-                        TokenType.GreaterThan => leftResult.AsNumber() > rightResult.AsNumber(),
-                        TokenType.GreaterThanOrEqual => leftResult.AsNumber() >= rightResult.AsNumber(),
-                        _ => throw new Exception($"Unsupported operator for number comparison: {operatorType}")
-                    });
+                bool result = operatorType == TokenType.EqualEqual
+                    ? leftResult.Equals(rightResult)
+                    : !leftResult.Equals(rightResult);
 
-                case (ValueType.String, ValueType.String):
-                    return Value.FromBoolean(operatorType switch
-                    {
-                        TokenType.EqualEqual => leftResult.Equals(rightResult),
-                        TokenType.NotEqual => !leftResult.Equals(rightResult),
-                        TokenType.LessThan => leftResult.AsString().CompareTo(rightResult.AsString()) < 0,
-                        TokenType.LessThanOrEqual => leftResult.AsString().CompareTo(rightResult.AsString()) <= 0,
-                        TokenType.GreaterThan => leftResult.AsString().CompareTo(rightResult.AsString()) > 0,
-                        TokenType.GreaterThanOrEqual => leftResult.AsString().CompareTo(rightResult.AsString()) >= 0,
-                        _ => throw new Exception($"Unsupported operator for string comparison: {operatorType}")
-                    });
-
-                case (ValueType.Boolean, ValueType.Boolean):
-                    return Value.FromBoolean(operatorType switch
-                    {
-                        TokenType.EqualEqual => leftResult.Equals(rightResult),
-                        TokenType.NotEqual => !leftResult.Equals(rightResult),
-                        _ => throw new Exception($"Unsupported operator for boolean comparison: {operatorType}")
-                    });
-
-                case (ValueType.List, ValueType.List) when operatorType == TokenType.EqualEqual || operatorType == TokenType.NotEqual:
-                    return Value.FromBoolean(
-                        leftResult.Equals(rightResult) == (operatorType == TokenType.EqualEqual));
-
-                default:
-                    throw new Exception("Type mismatch or unsupported types for comparison.");
+                return Value.FromBoolean(result);
             }
+
+            return (leftResult.Type, rightResult.Type) switch
+            {
+                (ValueType.Number or ValueType.Char, ValueType.Number or ValueType.Char) => Value.FromBoolean(operatorType switch
+                {
+                    TokenType.LessThan => leftResult.AsNumber() < rightResult.AsNumber(),
+                    TokenType.LessThanOrEqual => leftResult.AsNumber() <= rightResult.AsNumber(),
+                    TokenType.GreaterThan => leftResult.AsNumber() > rightResult.AsNumber(),
+                    TokenType.GreaterThanOrEqual => leftResult.AsNumber() >= rightResult.AsNumber(),
+                    _ => throw new Exception($"Unsupported operator for number comparison: {operatorType}")
+                }),
+                (ValueType.String, ValueType.String) => Value.FromBoolean(operatorType switch
+                {
+                    TokenType.LessThan => leftResult.AsString().CompareTo(rightResult.AsString()) < 0,
+                    TokenType.LessThanOrEqual => leftResult.AsString().CompareTo(rightResult.AsString()) <= 0,
+                    TokenType.GreaterThan => leftResult.AsString().CompareTo(rightResult.AsString()) > 0,
+                    TokenType.GreaterThanOrEqual => leftResult.AsString().CompareTo(rightResult.AsString()) >= 0,
+                    _ => throw new Exception($"Unsupported operator for string comparison: {operatorType}")
+                }),
+                _ => throw new Exception("Type mismatch or unsupported types for comparison."),
+            };
         }
 
         public Value Visit(BooleanExpression node) => Value.FromBoolean(node.Value);

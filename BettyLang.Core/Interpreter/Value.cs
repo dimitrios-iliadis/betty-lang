@@ -42,6 +42,7 @@
         private Value(char character) : this(ValueType.Char)
         {
             _char = character;
+            _number = character + 0;
         }
 
         private Value(List<Value> list) : this(ValueType.List)
@@ -58,6 +59,7 @@
         public static Value FromNumber(double number) => new(number);
         public static Value FromBoolean(bool boolean) => new(boolean);
         public static Value FromChar(char character) => new(character);
+
         public static Value FromList(List<Value> list) => new(list);
         public static Value None() => new(ValueType.None);
 
@@ -86,7 +88,7 @@
         public readonly double AsNumber()
         {
             if (Type == ValueType.Char)
-                return _char + 0; // Convert the character to its numeric value.
+                return _number;  // Return the stored numeric value of the character
 
             if (Type != ValueType.Number)
                 throw new InvalidOperationException($"Expected a {ValueType.Number}, but got {Type}.");
