@@ -5,6 +5,19 @@ namespace BettyLang.Tests.InterpreterTests
     public class ListTests : InterpreterTestBase
     {
         [Fact]
+        public void ListIsEqualTo_OtherList()
+        {
+            var code = @"
+                a = [ 1, 2, 3, 4 ];
+                b = a;
+                return b == a;
+            ";
+            var interpreter = SetupInterpreter(code);
+            var result = interpreter.Interpret();
+            Assert.True(result.AsBoolean());
+        }
+
+        [Fact]
         public void ForEachLoop_RangeSyntax_ReturnsCorrectValue()
         {
             var code = "x = 0; foreach (i in [1..5]) { x += i; } return x;";

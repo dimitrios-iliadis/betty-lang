@@ -361,24 +361,22 @@ namespace BettyLang.Core.Interpreter
             switch (leftResult.Type, rightResult.Type)
             {
                 case (ValueType.Number or ValueType.Char, ValueType.Number or ValueType.Char):
-                    double leftNumber = leftResult.AsNumber();
-                    double rightNumber = rightResult.AsNumber();
                     return Value.FromBoolean(operatorType switch
                     {
-                        TokenType.EqualEqual => leftNumber == rightNumber,
-                        TokenType.NotEqual => leftNumber != rightNumber,
-                        TokenType.LessThan => leftNumber < rightNumber,
-                        TokenType.LessThanOrEqual => leftNumber <= rightNumber,
-                        TokenType.GreaterThan => leftNumber > rightNumber,
-                        TokenType.GreaterThanOrEqual => leftNumber >= rightNumber,
+                        TokenType.EqualEqual => leftResult.Equals(rightResult),
+                        TokenType.NotEqual => !leftResult.Equals(rightResult),
+                        TokenType.LessThan => leftResult.AsNumber() < rightResult.AsNumber(),
+                        TokenType.LessThanOrEqual => leftResult.AsNumber() <= rightResult.AsNumber(),
+                        TokenType.GreaterThan => leftResult.AsNumber() > rightResult.AsNumber(),
+                        TokenType.GreaterThanOrEqual => leftResult.AsNumber() >= rightResult.AsNumber(),
                         _ => throw new Exception($"Unsupported operator for number comparison: {operatorType}")
                     });
 
                 case (ValueType.String, ValueType.String):
                     return Value.FromBoolean(operatorType switch
                     {
-                        TokenType.EqualEqual => leftResult == rightResult,
-                        TokenType.NotEqual => leftResult != rightResult,
+                        TokenType.EqualEqual => leftResult.Equals(rightResult),
+                        TokenType.NotEqual => !leftResult.Equals(rightResult),
                         TokenType.LessThan => leftResult.AsString().CompareTo(rightResult.AsString()) < 0,
                         TokenType.LessThanOrEqual => leftResult.AsString().CompareTo(rightResult.AsString()) <= 0,
                         TokenType.GreaterThan => leftResult.AsString().CompareTo(rightResult.AsString()) > 0,
@@ -389,33 +387,14 @@ namespace BettyLang.Core.Interpreter
                 case (ValueType.Boolean, ValueType.Boolean):
                     return Value.FromBoolean(operatorType switch
                     {
-                        TokenType.EqualEqual => leftResult == rightResult,
-                        TokenType.NotEqual => leftResult != rightResult,
+                        TokenType.EqualEqual => leftResult.Equals(rightResult),
+                        TokenType.NotEqual => !leftResult.Equals(rightResult),
                         _ => throw new Exception($"Unsupported operator for boolean comparison: {operatorType}")
                     });
 
                 case (ValueType.List, ValueType.List) when operatorType == TokenType.EqualEqual || operatorType == TokenType.NotEqual:
-                    var leftList = leftResult.AsList();
-                    var rightList = rightResult.AsList();
-
-                    // Short-circuit evaluation for lists of different lengths
-                    if (leftList.Count != rightList.Count)
-                        return Value.FromBoolean(operatorType == TokenType.NotEqual);
-
-                    // Perform element-wise comparison
-                    for (int i = 0; i < leftList.Count; i++)
-                    {
-                        // Use the equality operator for element comparison
-                        var elementComparisonResult = PerformComparison(leftList[i], rightList[i], TokenType.EqualEqual);
-                        if (!elementComparisonResult.AsBoolean())
-                        {
-                            // If any element comparison returns false for equality, the lists are not equal
-                            return Value.FromBoolean(operatorType == TokenType.NotEqual);
-                        }
-                    }
-
-                    // If we reach here, all elements are equal
-                    return Value.FromBoolean(operatorType == TokenType.EqualEqual);
+                    return Value.FromBoolean(
+                        leftResult.Equals(rightResult) == (operatorType == TokenType.EqualEqual));
 
                 default:
                     throw new Exception("Type mismatch or unsupported types for comparison.");

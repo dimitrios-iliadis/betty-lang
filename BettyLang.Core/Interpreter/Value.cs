@@ -55,11 +55,11 @@
             return new Value(stringId);
         }
 
-        public static Value FromNumber(double number) => new Value(number);
-        public static Value FromBoolean(bool boolean) => new Value(boolean);
-        public static Value FromChar(char character) => new Value(character);
-        public static Value FromList(List<Value> list) => new Value(list);
-        public static Value None() => new Value(ValueType.None);
+        public static Value FromNumber(double number) => new(number);
+        public static Value FromBoolean(bool boolean) => new(boolean);
+        public static Value FromChar(char character) => new(character);
+        public static Value FromList(List<Value> list) => new(list);
+        public static Value None() => new(ValueType.None);
 
         // This method creates a new list with the added element
         public static Value AddToList(Value list, Value newItem)
@@ -133,9 +133,6 @@
 
         public bool Equals(Value other)
         {
-            if (Type != other.Type)
-                return false;
-
             return Type switch
             {
                 ValueType.Number => _number == other._number,
@@ -148,46 +145,29 @@
             };
         }
 
+        // Override Equals to handle object type and call the IEquatable implementation
         public override bool Equals(object? obj)
         {
-            return obj is Value other && Equals(other);
+            if (obj is Value other)
+            {
+                return Equals(other);
+            }
+            return false;
         }
 
+        // Override GetHashCode to ensure equality comparisons work correctly
         public override int GetHashCode()
         {
-            // Choose a large prime number to start with and another to combine.
-            unchecked // Overflow is fine, just wrap
+            return Type switch
             {
-                int hash = 17;
-                hash = hash * 23 + Type.GetHashCode();
-                switch (Type)
-                {
-                    case ValueType.Number:
-                        hash = hash * 23 + _number.GetHashCode();
-                        break;
-                    case ValueType.String:
-                        hash = hash * 23 + _stringId.GetHashCode();
-                        break;
-                    case ValueType.Boolean:
-                        hash = hash * 23 + _boolean.GetHashCode();
-                        break;
-                    case ValueType.Char:
-                        hash = hash * 23 + _char.GetHashCode();
-                        break;
-                    case ValueType.List:
-                        foreach (var val in _list)
-                        {
-                            hash = hash * 23 + val.GetHashCode();
-                        }
-                        break;
-                    case ValueType.None:
-                        // Nothing needed for None type
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Unknown type {Type}.");
-                }
-                return hash;
-            }
+                ValueType.Number => _number.GetHashCode(),
+                ValueType.String => _stringId,
+                ValueType.Boolean => _boolean.GetHashCode(),
+                ValueType.Char => _char.GetHashCode(),
+                ValueType.List => _list.GetHashCode(),
+                ValueType.None => 0,
+                _ => throw new InvalidOperationException($"Unknown type {Type}."),
+            };
         }
 
         public static bool operator ==(Value left, Value right)
